@@ -1,481 +1,128 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>黒字行動トラッカー（MVP r1）｜税理士法人松本会計事務所</title>
-<style>
-  :root { --bg:#f7fafc; --ink:#1a202c; --muted:#4a5568; --card:#ffffff; --line:#e2e8f0; --accent:#2b6cb0; --ok:#2f855a; --warn:#b7791f; --bad:#c53030; }
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;}
-  header{padding:12px 16px;border-bottom:1px solid var(--line);background:#fff;position:sticky;top:0;z-index:5}
-  header h1{font-size:18px;margin:0;}
-  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .tab-btn{border:1px solid var(--line);background:#fff;padding:8px 10px;border-radius:999px;font-size:14px}
-  .tab-btn.active{border-color:var(--accent);color:#fff;background:var(--accent)}
-  main{padding:12px;max-width:980px;margin:auto}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0}
-  h2{font-size:16px;margin:0 0 8px}
-  h3{font-size:15px;margin:10px 0 6px}
-  label{font-size:13px;color:var(--muted)}
-  input[type="text"],input[type="number"],select,textarea{
-    width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:14px;box-sizing:border-box
-  }
-  .row{display:flex;gap:8px;flex-wrap:wrap}
-  .col{flex:1 1 220px}
-  .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:#fff;font-size:13px;margin:4px 6px 0 0}
-  .kpi{font-size:20px;font-weight:700}
-  .muted{color:var(--muted)}
-  .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;padding:10px 12px;border-radius:10px;font-size:14px}
-  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-  .btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
-  .btn.warn{background:var(--warn);border-color:var(--warn);color:#fff}
-  .btn.ghost{background:#fff}
-  .counter{display:flex;align-items:center;gap:8px}
-  .counter button{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:18px}
-  .grid{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}
-  .table{width:100%;border-collapse:collapse}
-  .table th,.table td{border-bottom:1px solid var(--line);padding:8px;text-align:left;font-size:14px}
-  footer.mk-mini{margin-top:24px;border-top:1px solid var(--line);padding:12px;font-size:12px;line-height:1.6;word-break:break-word}
-  footer.mk-mini a{text-decoration:underline;color:inherit}
-  .help{font-size:12px;color:var(--muted)}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCC計算ツール</title>
+    <style>
+        /* 見た目を整えるための簡単なスタイル */
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .formula {
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: #555;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #444;
+        }
+        .input-group input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result-box {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #e6f7ff;
+            border: 1px solid #b3e0ff;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .result-box h3 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+        #ccc-result {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #004a99;
+        }
+    </style>
 </head>
 <body>
-<header>
-  <h1>黒字行動トラッカー（MVP r1）</h1>
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="focus">① 今週の重点</button>
-    <button class="tab-btn" data-tab="track">② 行動トラッカー</button>
-    <button class="tab-btn" data-tab="metrics">③ 指標/設定</button>
-    <button class="tab-btn" data-tab="review">④ レビュー/印刷</button>
-  </div>
-</header>
 
-<main>
-  <!-- ① 今週の重点 -->
-  <section class="card" id="tab-focus">
-    <h2>今週の重点（最大5つ）</h2>
-    <p class="help">行動カタログから選び、目標件数と単位効果を確認/調整してください。</p>
-    <div class="row">
-      <div class="col">
-        <label>行動カタログ</label>
-        <select id="catalog-select"></select>
-        <div style="margin-top:8px">
-          <button class="btn" id="add-action">＋ 重点に追加</button>
+    <div class="container">
+        <h2>CCC (キャッシュ・コンバージョン・サイクル) 計算ツール</h2>
+        <p class="formula">CCC = DIO + DSO - DPO</p>
+
+        <div class="input-group">
+            <label for="dio">1. DIO (棚卸資産回転日数) 🗓️</label>
+            <input type="number" id="dio" placeholder="（例: 60）" step="0.01">
         </div>
-        <details style="margin-top:8px">
-          <summary>カタログを編集（追加/削除）</summary>
-          <div class="card" style="margin:8px 0">
-            <div class="row">
-              <div class="col"><label>名称</label><input id="new-name" type="text" placeholder="例：価格改定の打診件数"></div>
-              <div class="col">
-                <label>カテゴリ</label>
-                <select id="new-cat">
-                  <option>価格/販売</option><option>原価</option><option>在庫/回収</option><option>固定費</option><option>その他</option>
-                </select>
-              </div>
-              <div class="col">
-                <label>単位効果タイプ</label>
-                <select id="new-type">
-                  <option value="rev">売上増(円/件)</option>
-                  <option value="cogs">原価減(円/件)</option>
-                  <option value="invDays">在庫日数改善(日/件)</option>
-                  <option value="arDays">回収日数改善(日/件)</option>
-                  <option value="apDays">支払日数延長(日/件)</option>
-                </select>
-              </div>
-              <div class="col"><label>単位効果値</label><input id="new-unit" type="number" inputmode="decimal" placeholder="例：50000"></div>
-            </div>
-            <div style="margin-top:8px"><button class="btn primary" id="add-catalog">カタログに追加</button></div>
-          </div>
-          <div class="card">
-            <h3>登録済みカタログ</h3>
-            <table class="table" id="catalog-table">
-              <thead><tr><th>名称</th><th>カテゴリ</th><th>タイプ</th><th>単位効果</th><th></th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </details>
-      </div>
-      <div class="col" style="flex:2 1 420px">
-        <label>今週の重点リスト</label>
-        <div id="focus-list"></div>
-      </div>
-    </div>
-  </section>
 
-  <!-- ② 行動トラッカー -->
-  <section class="card" id="tab-track" style="display:none">
-    <h2>日々の実行</h2>
-    <p class="help">＋/−で件数を記録。下の見込インパクトが自動で更新されます。</p>
-    <div id="trackers"></div>
-
-    <div class="card">
-      <h3>今週の見込インパクト</h3>
-      <div class="row">
-        <div class="col">
-          <div class="muted">営業利益改善（見込）</div>
-          <div class="kpi" id="kpi-profit">¥0</div>
+        <div class="input-group">
+            <label for="dso">2. DSO (売上債権回転日数) 💰</label>
+            <input type="number" id="dso" placeholder="（例: 45）" step="0.01">
         </div>
-        <div class="col">
-          <div class="muted">資金繰り改善（見込）</div>
-          <div class="kpi" id="kpi-cash">¥0</div>
+
+        <div class="input-group">
+            <label for="dpo">3. DPO (仕入債務回転日数) 🧾</label>
+            <input type="number" id="dpo" placeholder="（例: 30）" step="0.01">
         </div>
-      </div>
-      <p class="help">計算式：売上系×限界利益率＋原価減＝営業利益増。CCC改善＝（売上原価/365）×ΔCCC×資金コスト％。</p>
+
+        <button onclick="calculateCCC()">CCCを計算</button>
+
+        <div class="result-box">
+            <h3>計算結果 (CCC)</h3>
+            <span id="ccc-result">0.00</span> 日
+        </div>
     </div>
-  </section>
 
-  <!-- ③ 指標/設定 -->
-  <section class="card" id="tab-metrics" style="display:none">
-    <h2>基準値・パラメータ</h2>
-    <div class="row">
-      <div class="col"><label>年商（円）</label><input id="s-sales" type="text" inputmode="numeric" placeholder="例：200,000,000"></div>
-      <div class="col"><label>売上原価（円/年）</label><input id="s-cogs" type="text" inputmode="numeric" placeholder="例：140,000,000"></div>
-      <div class="col"><label>限界利益率（%）</label><input id="s-mr" type="number" inputmode="decimal" step="0.1" placeholder="例：43.6"></div>
-    </div>
-    <div class="row" style="margin-top:8px">
-      <div class="col"><label>資金コスト（%/年）</label><input id="s-wacc" type="number" inputmode="decimal" step="0.1" placeholder="例：3.0"></div>
-      <div class="col"><label>売上債権回収日数（AR日）</label><input id="s-ar" type="number" inputmode="decimal" step="0.1" placeholder="例：45"></div>
-      <div class="col"><label>在庫日数（INV日）</label><input id="s-inv" type="number" inputmode="decimal" step="0.1" placeholder="例：40"></div>
-      <div class="col"><label>買入債務支払日数（AP日）</label><input id="s-ap" type="number" inputmode="decimal" step="0.1" placeholder="例：30"></div>
-    </div>
-    <div style="margin-top:8px"><button class="btn primary" id="save-settings">保存</button></div>
-    <p class="help">※ 限界利益率は「売上−変動費」÷売上。CCC＝AR+INV−AP。</p>
-  </section>
+    <script>
+        function calculateCCC() {
+            // 1. 各入力フィールドから値を取得 (parseFloatで数値に変換)
+            const dio = parseFloat(document.getElementById('dio').value) || 0;
+            const dso = parseFloat(document.getElementById('dso').value) || 0;
+            const dpo = parseFloat(document.getElementById('dpo').value) || 0;
 
-  <!-- ④ レビュー/印刷 -->
-  <section class="card" id="tab-review" style="display:none">
-    <h2>週次レビュー</h2>
-    <div class="row">
-      <div class="col">
-        <label>できたこと／学び</label>
-        <textarea id="rev-learn" rows="5" placeholder="例：価格改定の打診はメールより来店時が通りやすい。反論は〇〇が多い。"></textarea>
-      </div>
-      <div class="col">
-        <label>次週の改善点</label>
-        <textarea id="rev-next" rows="5" placeholder="例：先に価値説明資料を渡す→打診率UP。督促は火曜AMに固定。"></textarea>
-      </div>
-    </div>
-    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn ok" id="lock-week">今週を締める</button>
-      <button class="btn" id="print">印刷（評価明細/週報）</button>
-      <button class="btn warn" id="reset-data">全データ初期化</button>
-    </div>
-    <div class="card" style="margin-top:12px">
-      <h3>履歴（直近）</h3>
-      <div id="history"></div>
-    </div>
-  </section>
+            // 2. CCCの計算 (DIO + DSO - DPO)
+            const ccc = dio + dso - dpo;
 
-  <footer class="mk-mini">
-    © <span id="cpy-year">2025</span>
-    <a href="https://www.matsumoto-kaikei.or.jp" target="_blank" rel="noopener">税理士法人松本会計事務所</a> ｜
-    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> ｜
-    <a href="https://takatrp.github.io/tool-portal/terms" target="_blank" rel="noopener">利用条件</a> ｜ r1（<span id="last-mod"></span>）
-  </footer>
-</main>
+            // 3. 結果を表示 (小数点以下2桁まで)
+            document.getElementById('ccc-result').innerText = ccc.toFixed(2);
+        }
+    </script>
 
-<script>
-/* ---- storage keys ---- */
-const K = {
-  CATALOG: 'mk-bep-catalog',
-  FOCUS: 'mk-bep-focus',
-  TRACK: 'mk-bep-track',
-  SETTINGS: 'mk-bep-settings',
-  HISTORY: 'mk-bep-history'
-};
-
-/* ---- helpers ---- */
-const qs = s=>document.querySelector(s);
-const el = (tag,props={})=>Object.assign(document.createElement(tag),props);
-const yen = n=> '¥' + (Math.round(n||0)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-const commify = v => v.replace(/[^\d.-]/g,'').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
-/* ---- default catalog ---- */
-const defaultCatalog = [
-  {id:'price-ask', name:'価格改定の打診件数', cat:'価格/販売', type:'rev', unit:50000},
-  {id:'quote', name:'見積提出件数', cat:'価格/販売', type:'rev', unit:30000},
-  {id:'upsell', name:'上位商品への切替提案件数', cat:'価格/販売', type:'rev', unit:40000},
-  {id:'supplier-neg', name:'仕入単価見直し件数', cat:'原価', type:'cogs', unit:20000},
-  {id:'waste-cut', name:'廃棄・ムダ削減案件数', cat:'原価', type:'cogs', unit:15000},
-  {id:'stock-audit', name:'在庫見直し/棚卸回数', cat:'在庫/回収', type:'invDays', unit:0.5},
-  {id:'ar-chase', name:'回収督促件数', cat:'在庫/回収', type:'arDays', unit:0.3},
-  {id:'ap-extend', name:'支払サイト延長交渉件数', cat:'在庫/回収', type:'apDays', unit:0.2},
-  {id:'fixed-cut', name:'固定費見直し案件数', cat:'固定費', type:'cogs', unit:30000},
-];
-
-/* ---- state ---- */
-let catalog = JSON.parse(localStorage.getItem(K.CATALOG)||'null') || defaultCatalog;
-let focus = JSON.parse(localStorage.getItem(K.FOCUS)||'[]'); // {id, name, type, unit, target, actual}
-let track = JSON.parse(localStorage.getItem(K.TRACK)||'{}'); // {actionId: {d0..d6}}
-let settings = JSON.parse(localStorage.getItem(K.SETTINGS)||'null') || {
-  sales: 200_000_000, cogs: 140_000_000, mr: 43.6, wacc: 3.0, ar:45, inv:40, ap:30
-};
-let history = JSON.parse(localStorage.getItem(K.HISTORY)||'[]');
-
-/* ---- tabs ---- */
-document.querySelectorAll('.tab-btn').forEach(b=>{
-  b.addEventListener('click', ()=>{
-    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    const t=b.dataset.tab;
-    ['focus','track','metrics','review'].forEach(id=>{
-      qs('#tab-'+id).style.display = (id===t)?'block':'none';
-    });
-    if(t==='track') renderTrackers();
-    if(t==='review') renderHistory();
-  });
-});
-
-/* ---- render catalog ---- */
-function renderCatalogSelect(){
-  const sel = qs('#catalog-select');
-  sel.innerHTML = '';
-  catalog.forEach(c=>{
-    const o=el('option',{value:c.id, textContent:`${c.name}（${c.cat}／${typeLabel(c.type)}：${c.unit}）`});
-    sel.appendChild(o);
-  });
-}
-function typeLabel(t){
-  return {rev:'売上増', cogs:'原価減', invDays:'在庫日数', arDays:'回収日数', apDays:'支払日数'}[t]||t;
-}
-function renderCatalogTable(){
-  const tbody = qs('#catalog-table tbody');
-  tbody.innerHTML='';
-  catalog.forEach(c=>{
-    const tr=el('tr');
-    tr.appendChild(el('td',{textContent:c.name}));
-    tr.appendChild(el('td',{textContent:c.cat}));
-    tr.appendChild(el('td',{textContent:typeLabel(c.type)}));
-    tr.appendChild(el('td',{textContent:c.unit}));
-    const td=el('td');
-    const del=el('button',{className:'btn',textContent:'削除'});
-    del.addEventListener('click', ()=>{
-      catalog = catalog.filter(x=>x.id!==c.id);
-      saveCatalog(); renderCatalogSelect(); renderCatalogTable();
-    });
-    td.appendChild(del); tr.appendChild(td);
-    tbody.appendChild(tr);
-  });
-}
-function saveCatalog(){ localStorage.setItem(K.CATALOG, JSON.stringify(catalog)); }
-
-/* ---- focus list ---- */
-function renderFocus(){
-  const wrap = qs('#focus-list');
-  wrap.innerHTML='';
-  focus.forEach((f,i)=>{
-    const card = el('div',{className:'card'});
-    const row = el('div',{className:'row'});
-    const c1 = el('div',{className:'col'});
-    c1.appendChild(el('div',{textContent:f.name, style:'font-weight:700'}));
-    const c2 = el('div',{className:'col'});
-    const l2 = el('label'); l2.textContent='目標（件/週）';
-    const inp2 = el('input',{type:'number',inputMode:'decimal',value:f.target||0});
-    inp2.addEventListener('input', ()=>{f.target=Number(inp2.value||0); saveFocus();});
-    c2.appendChild(l2); c2.appendChild(inp2);
-    const c3 = el('div',{className:'col'});
-    const l3 = el('label'); l3.textContent=`単位効果（${typeLabel(f.type)}）`;
-    const inp3 = el('input',{type:'number',inputMode:'decimal',step:'0.1',value:f.unit});
-    inp3.addEventListener('input', ()=>{f.unit=Number(inp3.value||0); syncCatalogUnit(f); saveFocus(); renderCatalogSelect(); renderCatalogTable();});
-    c3.appendChild(l3); c3.appendChild(inp3);
-    const c4 = el('div',{className:'col'});
-    const del = el('button',{className:'btn',textContent:'削除'});
-    del.addEventListener('click', ()=>{focus.splice(i,1); saveFocus(); renderFocus();});
-    c4.appendChild(del);
-    row.appendChild(c1); row.appendChild(c2); row.appendChild(c3); row.appendChild(c4);
-    card.appendChild(row);
-    wrap.appendChild(card);
-  });
-}
-function syncCatalogUnit(f){
-  const idx=catalog.findIndex(x=>x.id===f.id);
-  if(idx>=0){ catalog[idx].unit=f.unit; saveCatalog(); }
-}
-function saveFocus(){ localStorage.setItem(K.FOCUS, JSON.stringify(focus)); }
-
-/* ---- add to focus ---- */
-qs('#add-action').addEventListener('click', ()=>{
-  if(focus.length>=5){ alert('重点は最大5つまでです。'); return; }
-  const id = qs('#catalog-select').value;
-  const c = catalog.find(x=>x.id===id);
-  if(!c) return;
-  if(focus.some(x=>x.id===id)){ alert('既に追加済みです。'); return; }
-  focus.push({id:c.id,name:c.name,type:c.type,unit:c.unit,target:0,actual:0});
-  saveFocus(); renderFocus(); renderTrackers();
-});
-
-/* ---- catalog add ---- */
-qs('#add-catalog').addEventListener('click', ()=>{
-  const name = qs('#new-name').value.trim();
-  const cat = qs('#new-cat').value;
-  const type = qs('#new-type').value;
-  const unit = Number(qs('#new-unit').value||0);
-  if(!name){ alert('名称を入力してください'); return; }
-  const id = name.toLowerCase().replace(/\s+/g,'-')+'-'+Math.random().toString(36).slice(2,6);
-  catalog.push({id,name,cat,type,unit});
-  saveCatalog(); renderCatalogSelect(); renderCatalogTable();
-  qs('#new-name').value=''; qs('#new-unit').value='';
-});
-
-/* ---- trackers ---- */
-function renderTrackers(){
-  const wrap = qs('#trackers');
-  wrap.innerHTML='';
-  if(focus.length===0){ wrap.innerHTML='<p class="help">先に「今週の重点」を追加してください。</p>'; return; }
-  focus.forEach(f=>{
-    const card=el('div',{className:'card'});
-    const head=el('div',{className:'grid'});
-    head.appendChild(el('div',{innerHTML:`<strong>${f.name}</strong><div class="help">${typeLabel(f.type)} 単位効果：${f.unit}</div>`}));
-    const tgt=el('div',{className:'pill',innerHTML:`目標 <strong>${f.target||0}</strong>`});
-    const act=el('div',{className:'pill',innerHTML:`実績 <strong id="act-${f.id}">0</strong>`});
-    head.appendChild(tgt); head.appendChild(act);
-    card.appendChild(head);
-
-    const ctr=el('div',{className:'counter',style:'margin-top:8px'});
-    const minus=el('button',{textContent:'−'});
-    const plus=el('button',{textContent:'＋'});
-    const day = (new Date()).getDay(); // 0=日
-    minus.addEventListener('click', ()=>bump(f.id, day, -1));
-    plus.addEventListener('click', ()=>bump(f.id, day, 1));
-    ctr.appendChild(minus); ctr.appendChild(el('div',{textContent:'今日の記録'})); ctr.appendChild(plus);
-    card.appendChild(ctr);
-
-    wrap.appendChild(card);
-  });
-  updateKpis();
-}
-function bump(id, day, delta){
-  if(!track[id]) track[id]={d0:0,d1:0,d2:0,d3:0,d4:0,d5:0,d6:0};
-  const key='d'+day;
-  track[id][key]=Math.max(0,(track[id][key]||0)+delta);
-  localStorage.setItem(K.TRACK, JSON.stringify(track));
-  // update actual
-  const total = Object.values(track[id]).reduce((a,b)=>a+(b||0),0);
-  const elAct = qs('#act-'+id); if(elAct) elAct.textContent = total;
-  updateKpis();
-}
-
-/* ---- KPIs ---- */
-function getTotals(){
-  let revImpact=0, costImpact=0, deltaCCC=0;
-  focus.forEach(f=>{
-    const id=f.id;
-    const total = track[id]?Object.values(track[id]).reduce((a,b)=>a+(b||0),0):0;
-    f.actual = total;
-    if(f.type==='rev'){ revImpact += total * f.unit; }
-    else if(f.type==='cogs'){ costImpact += total * f.unit; }
-    else if(f.type==='invDays'){ deltaCCC += total * f.unit; } // 在庫日数減＝CCC減
-    else if(f.type==='arDays'){ deltaCCC += total * f.unit; }  // 回収短縮＝CCC減
-    else if(f.type==='apDays'){ deltaCCC -= total * f.unit; }  // 支払延長＝CCC減
-  });
-  return {revImpact, costImpact, deltaCCC};
-}
-function updateKpis(){
-  const {revImpact, costImpact, deltaCCC} = getTotals();
-  const mr = Number(settings.mr||0)/100;
-  const cogsPerDay = Number(settings.cogs||0)/365;
-  const wacc = Number(settings.wacc||0)/100;
-
-  const profitGain = revImpact*mr + costImpact; // 営業利益増（見込）
-  const cashGain = cogsPerDay * deltaCCC * wacc; // 年換算の資金コスト削減額
-
-  qs('#kpi-profit').textContent = yen(profitGain);
-  qs('#kpi-cash').textContent = yen(cashGain);
-}
-
-/* ---- settings ---- */
-function renderSettings(){
-  qs('#s-sales').value = settings.sales.toLocaleString();
-  qs('#s-cogs').value = settings.cogs.toLocaleString();
-  qs('#s-mr').value = settings.mr;
-  qs('#s-wacc').value = settings.wacc;
-  qs('#s-ar').value = settings.ar;
-  qs('#s-inv').value = settings.inv;
-  qs('#s-ap').value = settings.ap;
-}
-['#s-sales','#s-cogs'].forEach(sel=>{
-  const i = ()=>qs(sel);
-  i().addEventListener('input', e=>{ e.target.value = commify(e.target.value); });
-});
-qs('#save-settings').addEventListener('click', ()=>{
-  const parseNum = s => Number((s||'').toString().replace(/[^\d.-]/g,''))||0;
-  settings.sales = parseNum(qs('#s-sales').value);
-  settings.cogs  = parseNum(qs('#s-cogs').value);
-  settings.mr    = Number(qs('#s-mr').value||0);
-  settings.wacc  = Number(qs('#s-wacc').value||0);
-  settings.ar    = Number(qs('#s-ar').value||0);
-  settings.inv   = Number(qs('#s-inv').value||0);
-  settings.ap    = Number(qs('#s-ap').value||0);
-  localStorage.setItem(K.SETTINGS, JSON.stringify(settings));
-  alert('保存しました');
-  updateKpis();
-});
-
-/* ---- weekly review ---- */
-qs('#lock-week').addEventListener('click', ()=>{
-  const rec = {
-    at: new Date().toISOString(),
-    focus: JSON.parse(JSON.stringify(focus)),
-    track: JSON.parse(JSON.stringify(track)),
-    settings: JSON.parse(JSON.stringify(settings)),
-    kpis: getTotals(),
-    learn: qs('#rev-learn').value,
-    next: qs('#rev-next').value
-  };
-  history.unshift(rec);
-  history = history.slice(0, 26); // 半年分程度
-  localStorage.setItem(K.HISTORY, JSON.stringify(history));
-  // 次週用にカウントだけリセット
-  track = {};
-  localStorage.setItem(K.TRACK, JSON.stringify(track));
-  qs('#rev-learn').value=''; qs('#rev-next').value='';
-  alert('今週を締めました（履歴に保存）。翌週のカウントをリセットしました。');
-  renderTrackers(); renderHistory();
-});
-function renderHistory(){
-  const box = qs('#history'); box.innerHTML='';
-  if(history.length===0){ box.innerHTML='<p class="help">まだ履歴はありません。</p>'; return; }
-  history.slice(0,6).forEach(h=>{
-    const div=el('div',{className:'card'});
-    const d=new Date(h.at);
-    div.appendChild(el('div',{innerHTML:`<strong>${d.toLocaleDateString()} 週</strong>`}));
-    const p=el('p',{className:'help',textContent:`重点：${h.focus.map(f=>f.name+`(${f.actual||0}/${f.target||0})`).join(' ／ ')}`});
-    div.appendChild(p);
-    const {revImpact,costImpact,deltaCCC}=h.kpis;
-    const mr = h.settings.mr/100, cogsPerDay=h.settings.cogs/365, wacc=h.settings.wacc/100;
-    const profitGain = revImpact*mr + costImpact;
-    const cashGain = cogsPerDay*deltaCCC*wacc;
-    div.appendChild(el('div',{textContent:`営業利益改善（見込）：${yen(profitGain)}／資金繰り改善（見込）：${yen(cashGain)}`}));
-    if(h.learn) div.appendChild(el('div',{className:'help',textContent:`学び：${h.learn}`}));
-    if(h.next)  div.appendChild(el('div',{className:'help',textContent:`次週：${h.next}`}));
-    box.appendChild(div);
-  });
-}
-
-/* ---- printing ---- */
-qs('#print').addEventListener('click', ()=>window.print());
-
-/* ---- reset ---- */
-qs('#reset-data').addEventListener('click', ()=>{
-  if(!confirm('全データを初期化します。よろしいですか？')) return;
-  localStorage.removeItem(K.FOCUS);
-  localStorage.removeItem(K.TRACK);
-  localStorage.removeItem(K.HISTORY);
-  focus=[]; track={}; history=[];
-  renderFocus(); renderTrackers(); renderHistory();
-});
-
-/* ---- init ---- */
-function init(){
-  // footer
-  qs('#cpy-year').textContent = new Date().getFullYear();
-  qs('#last-mod').textContent = new Date(document.lastModified).toISOString().slice(0,10);
-  // UI
-  renderCatalogSelect(); renderCatalogTable(); renderFocus(); renderTrackers(); renderSettings(); renderHistory();
-}
-init();
-</script>
 </body>
 </html>
