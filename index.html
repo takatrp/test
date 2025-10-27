@@ -1,378 +1,300 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>刺身の種類を確定するアプリ（r1 ベータ）</title>
-<meta name="description" content="写真解析＋質問に答えるだけで、刺身の種類候補を推定します。所内利用向けの軽量Webアプリ。" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>インボイス画像判定（OCR×要件チェック）</title>
+<meta name="theme-color" content="#0f172a"/>
 <style>
-:root{
-  --bg:#f7fafc; --card:#ffffff; --ink:#0f172a; --muted:#475569;
-  --accent:#578899; --accent-600:#497485; --ok:#16a34a; --warn:#ca8a04;
-  --bad:#b91c1c;
-}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif}
-header{position:sticky;top:0;background:linear-gradient(180deg,#ffffff,#fffffff0 80%,#ffffff00);border-bottom:1px solid #e2e8f0;z-index:10}
-header .inner{max-width:1000px;margin:0 auto;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between}
-h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.02em}
-.badge{font-size:12px;color:#fff;background:var(--accent);border-radius:999px;padding:2px 8px}
-main{max-width:1000px;margin:0 auto;padding:16px}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px}
-.tab{border:1px solid #cbd5e1;background:#fff;border-radius:10px;padding:10px 12px;cursor:pointer;font-weight:600;color:var(--accent)}
-.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.grid{display:grid;grid-template-columns:1fr;gap:16px}
-@media(min-width:900px){.grid{grid-template-columns:1.2fr .8fr}}
-.card{background:var(--card);border:1px solid #e2e8f0;border-radius:16px;padding:16px;box-shadow:0 1px 2px #0000000d}
-.card h2{margin:0 0 8px 0;font-size:16px}
-.small{font-size:12px;color:var(--muted)}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-input[type=file]{display:block;width:100%;padding:8px;border:1px dashed #cbd5e1;background:#fff;border-radius:12px}
-.selects{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-@media(min-width:700px){.selects{grid-template-columns:repeat(3,1fr)}}
-select,button,.chip{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:12px;background:#fff}
-button{cursor:pointer;color:#fff;border-color:var(--accent);background:var(--accent);font-weight:700}
-button.secondary{background:#fff;color:var(--accent)}
-.kv{display:grid;grid-template-columns:120px 1fr;gap:4px;font-size:14px}
-.progress{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden}
-.progress>i{display:block;height:100%;background:var(--accent);width:0%}
-.list{display:grid;gap:8px}
-.item{display:grid;gap:8px;border:1px solid #e2e8f0;border-radius:12px;padding:12px;background:#fff}
-.item h3{margin:0;font-size:15px}
-.tags{display:flex;flex-wrap:wrap;gap:6px}
-.tag{font-size:11px;background:#eef2ff;color:#1e293b;border-radius:999px;padding:2px 8px;border:1px solid #e2e8f0}
-.score{display:flex;align-items:center;gap:8px}
-.score b{min-width:3ch}
-footer{margin:24px 0 80px;color:var(--muted);font-size:12px}
-hr{border:none;height:1px;background:#e2e8f0;margin:12px 0}
-.details{font-size:13px;color:#334155}
-code{background:#f1f5f9;padding:2px 6px;border-radius:6px}
-a{color:var(--accent-600);text-underline-offset:2px}
-label{font-size:13px;color:#334155}
-.canvaswrap{display:grid;grid-template-columns:1fr;gap:8px}
-canvas{width:100%;max-height:260px;border-radius:12px;border:1px solid #e2e8f0;background:#fff}
-.empty{border:1px dashed #cbd5e1;background:#fff;border-radius:12px;padding:16px;text-align:center;color:#64748b}
-.help{font-size:13px}
-ul{margin:6px 0 6px 18px;padding:0}
+  :root{
+    --ink:#0f172a; --muted:#475569; --ok:#16a34a; --warn:#d97706; --bad:#dc2626; --bg:#f8fafc; --card:#ffffff; --accent:#0ea5e9;
+  }
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN","Meiryo",sans-serif}
+  header{padding:16px 20px;background:#0f172a;color:#fff}
+  header h1{margin:0;font-size:18px}
+  main{max-width:1000px;margin:24px auto;padding:0 16px 64px}
+  .card{background:var(--card);border-radius:12px;box-shadow:0 6px 20px rgba(2,6,23,.07);padding:18px;margin:12px 0}
+  .row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
+  .grow{flex:1 1 320px}
+  label.button{display:inline-block;background:var(--accent);color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
+  input[type=file]{display:none}
+  .thumb{max-width:100%;border:1px solid #e2e8f0;border-radius:8px}
+  .progress{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden}
+  .bar{height:100%;width:0;background:var(--accent);transition:width .2s}
+  .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;white-space:pre-wrap}
+  .pill{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px}
+  .ok{background:#dcfce7;color:#14532d}
+  .bad{background:#fee2e2;color:#7f1d1d}
+  .warn{background:#fef3c7;color:#78350f}
+  ul.chk{list-style:none;padding-left:0}
+  ul.chk li{padding:6px 8px;margin:6px 0;border:1px solid #e2e8f0;border-radius:8px}
+  .li-ok{border-color:#86efac;background:#f0fdf4}
+  .li-bad{border-color:#fecaca;background:#fff1f2}
+  .li-warn{border-color:#fde68a;background:#fffbeb}
+  details summary{cursor:pointer;color:#0e7490}
+  .small{font-size:12px;color:var(--muted)}
+  .right{float:right}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media (max-width:720px){.grid2{grid-template-columns:1fr}}
+  .link{color:#0369a1;text-decoration:underline}
 </style>
 </head>
 <body>
-<header>
-  <div class="inner">
-    <h1>刺身の種類を確定するアプリ <span class="badge">r1 β</span></h1>
-    <div class="small">所内利用向け・推定ツール（最終判定は人）</div>
-  </div>
-</header>
-
+<header><h1>インボイス画像判定（OCR×要件チェック：ローカル実行）</h1></header>
 <main>
-  <div class="tabs">
-    <div class="tab active" data-tab="image">画像で推定（β）</div>
-    <div class="tab" data-tab="qa">質問で絞り込み（安定）</div>
-  </div>
-
-  <div class="grid">
-    <section class="card" id="left">
-      <h2 id="panel-title">画像から推定</h2>
-      <div id="panel-image">
-        <input type="file" id="file" accept="image/*" />
-        <div class="canvaswrap">
-          <canvas id="canvas"></canvas>
-        </div>
-        <div id="img-stats" class="kv small"></div>
-        <div class="help">写真のよく写っている「身」をなるべく大きく切り抜いてください。皮・皿・大葉・大根つま等が多いと精度が落ちます。</div>
+  <section class="card">
+    <div class="row">
+      <div class="grow">
+        <p><strong>画像を選択/撮影</strong>（領収書・請求書等）：</p>
+        <label class="button">
+          画像を選ぶ/撮影<input id="file" type="file" accept="image/*" capture="environment">
+        </label>
+        <button id="sample" type="button">サンプルOCRテキストを読み込む</button>
+        <button id="settings" type="button">API設定（任意）</button>
+        <p class="small">※処理は端末内のみ。アップロードはしません。</p>
+        <div class="progress" aria-label="OCR進捗" style="margin-top:10px"><div id="bar" class="bar"></div></div>
+        <p id="status" class="small mono" style="min-height:1.2em"></p>
       </div>
-
-      <div id="panel-qa" style="display:none">
-        <div class="selects">
-          <div>
-            <label>基本の色</label>
-            <select id="q-color">
-              <option value="">未選択</option>
-              <option value="赤">赤</option>
-              <option value="橙">橙（サーモン系）</option>
-              <option value="白">白</option>
-              <option value="半透明">半透明</option>
-              <option value="銀">銀（光り物の皮）</option>
-              <option value="貝色">貝色（乳白〜赤茶）</option>
-            </select>
-          </div>
-          <div>
-            <label>透明感</label>
-            <select id="q-trans">
-              <option value="">未選択</option>
-              <option value="透明">透明</option>
-              <option value="半透明">半透明</option>
-              <option value="不透明">不透明</option>
-            </select>
-          </div>
-          <div>
-            <label>サシ（霜降り）</label>
-            <select id="q-marb">
-              <option value="">未選択</option>
-              <option value="無">無</option>
-              <option value="少">少</option>
-              <option value="中">中</option>
-              <option value="多">多</option>
-            </select>
-          </div>
-          <div>
-            <label>皮/銀皮</label>
-            <select id="q-skin">
-              <option value="">未選択</option>
-              <option value="無">無</option>
-              <option value="皮あり">皮あり</option>
-              <option value="銀皮">銀皮（キラキラ）</option>
-            </select>
-          </div>
-          <div>
-            <label>形状</label>
-            <select id="q-shape">
-              <option value="">未選択</option>
-              <option value="柵切り・角">柵切り・角</option>
-              <option value="薄造り">薄造り（透ける薄さ）</option>
-              <option value="輪切り">輪切り（タコなど）</option>
-              <option value="柱状">柱状（ホタテなど）</option>
-              <option value="貝片状">貝片状（赤貝・ホッキ）</option>
-            </select>
-          </div>
-          <div>
-            <label>特徴</label>
-            <select id="q-feature">
-              <option value="">未選択</option>
-              <option value="白い筋が規則的に入る">白い筋が規則的に入る（サーモン）</option>
-              <option value="赤身で血合いが濃い">赤身で血合いが濃い（カツオ等）</option>
-              <option value="吸盤が見える">吸盤が見える（タコ）</option>
-              <option value="甲殻・ひだが見える">甲殻/ひだ（貝類）</option>
-            </select>
-          </div>
-        </div>
-        <div class="row" style="margin-top:8px">
-          <button id="btn-filter">この条件で絞り込む</button>
-          <button class="secondary" id="btn-clear">リセット</button>
-        </div>
+      <div style="max-width:320px">
+        <img id="preview" class="thumb" alt="プレビュー" />
       </div>
+    </div>
+  </section>
 
-      <hr/>
-      <details class="details">
-        <summary>精度と注意事項</summary>
-        <ul>
-          <li>本アプリは「特徴ヒューリスティック」による推定です。最終確定は担当者/仕入先ラベルで行ってください。</li>
-          <li>画像推定は <b>色相・彩度・明度</b> と <b>輝度の分散（簡易サシ推定）</b> を用いており、照明や皿の色で大きく変わります。</li>
-          <li>光り物（アジ・サバ等）の銀皮、貝類のひだ等は現状「質問で絞り込み」を併用した方が精度が高いです。</li>
-          <li>食物アレルギー/表示の観点からは、<b>見た目のみの判定での提供は不可</b>です。必ず仕入伝票・パッケージ表示で裏取りしてください。</li>
-        </ul>
-      </details>
-    </section>
-
-    <section class="card">
-      <h2>候補（上位から）</h2>
-      <div id="results" class="list">
-        <div class="empty">画像を読み込むか、条件を選ぶと候補が表示されます。</div>
+  <section class="card grid2">
+    <div>
+      <h3>判定結果 <span id="finalBadge" class="pill warn">未実行</span></h3>
+      <div id="summary" class="mono small">画像を読み込むと自動でOCR→判定します。</div>
+      <p class="small">※<strong>簡易インボイス</strong>の可能性も自動判定します（宛名省略可／税率or税額どちらか一方でも可）。</p>
+      <div id="ntaLinkWrap" class="small"></div>
+    </div>
+    <div>
+      <h3>抽出テキスト</h3>
+      <textarea id="raw" class="mono" style="width:100%;height:200px"></textarea>
+      <div style="margin-top:6px">
+        <button id="recheck" type="button">このテキストで再判定</button>
+        <button id="copy" type="button">テキストをコピー</button>
       </div>
-      <hr/>
-      <div class="small">根拠表示：各候補の下に、色/透明感/サシなど一致した手掛かりを表示します。</div>
-    </section>
-  </div>
+    </div>
+  </section>
 
   <section class="card">
-    <h2>参照・根拠（抜粋）</h2>
-    <div class="small">
-      本アプリの特徴ルールは、以下の公開情報に基づき整理しています（代表例）。
-    </div>
-    <ul class="small">
-      <li>赤身/トロの違い（マグロ部位とサシ）：津曲商店「マグロの部位」および釣りハック解説。参考：<a href="https://www.ooiri1.com/?mode=f10" target="_blank" rel="noopener">津曲商店</a> ／ <a href="https://tsurihack.com/1748" target="_blank" rel="noopener">TSURI HACK</a></li>
-      <li>白身の透明感・鮮度目安：鮮魚丸松コラム、kurashiru「鯛の選び方」。参考：<a href="https://marumatsu-ec.com/column/topic/11/" target="_blank" rel="noopener">鮮魚丸松</a> ／ <a href="https://www.kurashiru.com/articles/0f7e4a20-15b8-42ba-b5c7-fc1f11e9798a" target="_blank" rel="noopener">kurashiru</a></li>
-      <li>寿司ネタ/刺身の一般的な分類と名称照合：Sushi University すし図鑑。参考：<a href="https://sushiuniversity.jp/japanese/visual-dictionary/" target="_blank" rel="noopener">すし図鑑</a></li>
-      <li>将来のAI自動判定に向けた公開データセット例：Food-101（sushiクラス有）／Sushi-50（論文）。参考：<a href="https://huggingface.co/datasets/ethz/food101" target="_blank" rel="noopener">Food-101</a> ／ <a href="https://arxiv.org/abs/2207.03692" target="_blank" rel="noopener">Sushi-50 論文</a></li>
+    <h3>要件チェック一覧（適格請求書の6要件）</h3>
+    <ul id="checklist" class="chk"></ul>
+    <details>
+      <summary>検出した候補値を見る（T番号/日付/金額/語句など）</summary>
+      <div id="candidates" class="mono small"></div>
+    </details>
+  </section>
+
+  <section class="card small">
+    <h3>注意・免責</h3>
+    <ul>
+      <li>OCRの性質上、<strong>誤認識・欠落</strong>があり得ます。最終判断は原本に基づく目視確認をお願いします。</li>
+      <li>登録番号の<strong>オンライン照合</strong>は、国税庁インボイスWeb-APIの<strong>アプリケーションID</strong>を設定した場合のみ実施します（未設定でも要件判定は可能）。</li>
+      <li>「このサービスは、国税庁適格請求書発行事業者公表システムのWeb-API機能を利用して取得した情報をもとに作成しているが、サービスの内容は国税庁によって保証されたものではない」。 [oai_citation:0‡納税通帳](https://www.invoice-kohyo.nta.go.jp/web-api/index.html)</li>
     </ul>
   </section>
 
-  <footer>
-    <div>© 2025 刺身推定アプリ r1（クライアント内利用想定）｜アルゴリズムは簡易版。誤判定に留意。</div>
-  </footer>
+  <dialog id="dlg">
+    <form method="dialog" style="max-width:560px">
+      <h3>API設定（任意）</h3>
+      <p class="small">登録番号のオンライン照合に利用します。未設定でもオフライン判定は可能です。</p>
+      <label>インボイスWeb-API アプリケーションID<br>
+        <input id="appid" type="text" style="width:100%" placeholder="（例）ABCD-1234-...">
+      </label>
+      <div style="margin-top:10px"><button value="ok">保存</button> <button value="cancel">閉じる</button></div>
+      <p class="small">※インボイスWeb-APIの利用にはアプリケーションIDの取得が必要です。 [oai_citation:1‡納税通帳](https://www.invoice-kohyo.nta.go.jp/web-api/index.html)</p>
+    </form>
+  </dialog>
 </main>
 
+<!-- Tesseract.js（ブラウザOCR） -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
-// ---- 刺身データベース（代表的な20種程度） ----
-const SASHIMI_DB = [
-  {id:"maguro-akami", name:"マグロ（赤身）", cat:"赤身", base:"赤", trans:"不透明", marb:"無", skin:"無", shape:"柵切り・角", tags:["鉄分系の赤","血合い薄め"], keywords:["tuna","akami"]},
-  {id:"maguro-chu", name:"マグロ（中トロ）", cat:"赤身", base:"赤", trans:"不透明", marb:"中", skin:"無", shape:"柵切り・角", tags:["赤に白いサシ"], keywords:["toro","chutoro"]},
-  {id:"maguro-otoro", name:"マグロ（大トロ）", cat:"赤身", base:"赤", trans:"不透明", marb:"多", skin:"無", shape:"柵切り・角", tags:["霜降りが多い"], keywords:["otoro"]},
-  {id:"katsuo", name:"カツオ", cat:"赤身", base:"赤", trans:"不透明", marb:"無", skin:"無", shape:"柵切り・角", tags:["血合い濃い"], keywords:["bonito","skipjack"]},
-  {id:"salmon", name:"サーモン", cat:"サーモン", base:"橙", trans:"不透明", marb:"中", skin:"無", shape:"柵切り・角", tags:["白い筋が規則的"], keywords:["salmon"]},
-  {id:"trout", name:"トラウト", cat:"サーモン", base:"橙", trans:"不透明", marb:"中", skin:"無", shape:"柵切り・角", tags:["赤寄り橙"], keywords:["trout"]},
-  {id:"hamachi", name:"ハマチ/ブリ", cat:"青魚", base:"淡桃", trans:"不透明", marb:"少", skin:"無", shape:"柵切り・角", tags:["縁が薄桃色"], keywords:["yellowtail","buri","hamachi"]},
-  {id:"kanpachi", name:"カンパチ", cat:"青魚", base:"淡桃", trans:"不透明", marb:"少", skin:"無", shape:"柵切り・角", tags:["縁がやや色付く"], keywords:["amberjack"]},
-  {id:"tai", name:"タイ（真鯛）", cat:"白身", base:"白", trans:"半透明", marb:"無", skin:"無", shape:"薄造り", tags:["血合い薄い","透明感"], keywords:["sea bream"]},
-  {id:"hirame", name:"ヒラメ", cat:"白身", base:"白", trans:"半透明", marb:"無", skin:"無", shape:"薄造り", tags:["透明感高い"], keywords:["flounder"]},
-  {id:"suzuki", name:"スズキ", cat:"白身", base:"白", trans:"半透明", marb:"無", skin:"無", shape:"薄造り", tags:["白身"], keywords:["sea bass"]},
-  {id:"aji", name:"アジ（鯵）", cat:"光り物", base:"銀", trans:"不透明", marb:"無", skin:"銀皮", shape:"柵切り・角", tags:["銀皮","筋目"], keywords:["horse mackerel"]},
-  {id:"saba", name:"サバ（鯖）", cat:"光り物", base:"銀", trans:"不透明", marb:"無", skin:"銀皮", shape:"柵切り・角", tags:["銀皮強い"], keywords:["mackerel"]},
-  {id:"iwashi", name:"イワシ（鰯）", cat:"光り物", base:"銀", trans:"不透明", marb:"無", skin:"銀皮", shape:"柵切り・角", tags:["細身の銀"], keywords:["sardine"]},
-  {id:"kohada", name:"コハダ（こはだ）", cat:"光り物", base:"銀", trans:"不透明", marb:"無", skin:"銀皮", shape:"柵切り・角", tags:["斑点銀皮"], keywords:["gizzard shad"]},
-  {id:"ika", name:"イカ", cat:"甲殻・軟体", base:"白", trans:"半透明", marb:"無", skin:"無", shape:"柵切り・角", tags:["艶のある白"], keywords:["squid"]},
-  {id:"tako", name:"タコ", cat:"甲殻・軟体", base:"白", trans:"不透明", marb:"無", skin:"無", shape:"輪切り", tags:["赤い縁・吸盤"], keywords:["octopus"]},
-  {id:"hotate", name:"ホタテ", cat:"貝", base:"貝色", trans:"不透明", marb:"無", skin:"無", shape:"柱状", tags:["柱状"], keywords:["scallop"]},
-  {id:"akagai", name:"アカガイ", cat:"貝", base:"貝色", trans:"不透明", marb:"無", skin:"無", shape:"貝片状", tags:["赤茶・ひだ"], keywords:["ark shell"]},
-  {id:"hokkigai", name:"ホッキ貝", cat:"貝", base:"貝色", trans:"不透明", marb:"無", skin:"無", shape:"貝片状", tags:["白に赤黒グラデ"], keywords:["surf clam"]}
-];
+const el = s => document.querySelector(s);
+const file = el('#file'), img = el('#preview'), bar = el('#bar'), status = el('#status');
+const raw = el('#raw'), summary = el('#summary'), badge = el('#finalBadge');
+const checklistUL = el('#checklist'), candidatesDiv = el('#candidates');
+const dlg = el('#dlg'), appidInput = el('#appid'); let APP_ID = localStorage.getItem('nta_appid')||'';
+if(APP_ID) appidInput.value = APP_ID;
 
-// ---- 便利関数 ----
-function hsvFromRGB(r,g,b){
-  r/=255; g/=255; b/=255;
-  const max=Math.max(r,g,b), min=Math.min(r,g,b);
-  let h,s,v=max, d=max-min;
-  s = max===0 ? 0 : d/max;
-  if(max===min){h=0;} else {
-    switch(max){
-      case r: h=(g-b)/d + (g<b?6:0); break;
-      case g: h=(b-r)/d + 2; break;
-      case b: h=(r-g)/d + 4; break;
-    }
-    h/=6;
-  }
-  return {h: h*360, s, v};
+function setBadge(kind,text){
+  badge.className = 'pill ' + (kind==='ok'?'ok':kind==='bad'?'bad':'warn');
+  badge.textContent = text;
 }
-function avgColorAndVariance(img){
-  const c=document.getElementById('canvas');
-  const ctx=c.getContext('2d');
-  const w=Math.min(900, img.width);
-  const scale=w/img.width;
-  c.width = w;
-  c.height = Math.round(img.height*scale);
-  ctx.drawImage(img,0,0,c.width,c.height);
-  const {data}=ctx.getImageData(0,0,c.width,c.height);
-  let r=0,g=0,b=0,len=0;
-  // 1/16間引きサンプリングで高速化
-  let samples=[];
-  for(let i=0;i<data.length;i+=4*16){
-    const rr=data[i], gg=data[i+1], bb=data[i+2];
-    r+=rr; g+=gg; b+=bb; len++;
-    const y = 0.2126*rr+0.7152*gg+0.0722*bb; // 輝度
-    samples.push(y);
-  }
-  const avgr=r/len, avgg=g/len, avgb=b/len;
-  // 分散（簡易マーブリング指標）
-  const mean = samples.reduce((a,b)=>a+b,0)/samples.length;
-  const variance = samples.reduce((a,b)=>a+(b-mean)*(b-mean),0)/samples.length;
-  return {r:avgr,g:avgg,b:avgb,variance};
-}
-function guessFromHSV(hsv, variance){
-  // 色で大まかクラスタリング
-  const {h,s,v} = hsv;
-  let base;
-  if(s<0.2 && v>0.8) base="白";
-  else if(h>=10 && h<=40 && s>0.3) base="橙";
-  else if((h<=10 || h>=345) && s>0.3) base="赤";
-  else base = (s<0.25 && v>0.6) ? "白" : "半透明";
-  // マーブリング推定
-  let marb = variance>900 ? "多" : variance>500 ? "中" : variance>250 ? "少" : "無";
-  // 透明感推定（超簡易）
-  let trans = (v>0.85 && s<0.18) ? "半透明" : "不透明";
-  return {base, marb, trans};
-}
-function scoreItemByImage(it, g){
-  let score=0; let hints=[];
-  if(it.base===g.base){score+=3; hints.push("色="+g.base);}
-  if(it.marb===g.marb){score+=2; hints.push("サシ="+g.marb);}
-  if(it.trans===g.trans){score+=1; hints.push("透明感="+g.trans);}
-  // サーモン特有の扱い（橙でサシあり）
-  if(g.base==="橙" && (g.marb==="中"||g.marb==="多") && (it.id==="salmon"||it.id==="trout")){score+=1;hints.push("橙×筋状サシ（推定）");}
-  return {score,hints};
-}
-function scoreItemByAnswers(it, ans){
-  let score=0; let hints=[];
-  if(ans.color && it.base===ans.color){score+=3;hints.push("色="+ans.color);}
-  if(ans.trans && it.trans===ans.trans){score+=2;hints.push("透明感="+ans.trans);}
-  if(ans.marb && it.marb===ans.marb){score+=2;hints.push("サシ="+ans.marb);}
-  if(ans.skin && it.skin===ans.skin){score+=1;hints.push("皮/銀皮="+ans.skin);}
-  if(ans.shape && it.shape===ans.shape){score+=1;hints.push("形状="+ans.shape);}
-  if(ans.feature){
-    if(ans.feature.includes("白い筋") && it.id==="salmon"){score+=2;hints.push("白い筋→サーモン特徴");}
-    if(ans.feature.includes("吸盤") && it.id==="tako"){score+=3;hints.push("吸盤→タコ");}
-    if(ans.feature.includes("甲殻") && (it.cat==="貝")){score+=2;hints.push("貝のひだ/甲殻");}
-    if(ans.feature.includes("血合い") && (it.id==="katsuo")){score+=2;hints.push("血合い濃→カツオ");}
-  }
-  return {score,hints};
-}
-function renderResults(rows, caption){
-  const wrap=document.getElementById('results');
-  wrap.innerHTML="";
-  if(!rows.length){wrap.innerHTML='<div class="empty">該当候補がありませんでした。条件を緩めてください。</div>'; return;}
-  rows.slice(0,8).forEach(r=>{
-    const pct = Math.round(100 * r.score / (rows[0].score||1));
-    const el=document.createElement('div');
-    el.className="item";
-    el.innerHTML = `
-      <h3>${r.item.name} <span class="small">（${r.item.cat}）</span></h3>
-      <div class="score"><b>確度</b>
-        <div class="progress" title="${pct}%"><i style="width:${pct}%"></i></div>
-        <span class="small">${pct}%</span>
-      </div>
-      <div class="tags">${r.hints.map(h=>`<span class="tag">${h}</span>`).join("")}</div>
-    `;
-    wrap.appendChild(el);
+function setProgress(p){ bar.style.width = Math.max(0, Math.min(100, p*100)) + '%'; }
+
+function loadImage(file){
+  return new Promise((res)=>{ const fr = new FileReader();
+    fr.onload = e => { img.src = e.target.result; res(); };
+    fr.readAsDataURL(file);
   });
 }
 
-// ---- 画像推定パネル ----
-const fileInput = document.getElementById('file');
-fileInput.addEventListener('change', async (e)=>{
-  const f = e.target.files[0];
+async function doOCRFromImage(){
+  if(!img.src){ return; }
+  status.textContent = 'OCR中…'; setProgress(0.05);
+  const { createWorker } = Tesseract;
+  const worker = await createWorker('jpn+eng', 1, {
+    logger: m => { if(m.status==='recognizing text' && m.progress){ setProgress(0.1+0.9*m.progress); } }
+  });
+  const ret = await worker.recognize(img);
+  await worker.terminate();
+  raw.value = (ret.data && ret.data.text) ? ret.data.text : '';
+  setProgress(1);
+  status.textContent = 'OCR完了'; 
+  runChecks();
+}
+
+function getMatches(regex, text){ const out=[]; let m; while((m=regex.exec(text))!==null){ out.push(m[0]); } return out; }
+function yen2num(s){ return Number((s||'').replace(/[^\d.-]/g,'')); }
+
+function runChecks(){
+  const text = (raw.value||'').replace(/[ \t]+/g,' ').replace(/\r/g,'').trim();
+  if(!text){ summary.textContent = 'テキストがありません。'; setBadge('warn','未判定'); checklistUL.innerHTML=''; candidatesDiv.textContent=''; return; }
+
+  // 正規表現・語句
+  const tNumberRe = /\bT[\s\-‐-–—]?(\d{13})\b/ig;
+  const ymdRe = /((20\d{2}|19\d{2})[\/\-\.年]\s*\d{1,2}[\/\-\.月]\s*\d{1,2}日?)/g; // 西暦
+  const eraRe = /(令和[元\d]+年\s*\d{1,2}月\s*\d{1,2}日)/g; // 和暦
+  const rateWord = /(税率|適用税率|10 ?%|８ ?%|8 ?%|軽減|標準)/ig;
+  const vatWord = /(消費税額|消費税等|税額)/ig;
+  const receiverWord = /(御中|様|請求先|宛先|納品先)/g;
+  const issuerHint = /(株式会社|合同会社|有限会社|商事|工業|店|○○|㈱)/g; // 参考程度
+  const contentWord = /(品名|品目|数量|単価|役務|内容|摘要|商品|サービス)/g;
+
+  const yenLineRe = /((合計|計|税込|税抜|小計)[^0-9\n]{0,10}[\-¥￥]?\s?\d{1,3}(?:,\d{3})*(?:\.\d+)?\s*円?)/g;
+
+  const tNums = getMatches(tNumberRe, text);
+  const dates = [...new Set(getMatches(ymdRe, text).concat(getMatches(eraRe, text)))];
+  const rates = getMatches(rateWord, text);
+  const vats = getMatches(vatWord, text);
+  const receivers = getMatches(receiverWord, text);
+  const issuers = getMatches(issuerHint, text);
+  const contents = getMatches(contentWord, text);
+  const totals = getMatches(yenLineRe, text);
+
+  // 要件（適格請求書の6要件）
+  const req = {
+    regnum: { ok: tNums.length>0, label:'① 発行者の氏名/名称＋登録番号（T＋13桁）', found: tNums.join(', ')||'-' },
+    date:   { ok: dates.length>0, label:'② 取引年月日', found: dates.slice(0,3).join(' / ')||'-' },
+    detail: { ok: contents.length>0, label:'③ 取引内容（軽減対象の旨を含み得る）', found: contents.slice(0,6).join('、')||'-' },
+    total:  { ok: (totals.length>0 && rates.length>0), label:'④ 税率ごとに合計した対価額（税抜/税込）＋適用税率', found: (rates.slice(0,4).join('、')||'-') + '｜' + (totals.slice(0,4).join(' / ')||'-') },
+    tax:    { ok: vats.length>0, label:'⑤ 税率ごとの消費税額等', found: vats.slice(0,4).join('、')||'-' },
+    recv:   { ok: receivers.length>0, label:'⑥ 交付を受ける事業者の氏名/名称（宛名等）', found: receivers.slice(0,4).join('、')||'-' },
+  };
+
+  // 簡易インボイスの可能性（宛名不要／税率 or 税額の一方で可）
+  const simplePossible = req.regnum.ok && req.date.ok && req.detail.ok && (req.total.ok || req.tax.ok);
+
+  // 適格請求書の最終判定（厳格）
+  const allOk = Object.values(req).every(v => v.ok);
+
+  // サマリー
+  let verdict, kind;
+  if(allOk){ verdict = '◎ 適格請求書（インボイス）の可能性が高い（6要件を満たしています）'; kind='ok'; }
+  else if(simplePossible){ verdict = '◯ 簡易インボイス（適格簡易請求書）の可能性あり（宛名なし等でも法令上OKな場合があります）'; kind='warn'; }
+  else { verdict = '× インボイス要件を満たさない可能性が高い（不足項目あり）'; kind='bad'; }
+  setBadge(kind, kind==='ok'?'OK':kind==='warn'?'要確認':'不足');
+
+  summary.innerHTML =
+    `<div>${verdict}</div>
+     <ul class="small">
+       <li>登録番号検出: <strong>${tNums[0]||'未検出'}</strong></li>
+       <li>取引日候補: ${req.date.found}</li>
+       <li>税率/合計/消費税語句: ${rates.length}/${totals.length}/${vats.length}</li>
+     </ul>`;
+
+  // NTA検索リンク
+  const nt = el('#ntaLinkWrap');
+  if(tNums[0]){
+    const clean = tNums[0].replace(/\s|[\-‐-–—]/g,'');
+    nt.innerHTML = `登録番号の公表サイト検索リンク：<a class="link" target="_blank" 
+      href="https://www.invoice-kohyo.nta.go.jp/index.html?sel=number&number=${encodeURIComponent(clean)}">国税庁・登録番号検索</a>`;
+  } else { nt.innerHTML = ''; }
+
+  // チェックリスト表示
+  checklistUL.innerHTML = '';
+  Object.values(req).forEach(v=>{
+    const li = document.createElement('li');
+    li.className = v.ok ? 'li-ok' : 'li-bad';
+    li.innerHTML = (v.ok? '✅ ':'❌ ') + v.label + `<span class="right">${v.ok?'OK':'不足'}</span><br><span class="small">ヒット：${v.found}</span>`;
+    checklistUL.appendChild(li);
+  });
+
+  // 参考候補のダンプ
+  candidatesDiv.textContent =
+    '登録番号候補: ' + (tNums.join(', ')||'-') + '\n' +
+    '日付候補: ' + (dates.join(' / ')||'-') + '\n' +
+    '税率語句: ' + (rates.join(', ')||'-') + '\n' +
+    '消費税語句: ' + (vats.join(', ')||'-') + '\n' +
+    '宛名語句: ' + (receivers.join(', ')||'-') + '\n' +
+    '取引内容語句: ' + (contents.join(', ')||'-') + '\n' +
+    '金額行候補: ' + (totals.join(' / ')||'-') + '\n';
+
+  // 任意：登録番号のWeb-API照合（APP_IDが設定されている場合のみ）
+  if(APP_ID && tNums[0]){
+    verifyTNumber(tNums[0].replace(/\s|[\-‐-–—]/g,''), APP_ID).then(info=>{
+      if(info && info.hit){
+        summary.innerHTML += `<div class="small">Web-API照合：<span class="pill ok">有効な登録番号の可能性</span> 名称：${escapeHtml(info.name||'')}</div>`;
+      }else{
+        summary.innerHTML += `<div class="small">Web-API照合：<span class="pill bad">ヒットせず/要確認</span></div>`;
+      }
+    }).catch(()=>{ summary.innerHTML += `<div class="small">Web-API照合：<span class="pill warn">エラー（後で再試行）</span></div>`; });
+  }
+}
+
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+
+// ★ 簡易なWeb-API呼び出し（仕様上、アプリケーションIDが必要／CORS制約あり得ます）
+// 仕様は国税庁ページの「Web-APIの詳細」を参照。ここでは代表的なエンドポイント例に合わせています。
+async function verifyTNumber(tnum, appId){
+  try{
+    // 代表的な仕様例：GET /web-api/num?number=Txxxxxxxxxxxxx&appId=...（実際のパスは仕様書に従ってください）
+    // ここでは「検証用」のダミー実装にし、実運用時は仕様書に合わせてURL/クエリ/ヘッダを修正してください。
+    const url = `https://www.invoice-kohyo.nta.go.jp/web-api/num?number=${encodeURIComponent(tnum)}&appId=${encodeURIComponent(appId)}`;
+    const res = await fetch(url, {mode:'cors'});
+    if(!res.ok){ return null; }
+    const data = await res.json().catch(()=>null);
+    if(!data){ return null; }
+    // 想定フォーマット例に合わせて読み替え
+    return { hit: !!(data.number || data.items && data.items.length), name: data.name || (data.items && data.items[0] && data.items[0].name) };
+  }catch(e){ return null; }
+}
+
+el('#sample').addEventListener('click', ()=>{
+  raw.value =
+`請求書（見本）
+T 1234567890123
+株式会社テスト商事
+請求先：〇〇株式会社 御中
+取引日：2025年10月1日
+品目：備品A　数量1　単価10,000
+10%対象 合計 10,000円
+消費税額 1,000円
+税込合計 11,000円`;
+  runChecks();
+});
+
+file.addEventListener('change', async (e)=>{
+  const f = e.target.files && e.target.files[0];
   if(!f) return;
-  const url = URL.createObjectURL(f);
-  const img = new Image();
-  img.onload = ()=>{
-    const info = avgColorAndVariance(img);
-    const hsv = hsvFromRGB(info.r, info.g, info.b);
-    const g = guessFromHSV(hsv, info.variance);
-    document.getElementById('img-stats').innerHTML = `
-      <div>平均色（H/S/V）</div><div>${hsv.h.toFixed(0)}° / ${(hsv.s*100).toFixed(0)}% / ${(hsv.v*100).toFixed(0)}%</div>
-      <div>判定ベース色</div><div>${g.base}</div>
-      <div>簡易サシ推定</div><div>${g.marb}</div>
-      <div>透明感</div><div>${g.trans}</div>
-    `;
-    // スコアリング
-    const rows = SASHIMI_DB.map(it=>{
-      const {score,hints} = scoreItemByImage(it, g);
-      return {item:it,score,hints};
-    }).sort((a,b)=>b.score-a.score);
-    renderResults(rows, "image");
-  };
-  img.src = url;
+  await loadImage(f);
+  setProgress(0); status.textContent='画像読込';
+  setTimeout(()=>{ doOCRFromImage(); }, 100);
 });
 
-// ---- QAパネル ----
-document.getElementById('btn-filter').addEventListener('click', ()=>{
-  const ans = {
-    color: document.getElementById('q-color').value,
-    trans: document.getElementById('q-trans').value,
-    marb: document.getElementById('q-marb').value,
-    skin: document.getElementById('q-skin').value,
-    shape: document.getElementById('q-shape').value,
-    feature: document.getElementById('q-feature').value
-  };
-  const rows = SASHIMI_DB.map(it=>{
-    const {score,hints} = scoreItemByAnswers(it, ans);
-    return {item:it,score,hints};
-  }).filter(r=>r.score>0).sort((a,b)=>b.score-a.score);
-  renderResults(rows, "qa");
-});
-document.getElementById('btn-clear').addEventListener('click', ()=>{
-  ['q-color','q-trans','q-marb','q-skin','q-shape','q-feature'].forEach(id=>document.getElementById(id).value="");
-  document.getElementById('results').innerHTML='<div class="empty">条件を選ぶと候補が表示されます。</div>';
-});
+el('#recheck').addEventListener('click', runChecks);
+el('#copy').addEventListener('click', async()=>{ await navigator.clipboard.writeText(raw.value||''); });
 
-// ---- タブ切替 ----
-document.querySelectorAll('.tab').forEach(t=>{
-  t.addEventListener('click',()=>{
-    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-    t.classList.add('active');
-    const mode = t.dataset.tab;
-    document.getElementById('panel-image').style.display = (mode==='image')?'block':'none';
-    document.getElementById('panel-qa').style.display    = (mode==='qa')?'block':'none';
-    document.getElementById('panel-title').textContent   = (mode==='image')?'画像から推定':'質問で絞り込み';
-  });
+el('#settings').addEventListener('click', ()=>{ dlg.showModal(); });
+dlg.addEventListener('close', ()=>{
+  if(dlg.returnValue==='ok'){
+    APP_ID = (appidInput.value||'').trim();
+    localStorage.setItem('nta_appid', APP_ID);
+    runChecks();
+  }
 });
 </script>
 </body>
