@@ -1,128 +1,379 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CCC計算ツール</title>
-    <style>
-        /* 見た目を整えるための簡単なスタイル */
-        body {
-            font-family: sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-        .formula {
-            text-align: center;
-            font-size: 1.1em;
-            font-weight: bold;
-            margin-bottom: 25px;
-            color: #555;
-        }
-        .input-group {
-            margin-bottom: 20px;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #444;
-        }
-        .input-group input {
-            width: calc(100% - 20px);
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1em;
-        }
-        button {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 1.1em;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .result-box {
-            margin-top: 25px;
-            padding: 15px;
-            background-color: #e6f7ff;
-            border: 1px solid #b3e0ff;
-            border-radius: 4px;
-            text-align: center;
-        }
-        .result-box h3 {
-            margin-top: 0;
-            color: #0056b3;
-        }
-        #ccc-result {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #004a99;
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>刺身の種類を確定するアプリ（r1 ベータ）</title>
+<meta name="description" content="写真解析＋質問に答えるだけで、刺身の種類候補を推定します。所内利用向けの軽量Webアプリ。" />
+<style>
+:root{
+  --bg:#f7fafc; --card:#ffffff; --ink:#0f172a; --muted:#475569;
+  --accent:#578899; --accent-600:#497485; --ok:#16a34a; --warn:#ca8a04;
+  --bad:#b91c1c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif}
+header{position:sticky;top:0;background:linear-gradient(180deg,#ffffff,#fffffff0 80%,#ffffff00);border-bottom:1px solid #e2e8f0;z-index:10}
+header .inner{max-width:1000px;margin:0 auto;padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.02em}
+.badge{font-size:12px;color:#fff;background:var(--accent);border-radius:999px;padding:2px 8px}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px}
+.tab{border:1px solid #cbd5e1;background:#fff;border-radius:10px;padding:10px 12px;cursor:pointer;font-weight:600;color:var(--accent)}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:900px){.grid{grid-template-columns:1.2fr .8fr}}
+.card{background:var(--card);border:1px solid #e2e8f0;border-radius:16px;padding:16px;box-shadow:0 1px 2px #0000000d}
+.card h2{margin:0 0 8px 0;font-size:16px}
+.small{font-size:12px;color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input[type=file]{display:block;width:100%;padding:8px;border:1px dashed #cbd5e1;background:#fff;border-radius:12px}
+.selects{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(min-width:700px){.selects{grid-template-columns:repeat(3,1fr)}}
+select,button,.chip{width:100%;padding:10px 12px;border:1px solid #cbd5e1;border-radius:12px;background:#fff}
+button{cursor:pointer;color:#fff;border-color:var(--accent);background:var(--accent);font-weight:700}
+button.secondary{background:#fff;color:var(--accent)}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:4px;font-size:14px}
+.progress{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden}
+.progress>i{display:block;height:100%;background:var(--accent);width:0%}
+.list{display:grid;gap:8px}
+.item{display:grid;gap:8px;border:1px solid #e2e8f0;border-radius:12px;padding:12px;background:#fff}
+.item h3{margin:0;font-size:15px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:11px;background:#eef2ff;color:#1e293b;border-radius:999px;padding:2px 8px;border:1px solid #e2e8f0}
+.score{display:flex;align-items:center;gap:8px}
+.score b{min-width:3ch}
+footer{margin:24px 0 80px;color:var(--muted);font-size:12px}
+hr{border:none;height:1px;background:#e2e8f0;margin:12px 0}
+.details{font-size:13px;color:#334155}
+code{background:#f1f5f9;padding:2px 6px;border-radius:6px}
+a{color:var(--accent-600);text-underline-offset:2px}
+label{font-size:13px;color:#334155}
+.canvaswrap{display:grid;grid-template-columns:1fr;gap:8px}
+canvas{width:100%;max-height:260px;border-radius:12px;border:1px solid #e2e8f0;background:#fff}
+.empty{border:1px dashed #cbd5e1;background:#fff;border-radius:12px;padding:16px;text-align:center;color:#64748b}
+.help{font-size:13px}
+ul{margin:6px 0 6px 18px;padding:0}
+</style>
 </head>
 <body>
+<header>
+  <div class="inner">
+    <h1>刺身の種類を確定するアプリ <span class="badge">r1 β</span></h1>
+    <div class="small">所内利用向け・推定ツール（最終判定は人）</div>
+  </div>
+</header>
 
-    <div class="container">
-        <h2>CCC (キャッシュ・コンバージョン・サイクル) 計算ツール</h2>
-        <p class="formula">CCC = DIO + DSO - DPO</p>
+<main>
+  <div class="tabs">
+    <div class="tab active" data-tab="image">画像で推定（β）</div>
+    <div class="tab" data-tab="qa">質問で絞り込み（安定）</div>
+  </div>
 
-        <div class="input-group">
-            <label for="dio">1. DIO (棚卸資産回転日数) 🗓️</label>
-            <input type="number" id="dio" placeholder="（例: 60）" step="0.01">
+  <div class="grid">
+    <section class="card" id="left">
+      <h2 id="panel-title">画像から推定</h2>
+      <div id="panel-image">
+        <input type="file" id="file" accept="image/*" />
+        <div class="canvaswrap">
+          <canvas id="canvas"></canvas>
         </div>
+        <div id="img-stats" class="kv small"></div>
+        <div class="help">写真のよく写っている「身」をなるべく大きく切り抜いてください。皮・皿・大葉・大根つま等が多いと精度が落ちます。</div>
+      </div>
 
-        <div class="input-group">
-            <label for="dso">2. DSO (売上債権回転日数) 💰</label>
-            <input type="number" id="dso" placeholder="（例: 45）" step="0.01">
+      <div id="panel-qa" style="display:none">
+        <div class="selects">
+          <div>
+            <label>基本の色</label>
+            <select id="q-color">
+              <option value="">未選択</option>
+              <option value="赤">赤</option>
+              <option value="橙">橙（サーモン系）</option>
+              <option value="白">白</option>
+              <option value="半透明">半透明</option>
+              <option value="銀">銀（光り物の皮）</option>
+              <option value="貝色">貝色（乳白〜赤茶）</option>
+            </select>
+          </div>
+          <div>
+            <label>透明感</label>
+            <select id="q-trans">
+              <option value="">未選択</option>
+              <option value="透明">透明</option>
+              <option value="半透明">半透明</option>
+              <option value="不透明">不透明</option>
+            </select>
+          </div>
+          <div>
+            <label>サシ（霜降り）</label>
+            <select id="q-marb">
+              <option value="">未選択</option>
+              <option value="無">無</option>
+              <option value="少">少</option>
+              <option value="中">中</option>
+              <option value="多">多</option>
+            </select>
+          </div>
+          <div>
+            <label>皮/銀皮</label>
+            <select id="q-skin">
+              <option value="">未選択</option>
+              <option value="無">無</option>
+              <option value="皮あり">皮あり</option>
+              <option value="銀皮">銀皮（キラキラ）</option>
+            </select>
+          </div>
+          <div>
+            <label>形状</label>
+            <select id="q-shape">
+              <option value="">未選択</option>
+              <option value="柵切り・角">柵切り・角</option>
+              <option value="薄造り">薄造り（透ける薄さ）</option>
+              <option value="輪切り">輪切り（タコなど）</option>
+              <option value="柱状">柱状（ホタテなど）</option>
+              <option value="貝片状">貝片状（赤貝・ホッキ）</option>
+            </select>
+          </div>
+          <div>
+            <label>特徴</label>
+            <select id="q-feature">
+              <option value="">未選択</option>
+              <option value="白い筋が規則的に入る">白い筋が規則的に入る（サーモン）</option>
+              <option value="赤身で血合いが濃い">赤身で血合いが濃い（カツオ等）</option>
+              <option value="吸盤が見える">吸盤が見える（タコ）</option>
+              <option value="甲殻・ひだが見える">甲殻/ひだ（貝類）</option>
+            </select>
+          </div>
         </div>
-
-        <div class="input-group">
-            <label for="dpo">3. DPO (仕入債務回転日数) 🧾</label>
-            <input type="number" id="dpo" placeholder="（例: 30）" step="0.01">
+        <div class="row" style="margin-top:8px">
+          <button id="btn-filter">この条件で絞り込む</button>
+          <button class="secondary" id="btn-clear">リセット</button>
         </div>
+      </div>
 
-        <button onclick="calculateCCC()">CCCを計算</button>
+      <hr/>
+      <details class="details">
+        <summary>精度と注意事項</summary>
+        <ul>
+          <li>本アプリは「特徴ヒューリスティック」による推定です。最終確定は担当者/仕入先ラベルで行ってください。</li>
+          <li>画像推定は <b>色相・彩度・明度</b> と <b>輝度の分散（簡易サシ推定）</b> を用いており、照明や皿の色で大きく変わります。</li>
+          <li>光り物（アジ・サバ等）の銀皮、貝類のひだ等は現状「質問で絞り込み」を併用した方が精度が高いです。</li>
+          <li>食物アレルギー/表示の観点からは、<b>見た目のみの判定での提供は不可</b>です。必ず仕入伝票・パッケージ表示で裏取りしてください。</li>
+        </ul>
+      </details>
+    </section>
 
-        <div class="result-box">
-            <h3>計算結果 (CCC)</h3>
-            <span id="ccc-result">0.00</span> 日
-        </div>
+    <section class="card">
+      <h2>候補（上位から）</h2>
+      <div id="results" class="list">
+        <div class="empty">画像を読み込むか、条件を選ぶと候補が表示されます。</div>
+      </div>
+      <hr/>
+      <div class="small">根拠表示：各候補の下に、色/透明感/サシなど一致した手掛かりを表示します。</div>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>参照・根拠（抜粋）</h2>
+    <div class="small">
+      本アプリの特徴ルールは、以下の公開情報に基づき整理しています（代表例）。
     </div>
+    <ul class="small">
+      <li>赤身/トロの違い（マグロ部位とサシ）：津曲商店「マグロの部位」および釣りハック解説。参考：<a href="https://www.ooiri1.com/?mode=f10" target="_blank" rel="noopener">津曲商店</a> ／ <a href="https://tsurihack.com/1748" target="_blank" rel="noopener">TSURI HACK</a></li>
+      <li>白身の透明感・鮮度目安：鮮魚丸松コラム、kurashiru「鯛の選び方」。参考：<a href="https://marumatsu-ec.com/column/topic/11/" target="_blank" rel="noopener">鮮魚丸松</a> ／ <a href="https://www.kurashiru.com/articles/0f7e4a20-15b8-42ba-b5c7-fc1f11e9798a" target="_blank" rel="noopener">kurashiru</a></li>
+      <li>寿司ネタ/刺身の一般的な分類と名称照合：Sushi University すし図鑑。参考：<a href="https://sushiuniversity.jp/japanese/visual-dictionary/" target="_blank" rel="noopener">すし図鑑</a></li>
+      <li>将来のAI自動判定に向けた公開データセット例：Food-101（sushiクラス有）／Sushi-50（論文）。参考：<a href="https://huggingface.co/datasets/ethz/food101" target="_blank" rel="noopener">Food-101</a> ／ <a href="https://arxiv.org/abs/2207.03692" target="_blank" rel="noopener">Sushi-50 論文</a></li>
+    </ul>
+  </section>
 
-    <script>
-        function calculateCCC() {
-            // 1. 各入力フィールドから値を取得 (parseFloatで数値に変換)
-            const dio = parseFloat(document.getElementById('dio').value) || 0;
-            const dso = parseFloat(document.getElementById('dso').value) || 0;
-            const dpo = parseFloat(document.getElementById('dpo').value) || 0;
+  <footer>
+    <div>© 2025 刺身推定アプリ r1（クライアント内利用想定）｜アルゴリズムは簡易版。誤判定に留意。</div>
+  </footer>
+</main>
 
-            // 2. CCCの計算 (DIO + DSO - DPO)
-            const ccc = dio + dso - dpo;
+<script>
+// ---- 刺身データベース（代表的な20種程度） ----
+const SASHIMI_DB = [
+  {id:"maguro-akami", name:"マグロ（赤身）", cat:"赤身", base:"赤", trans:"不透明", marb:"無", skin:"無", shape:"柵切り・角", tags:["鉄分系の赤","血合い薄め"], keywords:["tuna","akami"]},
+  {id:"maguro-chu", name:"マグロ（中トロ）", cat:"赤身", base:"赤", trans:"不透明", marb:"中", skin:"無", shape:"柵切り・角", tags:["赤に白いサシ"], keywords:["toro","chutoro"]},
+  {id:"maguro-otoro", name:"マグロ（大トロ）", cat:"赤身", base:"赤", trans:"不透明", marb:"多", skin:"無", shape:"柵切り・角", tags:["霜降りが多い"], keywords:["otoro"]},
+  {id:"katsuo", name:"カツオ", cat:"赤身", base:"赤", trans:"不透明", marb:"無", skin:"無", shape:"柵切り・角", tags:["血合い濃い"], keywords:["bonito","skipjack"]},
+  {id:"salmon", name:"サーモン", cat:"サーモン", base:"橙", trans:"不透明", marb:"中", skin:"無", shape:"柵切り・角", tags:["白い筋が規則的"], keywords:["salmon"]},
+  {id:"trout", name:"トラウト", cat:"サーモン", base:"橙", trans:"不透明", marb:"中", skin:"無", shape:"柵切り・角", tags:["赤寄り橙"], keywords:["trout"]},
+  {id:"hamachi", name:"ハマチ/ブリ", cat:"青魚", base:"淡桃", trans:"不透明", marb:"少", skin:"無", shape:"柵切り・角", tags:["縁が薄桃色"], keywords:["yellowtail","buri","hamachi"]},
+  {id:"kanpachi", name:"カンパチ", cat:"青魚", base:"淡桃", trans:"不透明", marb:"少", skin:"無", shape:"柵切り・角", tags:["縁がやや色付く"], keywords:["amberjack"]},
+  {id:"tai", name:"タイ（真鯛）", cat:"白身", base:"白", trans:"半透明", marb:"無", skin:"無", shape:"薄造り", tags:["血合い薄い","透明感"], keywords:["sea bream"]},
+  {id:"hirame", name:"ヒラメ", cat:"白身", base:"白", trans:"半透明", marb:"無", skin:"無", shape:"薄造り", tags:["透明感高い"], keywords:["flounder"]},
+  {id:"suzuki", name:"スズキ", cat:"白身", base:"白", trans:"半透明", marb:"無", skin:"無", shape:"薄造り", tags:["白身"], keywords:["sea bass"]},
+  {id:"aji", name:"アジ（鯵）", cat:"光り物", base:"銀", trans:"不透明", marb:"無", skin:"銀皮", shape:"柵切り・角", tags:["銀皮","筋目"], keywords:["horse mackerel"]},
+  {id:"saba", name:"サバ（鯖）", cat:"光り物", base:"銀", trans:"不透明", marb:"無", skin:"銀皮", shape:"柵切り・角", tags:["銀皮強い"], keywords:["mackerel"]},
+  {id:"iwashi", name:"イワシ（鰯）", cat:"光り物", base:"銀", trans:"不透明", marb:"無", skin:"銀皮", shape:"柵切り・角", tags:["細身の銀"], keywords:["sardine"]},
+  {id:"kohada", name:"コハダ（こはだ）", cat:"光り物", base:"銀", trans:"不透明", marb:"無", skin:"銀皮", shape:"柵切り・角", tags:["斑点銀皮"], keywords:["gizzard shad"]},
+  {id:"ika", name:"イカ", cat:"甲殻・軟体", base:"白", trans:"半透明", marb:"無", skin:"無", shape:"柵切り・角", tags:["艶のある白"], keywords:["squid"]},
+  {id:"tako", name:"タコ", cat:"甲殻・軟体", base:"白", trans:"不透明", marb:"無", skin:"無", shape:"輪切り", tags:["赤い縁・吸盤"], keywords:["octopus"]},
+  {id:"hotate", name:"ホタテ", cat:"貝", base:"貝色", trans:"不透明", marb:"無", skin:"無", shape:"柱状", tags:["柱状"], keywords:["scallop"]},
+  {id:"akagai", name:"アカガイ", cat:"貝", base:"貝色", trans:"不透明", marb:"無", skin:"無", shape:"貝片状", tags:["赤茶・ひだ"], keywords:["ark shell"]},
+  {id:"hokkigai", name:"ホッキ貝", cat:"貝", base:"貝色", trans:"不透明", marb:"無", skin:"無", shape:"貝片状", tags:["白に赤黒グラデ"], keywords:["surf clam"]}
+];
 
-            // 3. 結果を表示 (小数点以下2桁まで)
-            document.getElementById('ccc-result').innerText = ccc.toFixed(2);
-        }
-    </script>
+// ---- 便利関数 ----
+function hsvFromRGB(r,g,b){
+  r/=255; g/=255; b/=255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b);
+  let h,s,v=max, d=max-min;
+  s = max===0 ? 0 : d/max;
+  if(max===min){h=0;} else {
+    switch(max){
+      case r: h=(g-b)/d + (g<b?6:0); break;
+      case g: h=(b-r)/d + 2; break;
+      case b: h=(r-g)/d + 4; break;
+    }
+    h/=6;
+  }
+  return {h: h*360, s, v};
+}
+function avgColorAndVariance(img){
+  const c=document.getElementById('canvas');
+  const ctx=c.getContext('2d');
+  const w=Math.min(900, img.width);
+  const scale=w/img.width;
+  c.width = w;
+  c.height = Math.round(img.height*scale);
+  ctx.drawImage(img,0,0,c.width,c.height);
+  const {data}=ctx.getImageData(0,0,c.width,c.height);
+  let r=0,g=0,b=0,len=0;
+  // 1/16間引きサンプリングで高速化
+  let samples=[];
+  for(let i=0;i<data.length;i+=4*16){
+    const rr=data[i], gg=data[i+1], bb=data[i+2];
+    r+=rr; g+=gg; b+=bb; len++;
+    const y = 0.2126*rr+0.7152*gg+0.0722*bb; // 輝度
+    samples.push(y);
+  }
+  const avgr=r/len, avgg=g/len, avgb=b/len;
+  // 分散（簡易マーブリング指標）
+  const mean = samples.reduce((a,b)=>a+b,0)/samples.length;
+  const variance = samples.reduce((a,b)=>a+(b-mean)*(b-mean),0)/samples.length;
+  return {r:avgr,g:avgg,b:avgb,variance};
+}
+function guessFromHSV(hsv, variance){
+  // 色で大まかクラスタリング
+  const {h,s,v} = hsv;
+  let base;
+  if(s<0.2 && v>0.8) base="白";
+  else if(h>=10 && h<=40 && s>0.3) base="橙";
+  else if((h<=10 || h>=345) && s>0.3) base="赤";
+  else base = (s<0.25 && v>0.6) ? "白" : "半透明";
+  // マーブリング推定
+  let marb = variance>900 ? "多" : variance>500 ? "中" : variance>250 ? "少" : "無";
+  // 透明感推定（超簡易）
+  let trans = (v>0.85 && s<0.18) ? "半透明" : "不透明";
+  return {base, marb, trans};
+}
+function scoreItemByImage(it, g){
+  let score=0; let hints=[];
+  if(it.base===g.base){score+=3; hints.push("色="+g.base);}
+  if(it.marb===g.marb){score+=2; hints.push("サシ="+g.marb);}
+  if(it.trans===g.trans){score+=1; hints.push("透明感="+g.trans);}
+  // サーモン特有の扱い（橙でサシあり）
+  if(g.base==="橙" && (g.marb==="中"||g.marb==="多") && (it.id==="salmon"||it.id==="trout")){score+=1;hints.push("橙×筋状サシ（推定）");}
+  return {score,hints};
+}
+function scoreItemByAnswers(it, ans){
+  let score=0; let hints=[];
+  if(ans.color && it.base===ans.color){score+=3;hints.push("色="+ans.color);}
+  if(ans.trans && it.trans===ans.trans){score+=2;hints.push("透明感="+ans.trans);}
+  if(ans.marb && it.marb===ans.marb){score+=2;hints.push("サシ="+ans.marb);}
+  if(ans.skin && it.skin===ans.skin){score+=1;hints.push("皮/銀皮="+ans.skin);}
+  if(ans.shape && it.shape===ans.shape){score+=1;hints.push("形状="+ans.shape);}
+  if(ans.feature){
+    if(ans.feature.includes("白い筋") && it.id==="salmon"){score+=2;hints.push("白い筋→サーモン特徴");}
+    if(ans.feature.includes("吸盤") && it.id==="tako"){score+=3;hints.push("吸盤→タコ");}
+    if(ans.feature.includes("甲殻") && (it.cat==="貝")){score+=2;hints.push("貝のひだ/甲殻");}
+    if(ans.feature.includes("血合い") && (it.id==="katsuo")){score+=2;hints.push("血合い濃→カツオ");}
+  }
+  return {score,hints};
+}
+function renderResults(rows, caption){
+  const wrap=document.getElementById('results');
+  wrap.innerHTML="";
+  if(!rows.length){wrap.innerHTML='<div class="empty">該当候補がありませんでした。条件を緩めてください。</div>'; return;}
+  rows.slice(0,8).forEach(r=>{
+    const pct = Math.round(100 * r.score / (rows[0].score||1));
+    const el=document.createElement('div');
+    el.className="item";
+    el.innerHTML = `
+      <h3>${r.item.name} <span class="small">（${r.item.cat}）</span></h3>
+      <div class="score"><b>確度</b>
+        <div class="progress" title="${pct}%"><i style="width:${pct}%"></i></div>
+        <span class="small">${pct}%</span>
+      </div>
+      <div class="tags">${r.hints.map(h=>`<span class="tag">${h}</span>`).join("")}</div>
+    `;
+    wrap.appendChild(el);
+  });
+}
 
+// ---- 画像推定パネル ----
+const fileInput = document.getElementById('file');
+fileInput.addEventListener('change', async (e)=>{
+  const f = e.target.files[0];
+  if(!f) return;
+  const url = URL.createObjectURL(f);
+  const img = new Image();
+  img.onload = ()=>{
+    const info = avgColorAndVariance(img);
+    const hsv = hsvFromRGB(info.r, info.g, info.b);
+    const g = guessFromHSV(hsv, info.variance);
+    document.getElementById('img-stats').innerHTML = `
+      <div>平均色（H/S/V）</div><div>${hsv.h.toFixed(0)}° / ${(hsv.s*100).toFixed(0)}% / ${(hsv.v*100).toFixed(0)}%</div>
+      <div>判定ベース色</div><div>${g.base}</div>
+      <div>簡易サシ推定</div><div>${g.marb}</div>
+      <div>透明感</div><div>${g.trans}</div>
+    `;
+    // スコアリング
+    const rows = SASHIMI_DB.map(it=>{
+      const {score,hints} = scoreItemByImage(it, g);
+      return {item:it,score,hints};
+    }).sort((a,b)=>b.score-a.score);
+    renderResults(rows, "image");
+  };
+  img.src = url;
+});
+
+// ---- QAパネル ----
+document.getElementById('btn-filter').addEventListener('click', ()=>{
+  const ans = {
+    color: document.getElementById('q-color').value,
+    trans: document.getElementById('q-trans').value,
+    marb: document.getElementById('q-marb').value,
+    skin: document.getElementById('q-skin').value,
+    shape: document.getElementById('q-shape').value,
+    feature: document.getElementById('q-feature').value
+  };
+  const rows = SASHIMI_DB.map(it=>{
+    const {score,hints} = scoreItemByAnswers(it, ans);
+    return {item:it,score,hints};
+  }).filter(r=>r.score>0).sort((a,b)=>b.score-a.score);
+  renderResults(rows, "qa");
+});
+document.getElementById('btn-clear').addEventListener('click', ()=>{
+  ['q-color','q-trans','q-marb','q-skin','q-shape','q-feature'].forEach(id=>document.getElementById(id).value="");
+  document.getElementById('results').innerHTML='<div class="empty">条件を選ぶと候補が表示されます。</div>';
+});
+
+// ---- タブ切替 ----
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    const mode = t.dataset.tab;
+    document.getElementById('panel-image').style.display = (mode==='image')?'block':'none';
+    document.getElementById('panel-qa').style.display    = (mode==='qa')?'block':'none';
+    document.getElementById('panel-title').textContent   = (mode==='image')?'画像から推定':'質問で絞り込み';
+  });
+});
+</script>
 </body>
 </html>
