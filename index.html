@@ -1,590 +1,186 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>腕時計セレクター（予算500万円） r1</title>
-<meta name="theme-color" content="#0F3C4C"/>
-<style>
-:root{
-  --bg:#f5f7fb; --card:#fff; --ink:#0f172a; --muted:#5b6b7a;
-  --accent:#0F7EA8; --accent-600:#0c678a; --ok:#1b9e5a; --warn:#c98200; --bad:#c53a2d;
-  --ring: rgba(15,126,168,.35);
-  --mono: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-  --radius:14px;
-}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,Apple Color Emoji,Segoe UI Emoji;
-  color:var(--ink); background:linear-gradient(180deg,#f0f4f8, #e9f0f7 60%, #e6eef6);
-}
-header{
-  position:sticky; top:0; z-index:50; backdrop-filter:saturate(180%) blur(8px);
-  background:rgba(255,255,255,.8); border-bottom:1px solid #e6ecf2;
-}
-.header-inner{
-  max-width:1100px; margin:auto; padding:12px 20px; display:flex; align-items:center; gap:14px;
-}
-h1{font-size:18px; margin:0; letter-spacing:.2px}
-.badge{font:600 12px/1 var(--mono); color:#fff; background:var(--accent); padding:6px 8px; border-radius:8px}
-main{max-width:1100px; margin:22px auto 28px; padding:0 20px; display:grid; grid-template-columns: 360px 1fr; gap:18px}
-@media (max-width:980px){ main{grid-template-columns:1fr} .toolbar{position:static} }
-
-.card{
-  background:var(--card); border:1px solid #e6ecf2; border-radius:var(--radius); box-shadow: 0 6px 18px rgba(20,40,60,.06);
-}
-.panel{padding:16px}
-.panel h2{font-size:16px; margin:0 0 8px}
-small.muted{color:var(--muted)}
-.row{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
-.row-3{display:grid; grid-template-columns: repeat(3,1fr); gap:10px}
-.row-4{display:grid; grid-template-columns: repeat(4,1fr); gap:10px}
-.field{display:flex; flex-direction:column; gap:6px; margin:8px 0}
-label{font-size:12px; color:var(--muted)}
-input[type="text"], input[type="number"], input[type="range"], select, textarea{
-  width:100%; padding:10px 12px; border-radius:10px; border:1px solid #dbe5ee; background:#fff; color:var(--ink);
-  outline:none;
-}
-input[type="range"]{padding:0}
-input:focus, select:focus, textarea:focus{border-color:var(--accent); box-shadow:0 0 0 4px var(--ring)}
-.switch{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
-.switch > span{padding:6px 10px; border:1px solid #dbe5ee; border-radius:999px; cursor:pointer; user-select:none}
-.switch > span[aria-pressed="true"]{background:#e8f6fb; border-color:#bcdfee; color:#0a5772}
-
-.help{font-size:12px; color:var(--muted)}
-.kpi{
-  display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px; border-radius:12px;
-  border:1px dashed #cfe2f0; background:#f8fcff; margin:10px 0 4px;
-}
-.kpi strong{font-variant-numeric: tabular-nums}
-.toolbar{position:sticky; top:58px; z-index:40; display:flex; gap:8px; flex-wrap:wrap; padding:12px; border-top:1px solid #eef3f7; border-bottom:1px solid #eef3f7; background:#fafcfe}
-button, .btn{
-  border:1px solid #cfe2f0; background:#fff; color:var(--ink); padding:10px 12px; border-radius:10px; cursor:pointer;
-}
-button:hover{border-color:#b6d6e8}
-button.primary{background:var(--accent); border-color:var(--accent-600); color:#fff}
-button.ghost{background:transparent}
-button.danger{border-color:#efc9c6; color:#b21f12}
-table{width:100%; border-collapse:separate; border-spacing:0; border:1px solid #e5edf4; border-radius:12px; overflow:hidden}
-thead th{font-size:12px; color:#466072; background:#f2f7fb; text-align:left; padding:10px 8px; border-bottom:1px solid #e5edf4}
-tbody td{font-size:13px; padding:8px; border-bottom:1px solid #eef4f9; vertical-align:top}
-tbody tr:last-child td{border-bottom:none}
-.tag{display:inline-block; font-size:11px; padding:4px 8px; border:1px solid #d6e6f2; border-radius:999px; margin-right:6px; margin-bottom:6px; background:#fbfeff}
-.result{display:grid; grid-template-columns: 1fr 1fr; gap:12px}
-@media (max-width:980px){ .result{grid-template-columns:1fr} }
-.card-result{padding:14px; border:1px solid #e6edf4; border-radius:12px; background:#fff}
-.card-result h3{margin:0 0 6px; font-size:15px}
-.score{font:700 22px/1 var(--mono)}
-.score.good{color:var(--ok)} .score.mid{color:var(--warn)} .score.bad{color:var(--bad)}
-.badge-cat{font-size:11px; padding:4px 8px; border-radius:999px; background:#eef6ff; border:1px solid #d5e7fb}
-footer{margin:26px 0 18px; text-align:center; color:var(--muted); font-size:12px}
-footer a{color:inherit; text-decoration:underline}
-hr.sep{border:none; border-top:1px solid #e8eef5; margin:12px 0}
-.code{font-family:var(--mono); background:#f7fbff; border:1px solid #e3eef7; padding:8px 10px; border-radius:8px}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巡回監査による「不正のトライアングル」の破壊</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome (アイコン) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts (Inter + Noto Sans JP) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #f4f4f5; /* Light gray background */
+        }
+        .font-handwritten {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-weight: 900;
+        }
+        /* 不正のトライアングル（中央） */
+        .fraud-triangle {
+            position: relative;
+            width: 280px;
+            height: 240px;
+            margin: 40px auto;
+        }
+        .triangle-shape {
+            width: 0;
+            height: 0;
+            border-left: 140px solid transparent;
+            border-right: 140px solid transparent;
+            border-bottom: 240px solid #FECACA; /* Red-200 */
+            position: absolute;
+        }
+        .triangle-label {
+            position: absolute;
+            width: 140px;
+            text-align: center;
+            font-weight: 700;
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+        .label-top {
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #B91C1C; /* Red-700 */
+        }
+        .label-left {
+            top: 120px;
+            left: -40px;
+            transform: translateY(-50%) rotate(-60deg);
+            color: #B91C1C; /* Red-700 */
+        }
+        .label-right {
+            top: 120px;
+            right: -40px;
+            transform: translateY(-50%) rotate(60deg);
+            color: #B91C1C; /* Red-700 */
+        }
+        .label-center {
+            top: 130px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #7F1D1D; /* Red-900 */
+        }
+        /* 攻撃の矢印 */
+        .attack-arrow {
+            position: absolute;
+            font-size: 3rem; /* 48px */
+            font-weight: 900;
+            color: #1D4ED8; /* Blue-700 */
+            opacity: 0.7;
+        }
+    </style>
 </head>
-<body>
-<header>
-  <div class="header-inner">
-    <div class="badge" aria-label="オフラインで動作">Offline</div>
-    <h1>腕時計セレクター — 予算500万円で最適案を点数化</h1>
-  </div>
-</header>
-
-<main>
-  <!-- 左：条件 -->
-  <section class="card panel" aria-labelledby="condTitle">
-    <h2 id="condTitle">条件設定</h2>
-    <div class="kpi">
-      <div>
-        <div><strong>予算</strong><span class="help">（税込想定・超過は減点）</span></div>
-        <div class="help">スライダー or 直接入力</div>
-      </div>
-      <strong id="budgetView" class="code">¥5,000,000</strong>
-    </div>
-    <div class="field">
-      <label for="budgetRange">上限（¥100,000〜¥10,000,000）</label>
-      <input id="budgetRange" type="range" min="100000" max="10000000" step="10000" value="5000000" />
-    </div>
-    <div class="field">
-      <label for="budgetNum">数値入力</label>
-      <input id="budgetNum" type="number" min="100000" max="10000000" step="10000" value="5000000" inputmode="numeric" />
-    </div>
-
-    <div class="row">
-      <div class="field">
-        <label>コンディション</label>
-        <div class="switch" id="condPick" role="group" aria-label="コンディション">
-          <span data-cond="new"   aria-pressed="true">新品</span>
-          <span data-cond="used"  aria-pressed="false">中古</span>
-          <span data-cond="either" aria-pressed="false">どちらでも</span>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto bg-white shadow-2xl rounded-lg overflow-hidden">
+        
+        <!-- 1. ヘッダー -->
+        <div class="bg-gray-800 p-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-white text-center font-handwritten">
+                巡回監査（確証＋指導）による「不正のトライアングル」の破壊
+            </h1>
+            <p class="text-md md:text-lg text-gray-300 text-center mt-2">巡回監査は、不正の「3つの条件」すべてを能動的に破壊する戦略である</p>
         </div>
-      </div>
-      <div class="field">
-        <label>ムーブメント</label>
-        <div class="switch" id="movePick" role="group" aria-label="ムーブメント">
-          <span data-mv="auto"  aria-pressed="true">自動巻</span>
-          <span data-mv="hand"  aria-pressed="false">手巻</span>
-          <span data-mv="quartz" aria-pressed="false">クォーツ</span>
-          <span data-mv="either" aria-pressed="false">指定なし</span>
+
+        <!-- 2. 図解エリア -->
+        <div class="p-6 md:p-12 relative">
+
+            <!-- 中央の不正のトライアングル -->
+            <div class="fraud-triangle">
+                <div class="triangle-shape"></div>
+                <div class="triangle-label label-top">
+                    <i class="fas fa-exclamation-triangle text-3xl mb-1"></i><br>
+                    1. 機会
+                </div>
+                <div class="triangle-label label-left">
+                    <i class="fas fa-balance-scale-right text-3xl mb-1"></i><br>
+                    2. 正当化
+                </div>
+                <div class="triangle-label label-right">
+                    <i class="fas fa-dollar-sign text-3xl mb-1"></i><br>
+                    3. 動機
+                </div>
+                <div class="triangle-label label-center">
+                    <span class="text-2xl font-bold">不正</span>
+                </div>
+            </div>
+
+            <!-- 1. 「機会」を破壊する力 -->
+            <div class="absolute top-1/4 left-4 md:left-12 w-1/3">
+                <div class="bg-blue-100 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-lg">
+                    <h3 class="text-xl font-bold text-blue-800 font-handwritten">
+                        <i class="fas fa-shield-alt mr-2"></i>「機会」の破壊
+                    </h3>
+                    <p class="text-gray-700 mt-2">（＝物理的に不正を**不可能**にする）</p>
+                    <ul class="list-disc list-inside mt-3 space-y-2 text-gray-700">
+                        <li><strong>巡回監査（確証）</strong>（見られている意識）</li>
+                        <li><strong>FXクラウド活用・自動化</strong>（システム統制）</li>
+                        <li><strong>内部牽制</strong>の構築（P.37の図 縦軸）</li>
+                    </ul>
+                </div>
+                <!-- 矢印 -->
+                <div class="attack-arrow" style="top: 50%; right: -30px;">
+                    <i class="fas fa-long-arrow-alt-right"></i>
+                </div>
+            </div>
+
+            <!-- 2. 「正当化」を破壊する力 -->
+            <div class="absolute bottom-4 left-4 md:left-24 w-1/3">
+                <div class="bg-blue-100 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-lg">
+                    <h3 class="text-xl font-bold text-blue-800 font-handwritten">
+                        <i class="fas fa-comments mr-2"></i>「正当化」の破壊
+                    </h3>
+                    <p class="text-gray-700 mt-2">（＝不正を**許さない**空気を作る）</p>
+                    <ul class="list-disc list-inside mt-3 space-y-2 text-gray-700">
+                        <li><strong>巡回監査（指導）</strong>（経営者の心にベルト）</li>
+                        <li><strong>経営者の意識</strong>の向上（P.37の図 縦軸）</li>
+                        <li><strong>アナログ力（P.34）</strong>による対話</li>
+                    </ul>
+                </div>
+                <!-- 矢印 -->
+                <div class="attack-arrow" style="top: -20px; right: -30px; transform: rotate(-30deg);">
+                    <i class="fas fa-long-arrow-alt-right"></i>
+                </div>
+            </div>
+
+            <!-- 3. 「動機」を緩和する力 -->
+            <div class="absolute bottom-1/4 right-4 md:right-12 w-1/3">
+                <div class="bg-blue-100 border-l-4 border-blue-500 p-4 rounded-l-lg shadow-lg">
+                    <h3 class="text-xl font-bold text-blue-800 font-handwritten">
+                        <i class="fas fa-heartbeat mr-2"></i>「動機」の緩和
+                    </h3>
+                    <p class="text-gray-700 mt-2">（＝不正の**必要性**をなくす）</p>
+                    <ul class="list-disc list-inside mt-3 space-y-2 text-gray-700">
+                        <li><strong>適時・正確な月次決算書</strong>の提供</li>
+                        <li><strong>経営助言・継続MAS</strong>（過度な圧力を排除）</li>
+                        <li><strong>資金繰り支援</strong>（経済的逼迫の緩和）</li>
+                    </ul>
+                </div>
+                <!-- 矢印 -->
+                <div class="attack-arrow" style="top: -20px; left: -30px; transform: rotate(210deg);">
+                    <i class="fas fa-long-arrow-alt-right"></i>
+                </div>
+            </div>
+
         </div>
-      </div>
-    </div>
 
-    <div class="field">
-      <label>カテゴリ（複数可）</label>
-      <div class="switch" id="catPick" role="group" aria-label="カテゴリ">
-        <span data-cat="dress" aria-pressed="true">ドレス</span>
-        <span data-cat="diver" aria-pressed="true">ダイバー</span>
-        <span data-cat="chrono" aria-pressed="true">クロノ</span>
-        <span data-cat="gmt" aria-pressed="true">GMT</span>
-        <span data-cat="pilot" aria-pressed="true">パイロット</span>
-        <span data-cat="field" aria-pressed="true">フィールド</span>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="field">
-        <label for="sizeMin">ケース径（mm）</label>
-        <div class="row">
-          <input id="sizeMin" type="number" min="30" max="50" step="0.5" value="36" aria-label="最小ケース径" />
-          <input id="sizeMax" type="number" min="30" max="50" step="0.5" value="42" aria-label="最大ケース径" />
+        <!-- 3. 結論 -->
+        <div class="p-6 md:p-8 bg-gray-100 border-t-4 border-gray-200">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 text-center mb-4 font-handwritten">
+                結論
+            </h2>
+            <p class="text-center text-lg text-gray-700 max-w-4xl mx-auto">
+                スライドの戦略（image_31aa8c.png）は、「事務所の負担軽減（守り）」であると同時に、
+                <br>クライアントを不正から守る**「最も積極的な経営防衛（攻め）」**の戦略でもある。
+            </p>
         </div>
-        <div class="help">許容レンジの中心に近いほど高評価</div>
-      </div>
-      <div class="field">
-        <label for="wrMin">防水（m以上）</label>
-        <input id="wrMin" type="number" min="30" max="1000" step="10" value="50" />
-      </div>
+
     </div>
-
-    <div class="row">
-      <div class="field">
-        <label for="brandPref">ブランド指定（任意・部分一致）</label>
-        <input id="brandPref" type="text" placeholder="例：ロレックス / GS / オメガ など" />
-      </div>
-      <div class="field">
-        <label for="refPref">型番キーワード（任意）</label>
-        <input id="refPref" type="text" placeholder="例：126610, 3861, SBGA" />
-      </div>
-    </div>
-
-    <hr class="sep" />
-    <h2>重み付け（重要度 0〜5）</h2>
-    <div class="row-3">
-      <div class="field"><label for="wBudget">予算消化（上限に近いほど加点）</label><input id="wBudget" type="range" min="0" max="5" step="1" value="2"></div>
-      <div class="field"><label for="wInvest">資産性（リセール/値崩れ耐性）</label><input id="wInvest" type="range" min="0" max="5" step="1" value="3"></div>
-      <div class="field"><label for="wBrand">ブランド性（系譜/歴史）</label><input id="wBrand" type="range" min="0" max="5" step="1" value="2"></div>
-    </div>
-    <div class="row-3">
-      <div class="field"><label for="wSpec">仕様適合（サイズ/防水/カテゴリ）</label><input id="wSpec" type="range" min="0" max="5" step="1" value="3"></div>
-      <div class="field"><label for="wService">国内アフター（サービス網）</label><input id="wService" type="range" min="0" max="5" step="1" value="2"></div>
-      <div class="field"><label for="wUniq">唯一性（被りにくさ）</label><input id="wUniq" type="range" min="0" max="5" step="1" value="1"></div>
-    </div>
-
-    <div class="toolbar">
-      <button class="primary" id="btnScore" aria-label="スコア更新">スコア更新</button>
-      <button id="btnSample">サンプル読込</button>
-      <button id="btnReset">条件リセット</button>
-      <button id="btnPrint">印刷 / PDF</button>
-      <input id="csvFile" type="file" accept=".csv" hidden />
-      <button id="btnImport" class="ghost">CSV取込</button>
-      <button id="btnExport" class="ghost">CSV書出</button>
-      <span class="help" aria-live="polite" id="status"></span>
-    </div>
-
-    <details>
-      <summary>使い方 / ポリシー</summary>
-      <ul class="help">
-        <li>右側の「候補一覧」にモデルを追加できます（ブランド・型番・価格など）。</li>
-        <li>「サンプル読込」は<em>架空データ</em>です。実購買時は公式価格や実勢価格で上書きしてください。</li>
-        <li>結果はあくまで<em>主観重み付けに基づく目安</em>です。最終判断は実機確認・正規価格の確認を推奨します。</li>
-      </ul>
-    </details>
-  </section>
-
-  <!-- 右：候補＆結果 -->
-  <section class="card panel" aria-labelledby="candTitle">
-    <h2 id="candTitle">候補一覧と結果</h2>
-
-    <div class="field">
-      <label>新規候補の追加</label>
-      <div class="row-4">
-        <input id="inBrand" type="text" placeholder="ブランド" />
-        <input id="inModel" type="text" placeholder="モデル名/型番" />
-        <input id="inPrice" type="number" placeholder="価格(¥)" min="0" step="1000" />
-        <select id="inCat">
-          <option value="dress">ドレス</option><option value="diver">ダイバー</option>
-          <option value="chrono">クロノ</option><option value="gmt">GMT</option>
-          <option value="pilot">パイロット</option><option value="field">フィールド</option>
-        </select>
-      </div>
-      <div class="row-4">
-        <input id="inSize" type="number" placeholder="径(mm)" min="30" max="50" step="0.1" />
-        <input id="inWR" type="number" placeholder="防水(m)" min="0" step="10" />
-        <select id="inMv">
-          <option value="auto">自動巻</option><option value="hand">手巻</option><option value="quartz">クォーツ</option>
-        </select>
-        <select id="inCond">
-          <option value="new">新品</option><option value="used">中古</option><option value="either">どちらでも</option>
-        </select>
-      </div>
-      <div class="row-4">
-        <input id="inResale" type="number" placeholder="資産性(0-5)" min="0" max="5" step="1" />
-        <input id="inService" type="number" placeholder="サービス網(0-5)" min="0" max="5" step="1" />
-        <input id="inUniq" type="number" placeholder="唯一性(0-5)" min="0" max="5" step="1" />
-        <button id="btnAdd">候補に追加</button>
-      </div>
-      <div class="help">資産性/サービス/唯一性は主観スコアでOK（0=低〜5=高）</div>
-    </div>
-
-    <table aria-label="候補一覧">
-      <thead>
-        <tr>
-          <th>ブランド</th><th>モデル/型番</th><th>価格</th><th>カテゴリ</th>
-          <th>径</th><th>防水</th><th>ムーブ</th><th>状態</th>
-          <th>資産</th><th>サービス</th><th>唯一</th><th></th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-
-    <hr class="sep" />
-    <h2>おすすめ上位</h2>
-    <div id="results" class="result" aria-live="polite"></div>
-  </section>
-</main>
-
-<footer id="ft"></footer>
-
-<script>
-const ¥ = (n)=> new Intl.NumberFormat('ja-JP',{style:'currency',currency:'JPY'}).format(n||0);
-const fmt = (n)=> new Intl.NumberFormat('ja-JP').format(n||0);
-const $ = (q)=> document.querySelector(q);
-const $$= (q)=> Array.from(document.querySelectorAll(q));
-
-const state = {
-  budget: 5000000,
-  cond: 'new',
-  mv: 'auto',
-  cats: new Set(['dress','diver','chrono','gmt','pilot','field']),
-  sizeMin: 36, sizeMax: 42, wrMin: 50,
-  brandKey: '', refKey: '',
-  w: { budget:2, invest:3, brand:2, spec:3, service:2, uniq:1 },
-  rows: []
-};
-
-const tbody = $('#tbody'), results = $('#results'), statusEl = $('#status');
-
-function syncBudgetViews(){
-  $('#budgetView').text(¥(state.budget));
-  $('#budgetRange').value = state.budget;
-  $('#budgetNum').value = state.budget;
-}
-
-$('#budgetRange').addEventListener('input', e=>{ state.budget = +e.target.value; syncBudgetViews(); });
-$('#budgetNum').addEventListener('input', e=>{
-  const v = Math.max(100000, Math.min(10000000, +e.target.value||0));
-  state.budget = v; syncBudgetViews();
-});
-
-function toggleGroup(containerSel, attr, onPick){
-  $(containerSel).addEventListener('click', e=>{
-    const tgt = e.target.closest('span'); if(!tgt) return;
-    if(containerSel==='#catPick'){
-      const v = tgt.dataset.cat;
-      const pressed = tgt.getAttribute('aria-pressed')==='true';
-      tgt.setAttribute('aria-pressed', String(!pressed));
-      if(pressed) state.cats.delete(v); else state.cats.add(v);
-    }else{
-      $$(containerSel+' > span').forEach(s=> s.setAttribute('aria-pressed','false'));
-      tgt.setAttribute('aria-pressed','true');
-      onPick(tgt);
-    }
-  });
-}
-toggleGroup('#condPick','data-cond', s=> state.cond = s.dataset.cond);
-toggleGroup('#movePick','data-mv',  s=> state.mv   = s.dataset.mv);
-
-$('#sizeMin').addEventListener('input', e=> state.sizeMin = +e.target.value||36);
-$('#sizeMax').addEventListener('input', e=> state.sizeMax = +e.target.value||42);
-$('#wrMin').addEventListener('input',  e=> state.wrMin   = +e.target.value||50);
-$('#brandPref').addEventListener('input', e=> state.brandKey = (e.target.value||'').trim().toLowerCase());
-$('#refPref').addEventListener('input',   e=> state.refKey   = (e.target.value||'').trim().toLowerCase());
-
-['wBudget','wInvest','wBrand','wSpec','wService','wUniq'].forEach(id=>{
-  $('#'+id).addEventListener('input', e=>{
-    const k = id.replace(/^w/,'').toLowerCase();
-    state.w[k] = +e.target.value;
-  });
-});
-
-function rowToHtml(r,i){
-  return `<tr>
-    <td>${escapeHtml(r.brand)}</td>
-    <td>${escapeHtml(r.model)}</td>
-    <td>${¥(r.price)}</td>
-    <td><span class="tag">${r.cat}</span></td>
-    <td>${r.size||'-'}</td>
-    <td>${r.wr||'-'}</td>
-    <td>${r.mv}</td>
-    <td>${r.cond}</td>
-    <td>${r.resale}</td>
-    <td>${r.service}</td>
-    <td>${r.uniq}</td>
-    <td><button class="danger" data-del="${i}">削除</button></td>
-  </tr>`;
-}
-
-function renderTable(){
-  tbody.innerHTML = state.rows.map(rowToHtml).join('');
-}
-tbody.addEventListener('click', e=>{
-  const del = e.target.closest('button[data-del]');
-  if(del){
-    const idx = +del.dataset.del;
-    state.rows.splice(idx,1);
-    renderTable(); scoreAll();
-  }
-});
-
-$('#btnAdd').addEventListener('click', ()=>{
-  const r = {
-    brand: $('#inBrand').value?.trim() || '（無名）',
-    model: $('#inModel').value?.trim() || '',
-    price: +$('#inPrice').value||0,
-    cat: $('#inCat').value,
-    size: +$('#inSize').value||null,
-    wr: +$('#inWR').value||null,
-    mv: $('#inMv').value,
-    cond: $('#inCond').value,
-    resale: +$('#inResale').value||0,
-    service: +$('#inService').value||0,
-    uniq: +$('#inUniq').value||0
-  };
-  state.rows.push(r);
-  renderTable(); scoreAll(); status('追加しました');
-});
-
-$('#btnReset').addEventListener('click', ()=>{
-  Object.assign(state,{
-    budget:5000000, cond:'new', mv:'auto', cats:new Set(['dress','diver','chrono','gmt','pilot','field']),
-    sizeMin:36, sizeMax:42, wrMin:50, brandKey:'', refKey:'', w:{budget:2,invest:3,brand:2,spec:3,service:2,uniq:1}
-  });
-  syncBudgetViews();
-  ['#brandPref','#refPref','#sizeMin','#sizeMax','#wrMin'].forEach(sel=>{
-    if(sel==='#sizeMin') $(sel).value=36;
-    else if(sel==='#sizeMax') $(sel).value=42;
-    else if(sel==='#wrMin') $(sel).value=50;
-    else $(sel).value='';
-  });
-  // reset toggles
-  $$('#condPick span').forEach((s,i)=> s.setAttribute('aria-pressed', String(i===0)));
-  $$('#movePick span').forEach((s,i)=> s.setAttribute('aria-pressed', String(i===0)));
-  $$('#catPick span').forEach(s=> s.setAttribute('aria-pressed','true'));
-  // weights
-  $('#wBudget').value=2; $('#wInvest').value=3; $('#wBrand').value=2; $('#wSpec').value=3; $('#wService').value=2; $('#wUniq').value=1;
-  scoreAll(); status('条件を初期化しました');
-});
-
-$('#btnPrint').addEventListener('click', ()=> window.print());
-
-$('#btnSample').addEventListener('click', ()=>{
-  state.rows = sampleRows();
-  renderTable(); scoreAll();
-  status('サンプル（ダミー）を読み込みました');
-});
-
-$('#btnScore').addEventListener('click', ()=>{ scoreAll(); status('スコア更新しました'); });
-
-function status(msg){ statusEl.textContent = msg; setTimeout(()=> statusEl.textContent='', 1800); }
-
-function sampleRows(){
-  return [
-    {brand:'ブランドA', model:'ダイバー38（D-38）', price:1200000, cat:'diver', size:38, wr:200, mv:'auto', cond:'new', resale:3, service:3, uniq:2},
-    {brand:'ブランドB', model:'GMT Pro（G-40）',     price:3800000, cat:'gmt',   size:40, wr:100, mv:'auto', cond:'new', resale:4, service:2, uniq:3},
-    {brand:'ブランドC', model:'クロノクラシック',    price:4800000, cat:'chrono',size:42, wr:50,  mv:'hand', cond:'new', resale:3, service:1, uniq:4},
-    {brand:'ブランドD', model:'ドレスエレガンス',      price:2500000, cat:'dress', size:36, wr:30,  mv:'hand', cond:'new', resale:2, service:2, uniq:3},
-    {brand:'ブランドE', model:'パイロット41',          price:1900000, cat:'pilot', size:41, wr:100, mv:'auto', cond:'new', resale:2, service:3, uniq:2},
-    {brand:'ブランドF', model:'フィールド37',          price:800000,  cat:'field', size:37, wr:100, mv:'auto', cond:'used', resale:2, service:4, uniq:2}
-  ];
-}
-
-// スコアリング
-function scoreAll(){
-  const pref = {
-    budget: state.budget, cond: state.cond, mv: state.mv, cats: state.cats,
-    sizeMin: state.sizeMin, sizeMax: state.sizeMax, wrMin: state.wrMin,
-    brandKey: state.brandKey, refKey: state.refKey, w: state.w
-  };
-  const scored = state.rows
-    .filter(r=> filterCandidate(r,pref))
-    .map(r=>{
-      const s = scoreOne(r, pref);
-      return {r, score:s.total, parts:s.parts};
-    })
-    .sort((a,b)=> b.score - a.score)
-    .slice(0,4);
-  renderResults(scored);
-}
-
-function filterCandidate(r,p){
-  if(p.brandKey && !(r.brand||'').toLowerCase().includes(p.brandKey)) return false;
-  if(p.refKey && !(r.model||'').toLowerCase().includes(p.refKey)) return false;
-  if(!p.cats.has(r.cat)) return false;
-  if(r.wr!=null && r.wr < p.wrMin) return false;
-  if(r.size!=null && (r.size < p.sizeMin || r.size > p.sizeMax)) return false;
-  if(p.mv!=='either' && r.mv!==p.mv) return false;
-  if(p.cond!=='either' && r.cond!==p.cond) return false;
-  return true;
-}
-
-function norm01(x, min, max){
-  if(max===min) return 0; const v = (x-min)/(max-min);
-  return Math.max(0, Math.min(1, v));
-}
-
-function scoreOne(r,p){
-  const parts = {};
-  // 1) 予算消化：上限に近いほど良い（安すぎも微減点、超過は大きめ減点）
-  const d = r.price - p.budget;
-  let budgetScore;
-  if(d>0){ // over budget
-    const over = d/p.budget; budgetScore = Math.max(0, 1 - over*1.5);
-  }else{
-    // within budget: closer to budget is better, but not penalize harshly if far cheaper
-    const under = (-d)/p.budget;
-    budgetScore = Math.max(0, 1 - under*0.6);
-  }
-  parts.budget = budgetScore * p.w.budget;
-
-  // 2) 資産性（0-5を1/5に正規化）
-  const invest = (r.resale||0)/5;
-  parts.invest = invest * p.w.invest;
-
-  // 3) ブランド（ざっくり：ブランド指定がある場合は一致で加点）
-  const brandHit = p.brandKey ? ((r.brand||'').toLowerCase().includes(p.brandKey)?1:0) : 0.6; // 指定なしなら中庸
-  parts.brand = brandHit * p.w.brand;
-
-  // 4) 仕様適合（サイズ中心0〜1、防水、カテゴリはフィルタで担保済）
-  const mid = (p.sizeMin + p.sizeMax)/2;
-  const span = Math.max(0.1, (p.sizeMax - p.sizeMin)/2);
-  const sizeFit = r.size==null ? 0.5 : Math.max(0, 1 - Math.abs(r.size - mid)/span);
-  const wrFit = r.wr==null ? 0.5 : Math.max(0, Math.min(1, (r.wr - p.wrMin)/ (Math.max(10,p.wrMin)*1.5) + 0.3));
-  const mvFit = (p.mv==='either'|| r.mv===p.mv)?1:0; // ここはフィルタで除外済のはず
-  const spec = (sizeFit*0.45 + wrFit*0.35 + mvFit*0.2);
-  parts.spec = spec * p.w.spec;
-
-  // 5) サービス網（0-5）
-  const service = (r.service||0)/5;
-  parts.service = service * p.w.service;
-
-  // 6) 唯一性（0-5）
-  const uniq = (r.uniq||0)/5;
-  parts.uniq = uniq * p.w.uniq;
-
-  const total = Object.values(parts).reduce((a,b)=>a+b,0);
-  return {total, parts};
-}
-
-function renderResults(items){
-  results.innerHTML = items.map(({r,score,parts},i)=>{
-    const cls = score>=8? 'good' : score>=5? 'mid' : 'bad';
-    const reason = [
-      parts.budget>0?`予算適合(×${(parts.budget).toFixed(1)})`:'',
-      parts.spec>0?`仕様適合(×${(parts.spec).toFixed(1)})`:'',
-      parts.invest>0?`資産性(×${(parts.invest).toFixed(1)})`:'',
-      parts.brand>0?`ブランド(×${(parts.brand).toFixed(1)})`:'',
-      parts.service>0?`サービス(×${(parts.service).toFixed(1)})`:'',
-      parts.uniq>0?`唯一性(×${(parts.uniq).toFixed(1)})`:''
-    ].filter(Boolean).join('・');
-    return `<div class="card-result" role="article" aria-label="第${i+1}候補">
-      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
-        <h3>#${i+1} ${escapeHtml(r.brand)} <span class="badge-cat">${escapeHtml(r.model)}</span></h3>
-        <div class="score ${cls}" title="重み付き合計点">${score.toFixed(1)}</div>
-      </div>
-      <div class="help">価格：<strong>${¥(r.price)}</strong>｜カテゴリ：${r.cat}｜径：${r.size??'-'}mm｜防水：${r.wr??'-'}m｜ムーブ：${r.mv}｜状態：${r.cond}</div>
-      <div class="help">根拠：${reason || '—'}</div>
-    </div>`;
-  }).join('') || `<div class="help">条件に一致する候補がありません。左の条件や「候補一覧」を調整してください。</div>`;
-}
-
-function escapeHtml(s){ return String(s??'').replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
-
-// CSV I/O
-$('#btnImport').addEventListener('click', ()=> $('#csvFile').click());
-$('#csvFile').addEventListener('change', e=>{
-  const file = e.target.files[0]; if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ()=>{
-    try{
-      const rows = parseCSV(reader.result);
-      // 期待列: brand,model,price,cat,size,wr,mv,cond,resale,service,uniq
-      const mapped = rows.map(c=>({
-        brand:c.brand||'', model:c.model||'', price:+c.price||0, cat:c.cat||'dress',
-        size: toNum(c.size), wr: toNum(c.wr), mv:c.mv||'auto', cond:c.cond||'new',
-        resale:+c.resale||0, service:+c.service||0, uniq:+c.uniq||0
-      }));
-      state.rows = mapped; renderTable(); scoreAll(); status('CSVを取り込みました');
-    }catch(err){ alert('CSVの読み込みに失敗しました：'+err.message); }
-    e.target.value='';
-  };
-  reader.readAsText(file);
-});
-
-$('#btnExport').addEventListener('click', ()=>{
-  const header = 'brand,model,price,cat,size,wr,mv,cond,resale,service,uniq\n';
-  const body = state.rows.map(r=>[
-    r.brand,r.model,r.price,r.cat,r.size??'',r.wr??'',r.mv,r.cond,r.resale,r.service,r.uniq
-  ].map(v=> `"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob([header+body], {type:'text/csv'});
-  const url = URL.createObjectURL(blob);
-  const a = Object.assign(document.createElement('a'), {href:url, download:'watch-candidates.csv'});
-  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-});
-
-function toNum(x){ const n = +x; return Number.isFinite(n)? n : null; }
-
-function parseCSV(text){
-  // ざっくりCSV（"で囲い、,区切り、一行目ヘッダ）
-  const lines = text.replace(/\r/g,'').split('\n').filter(l=>l.trim().length);
-  const head = splitCSVLine(lines[0]).map(h=>h.trim());
-  return lines.slice(1).map(line=>{
-    const cells = splitCSVLine(line);
-    const row = {};
-    head.forEach((h,i)=> row[h]= (cells[i]??''));
-    return row;
-  });
-}
-function splitCSVLine(line){
-  const out=[]; let cur=''; let q=false;
-  for(let i=0;i<line.length;i++){
-    const c=line[i], n=line[i+1];
-    if(q){
-      if(c==='"' && n==='"'){ cur+='"'; i++; }
-      else if(c==='"'){ q=false; }
-      else cur+=c;
-    }else{
-      if(c==='"' ){ q=true; }
-      else if(c===','){ out.push(cur); cur=''; }
-      else cur+=c;
-    }
-  }
-  out.push(cur); return out;
-}
-
-// 起動
-(function init(){
-  syncBudgetViews();
-  // フッター（CCミニ）
-  const y = new Date().getFullYear();
-  const last = new Date(document.lastModified); const d = last.toISOString().slice(0,10);
-  $('#ft').innerHTML = `© ${y} Your Office ｜ <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> ｜ <a href="#" onclick="alert('ご利用は自己責任です。価格・仕様は必ず公式情報でご確認ください。');return false;">利用条件</a> ｜ r1（${d}）`;
-  // 初期は空（必要ならサンプル読込）
-  state.rows = [];
-  renderTable(); scoreAll();
-})();
-</script>
 </body>
 </html>
