@@ -116,9 +116,9 @@
     </p>
   </div>
 
-  <!-- STEP2: 自社のCCC入力 -->
+  <!-- STEP2-A: 自社のCCC入力（直接） -->
   <div class="card" id="directBox">
-    <h2>STEP2 自社のDIO/DSO/DPOを入力（または後続カードで自動算出）</h2>
+    <h2>STEP2-A 自社のDIO/DSO/DPOを直接入力</h2>
     <div class="row">
       <div><label>DIO（在庫回転期間）</label><input type="text" inputmode="decimal" placeholder="例）60.5" id="dioInput"></div>
       <div><label>DSO（売上債権回転期間）</label><input type="text" inputmode="decimal" placeholder="例）30.2" id="dsoInput"></div>
@@ -127,9 +127,9 @@
     <p class="sub">業種チップをクリックすると、その業種の平均DIO/DSO/DPOを初期値として流し込めます。そこから自社の実態に合わせて調整してください。</p>
   </div>
 
-  <!-- STEP2（別ルート）: 自動算出 -->
+  <!-- STEP2-B: 自動算出 -->
   <div class="card" id="autoBox" style="display:none">
-    <h2>STEP2 財務数値から自社のDIO/DSO/DPOを自動算出</h2>
+    <h2>STEP2-B 財務数値から自社のDIO/DSO/DPOを自動算出</h2>
     <div class="row">
       <div><label>売上高（期間合計／円）</label><input type="text" inputmode="numeric" placeholder="例）239,874,000" id="sales"></div>
       <div><label>売上原価（期間合計／円）</label><input type="text" inputmode="numeric" placeholder="例）164,617,000" id="cogs"></div>
@@ -147,7 +147,7 @@
       <div><label>年間売上高（円）</label><input type="text" inputmode="numeric" placeholder="例）300,000,000" id="impactSales"></div>
       <div><label>限界利益率（％）</label><input type="text" inputmode="decimal" placeholder="例）40" id="marginRate"></div>
     </div>
-    <p class="sub">選択した業種の平均CCCと自社CCCの差（Δ日）をもとに、「CCCを業種平均まで短縮できた場合に浮く運転資金」をざっくり試算します。算式：年間売上高×(1−限界利益率)÷365×Δ日。</p>
+    <p class="sub">選択した業種の平均CCCと自社CCCの差（Δ日）をもとに、CCCを業種平均まで短縮できた場合に、平常時に必要な運転資金の平均残高がどれだけ少なくて済むかをざっくり試算します。算式：年間売上高×(1−限界利益率)÷365×Δ日。</p>
   </div>
 
   <!-- 結果 -->
@@ -181,7 +181,7 @@
     <!-- インパクト表示 -->
     <div class="impact-box">
       <p class="sub" id="impactSummary">
-        業種（初期値は「全産業」）と自社CCCを入力すると、業種平均とのギャップと、CCCを業種平均まで短縮した場合の資金負担インパクトを表示します。
+        業種（初期値は「全産業」）と自社CCCを入力すると、業種平均とのギャップと、CCCを業種平均まで短縮した場合に平常時に必要な運転資金の平均残高がどれだけ少なくて済むかを表示します。
       </p>
     </div>
   </div>
@@ -212,8 +212,8 @@
 
 <script>
 (function(){
-  /* バージョン（今回 r21） */
-  const RNUM = 'r21';
+  /* バージョン（今回 r22） */
+  const RNUM = 'r22';
   const ORIGIN_DAYS = 365; // BAST原表の基準日数
 
   const nfInt   = new Intl.NumberFormat('ja-JP');
@@ -262,11 +262,6 @@
     if(!el) return 0;
     const v = parseNum(el.value);
     return isNaN(v)?0:v;
-  }
-  function setText(id,val){
-    const el=$('#'+id);
-    if(!el) return;
-    el.value = nfInt.format(val);
   }
 
   /* 小数入力（DIO/DSO/DPO・限界利益率）：入力中自由、blurで丸め */
@@ -491,11 +486,11 @@
     const base = PRESETS_DAYS[state.currentIndustry];
 
     if(!(cccSelf>0)){
-      el.textContent = '自社のCCCを計算すると、選択業種の平均CCCとのギャップと、CCC短縮による資金負担インパクトを表示します。';
+      el.textContent = '自社のCCCを計算すると、選択業種の平均CCCとのギャップと、CCCを業種平均まで短縮した場合に平常時に必要な運転資金の平均残高がどれだけ少なくて済むかを表示します。';
       return;
     }
     if(!base){
-      el.textContent = `自社CCCは約${nf1.format(cccSelf)}日です。業種を選択すると、業種平均との比較と資金負担インパクトを試算します。`;
+      el.textContent = `自社CCCは約${nf1.format(cccSelf)}日です。業種を選択すると、業種平均との比較と、平常時に必要な運転資金の平均残高がどれだけ少なくて済むかの目安を試算します。`;
       return;
     }
 
@@ -519,7 +514,7 @@
 
     const m = parseMarginRate();
     if(!(S>0) || isNaN(m) || !(m>0 && m<1)){
-      el.textContent = headLine + '。年間売上高と限界利益率（0〜100%）を入力すると、CCCを業種平均まで短縮した場合に浮く運転資金の目安を表示します。';
+      el.textContent = headLine + '。年間売上高と限界利益率（0〜100%）を入力すると、CCCを業種平均まで短縮した場合に、平常時に必要な運転資金の平均残高がどれだけ少なくて済むかの目安を表示します。';
       return;
     }
 
@@ -528,7 +523,7 @@
     const impactMan = impact / 10000;
 
     el.textContent = headLine +
-      `。このとき、CCCを業種平均まで短縮できれば、ざっくり「約${nf1flex.format(impactMan)}万円」の運転資金が浮く計算になります（式：年間売上高×(1−限界利益率)÷365×Δ日）。`;
+      `。このとき、CCCを業種平均まで短縮できれば、平常時に必要な運転資金の平均残高が、ざっくり「約${nf1flex.format(impactMan)}万円」少なくて済む計算になります（式：年間売上高×(1−限界利益率)÷365×Δ日）。`;
   }
 
   /* ボタン */
