@@ -292,11 +292,11 @@ input[type="range"]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 6px rgba(58
   var TUTORIAL_SEEN_KEY='rate_tool_tutorial_seen_v1';
   var KEY='rate_tool_r40';
 
-  // ★ 売上換算ツール連携用（売上換算ツール側と同じキーを利用）
+  // ★ 売上換算ツール連携用（「それ、売上に直すといくらですか？」側と共通のキー名を使用）
   var MK_SALES_EFFECT_AMOUNT_KEY='mk_salesEffectAmount';
   var MK_SALES_EFFECT_SOURCE_KEY='mk_salesEffectSource';
-  // ★ 売上換算ツールのURL（実際の配置に合わせて書き換えてください）
-  var SALES_TOOL_URL='sore-uriage.html';
+  // ★ 「それ、売上に直すといくらですか？」のURL
+  var SALES_TOOL_URL='https://takatrp.github.io/convert-to-sales/';
 
   var initialized=false, justEnded=false;
 
@@ -403,7 +403,7 @@ input[type="range"]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 6px rgba(58
   /* ------------ 売上換算ツールへの連携 ------------ */
   function jumpToSalesTool(){
     var useH=Number(state.useHours)||0;
-    var amount=costFor(useH);
+    var amount=costFor(useH); // 今回の「所要時間のコスト」をそのまま支出額として渡す
     if(!isFinite(amount) || amount<=0){
       showToast('所要時間（h）を0より大きく設定してください。');
       return;
@@ -412,12 +412,8 @@ input[type="range"]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 6px rgba(58
       localStorage.setItem(MK_SALES_EFFECT_AMOUNT_KEY, String(amount));
       localStorage.setItem(MK_SALES_EFFECT_SOURCE_KEY, 'jinken'); // 人件費見える化ツール由来
     }catch(e){}
-    try{
-      window.open(SALES_TOOL_URL,'_blank','noopener');
-    }catch(e){
-      // ポップアップブロック時は同一タブで遷移
-      window.location.href=SALES_TOOL_URL;
-    }
+    // 同一オリジン内なので、単純遷移でOK
+    window.location.href = SALES_TOOL_URL;
   }
 
   /* ------------ events ------------ */
