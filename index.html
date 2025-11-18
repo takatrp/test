@@ -18,12 +18,6 @@
   --cols:.9fr 1fr 2.8fr 1.0fr 1.15fr .35fr 1.15fr .8fr;
   --row-gap:6px; --col-gap:4px; --kpiRowH:auto;
   --bar-after:#4fb3c1;
-
-  /* 売上換算CTAカラー */
-  --cta:#f97316;       /* orange-500 */
-  --cta-600:#ea580c;   /* hover */
-  --cta-700:#c2410c;   /* active */
-  --cta-ring:rgba(249,115,22,.22);
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);
@@ -69,37 +63,56 @@ button{cursor:pointer;border:none;border-radius:12px;padding:10px 14px;font-size
 .outline:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(32,132,168,.18);background:#f3f9fc}
 .outline:active{transform:translateY(0);background:#eef7fb}
 
-/* ===== 売上換算 CTA 強調 ===== */
-.btn-cta{
-  background:linear-gradient(135deg,var(--cta),#fb923c);
-  color:#fff;
+/* ========= Buttons (primary / soft / outline) ========= */
+.btn{
+  cursor:pointer;
+  border-radius:14px;
+  padding:10px 16px;
+  font-size:14px;
   font-weight:700;
   letter-spacing:.02em;
-  border:0;
-  box-shadow:0 8px 20px rgba(249,115,22,.35);
+  transition:.15s;
+  border:1px solid transparent;
 }
-.btn-cta:hover{
+.btn:disabled{opacity:.65;cursor:not-allowed}
+
+/* 主ボタン：やや強めのブルーグラデ */
+.btn-primary{
+  color:#fff;
+  background:linear-gradient(180deg,#2b97b8 0%, #1f7fa3 100%);
+  border-color:#1b7899;
+  box-shadow:0 6px 16px rgba(32,132,168,.25);
+}
+.btn-primary:hover{
   transform:translateY(-1px);
-  box-shadow:0 12px 26px rgba(249,115,22,.45),0 0 0 6px var(--cta-ring);
-  filter:saturate(1.05);
+  box-shadow:0 10px 22px rgba(32,132,168,.32);
 }
-.btn-cta:active{transform:translateY(0);filter:saturate(.98)}
-.btn-cta:focus-visible{outline:none;box-shadow:0 0 0 4px var(--cta-ring)}
-/* パルスで軽く目を引く（有効時のみ付与） */
-@keyframes ctaPulse{
-  0%{box-shadow:0 8px 20px rgba(249,115,22,.35),0 0 0 0 rgba(249,115,22,0)}
-  50%{box-shadow:0 8px 20px rgba(249,115,22,.35),0 0 0 8px rgba(249,115,22,.18)}
-  100%{box-shadow:0 8px 20px rgba(249,115,22,.35),0 0 0 0 rgba(249,115,22,0)}
+.btn-primary:active{transform:translateY(0)}
+
+/* 淡色ボタン：薄いブルーで控えめ */
+.btn-soft{
+  color:#1b7899;
+  background:#eef6fb;
+  border-color:#d7eaf3;
 }
-.btn-cta.pulse{animation:ctaPulse 1.8s ease-in-out infinite}
-/* 無効時の見た目 */
-.btn-cta:disabled{
-  background:#fde68a;
-  color:#78350f;
-  box-shadow:none;
-  cursor:not-allowed;
-  opacity:.8;
+.btn-soft:hover{
+  background:#e7f2f9;
+  border-color:#cbe5f2;
+  transform:translateY(-1px);
 }
+.btn-soft:active{transform:translateY(0)}
+
+/* アウトラインボタン：白地＋アクセント枠 */
+.btn-outline{
+  color:#1b7899;
+  background:#fff;
+  border-color:#1b7899;
+}
+.btn-outline:hover{
+  background:#f5fbfe;
+  transform:translateY(-1px);
+}
+.btn-outline:active{transform:translateY(0)}
 
 /* KPI */
 .kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
@@ -363,6 +376,7 @@ footer.mk-mini a{color:inherit;text-decoration:underline}
       <div class="item" id="kpiBefore"><h3>導入なし 総時間（月）</h3><div class="krow"><div class="val" id="kpiHBefore">0.00 時間</div><div class="aside"><div class="label">人件費相当額</div><div class="yen" id="kpiCostBefore">¥0</div></div></div></div>
       <div class="item" id="kpiAfter"><h3>導入あり 総時間（月）</h3><div class="krow"><div class="val" id="kpiHAfter">0.00 時間</div><div class="aside"><div class="label">人件費相当額</div><div class="yen" id="kpiCostAfter">¥0</div></div></div></div>
 
+      <!-- 入替：時間短縮 → 左、人件費削減（強調） → 右 -->
       <div class="item"><h3>時間短縮（合計・月間）</h3><div class="val" id="kpiSaved">0.00 時間</div><div class="note">（導入なし − 導入あり）</div></div>
       <div class="item item--emph savings" id="kpiSavings"><h3>人件費削減</h3><div class="krow"><div class="val-main" id="kpiYen">¥0</div><div class="aside"><div class="label">年間（12ヶ月換算）</div><div class="yen" id="kpiYenYear">¥0</div></div></div></div>
 
@@ -371,10 +385,10 @@ footer.mk-mini a{color:inherit;text-decoration:underline}
   </section>
 
   <div class="btns" id="footerBtns" style="justify-content:center;margin-top:8px">
-    <button class="outline" id="copyBtn" onclick="copySummary()">コピー</button>
-    <button class="outline" id="csvBtn" onclick="exportCSV()">CSV出力</button>
-    <button class="btn-cta" id="salesBtn" onclick="jumpToSalesTool()">売上換算</button>
-    <button class="outline" id="printBtn" onclick="printPage()">印刷</button>
+    <button class="btn btn-primary" id="salesBtn" onclick="jumpToSalesTool()">売上換算</button>
+    <button class="btn btn-soft"    id="copyBtn"  onclick="copySummary()">コピー</button>
+    <button class="btn btn-soft"                onclick="resetAll();calc()">リセット</button>
+    <button class="btn btn-outline" id="printBtn" onclick="printPage()">印刷</button>
   </div>
 
   <footer class="mk-mini">
@@ -530,12 +544,15 @@ function updateUI(r){
   $('kpiBreakdown').textContent=txt;
   $('kpiBreakdown').title=txt;
 
-  // 売上換算CTAの有効/無効とパルス制御
+  // 売上換算ボタンの有効／無効
   const sb=$('salesBtn');
-  const enable = r.saveY>0;
-  sb.disabled = !enable;
-  sb.title = enable ? '売上換算ツールへ（削減「月額」をプリセット）' : '人件費削減（月）が0円のため無効';
-  sb.classList.toggle('pulse', enable);
+  if(sb){
+    const enable=r.saveY>0;
+    sb.disabled=!enable;
+    sb.title=enable
+      ? '売上換算ツールへ（削減「月額」をプリセット）'
+      : '人件費削減（月）が0円以下のため、売上換算できる金額がありません。';
+  }
 
   drawChartsAnimated(r);
   refreshBulk();
@@ -653,8 +670,8 @@ function drawChartsAnimated(r){
     const rate=prev.rate+(next.rate-prev.rate)*e;
 
     $('chartRate').textContent=(Number.isFinite(rate)?rate.toFixed(2):'0.00')+'%';
-    drawBarH('chartTime',tb,ta,()=>`${safeFixed(tb,2)}h`,`時間短縮 ${safeFixed(Math.max(0,tb-ta),2)}h`);
-    drawBarH('chartCost',cb,ca,()=>yen(cb),`人件費削減 ${yen(Math.max(0,cb-ca))}`);
+    drawBarH('chartTime',tb,ta,v=>`${safeFixed(v,2)}h`,`時間短縮 ${safeFixed(Math.max(0,tb-ta),2)}h`);
+    drawBarH('chartCost',cb,ca,v=>yen(v),`人件費削減 ${yen(Math.max(0,cb-ca))}`);
 
     if(t<1){
       chartState.animId=requestAnimationFrame(stepAnim);
@@ -682,8 +699,16 @@ async function copySummary(){
   lines.push(`人件費削減(月): ${Math.round(r.saveY)} 円`);
   lines.push(`人件費削減(年): ${Math.round(r.saveY*12)} 円`);
   const text=lines.join('\n');
-  try{await navigator.clipboard.writeText(text);}
-  catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}
+  try{
+    await navigator.clipboard.writeText(text);
+  }catch(e){
+    const ta=document.createElement('textarea');
+    ta.value=text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+  }
 }
 
 function exportCSV(){
@@ -751,14 +776,17 @@ function calc(){
 function jumpToSalesTool(){
   const r=compute();
   const amount = Math.max(0, r.saveY); // 月間人件費削減額を「今回検討する支出額」として連携
+
   if(!Number.isFinite(amount) || amount<=0){
     alert('「人件費削減（月）」が0円以下のため、売上換算する金額がありません。分数や件数を見直してください。');
     return;
   }
+
   try{
     localStorage.setItem(MK_SALES_EFFECT_AMOUNT_KEY, String(Math.round(amount)));
     localStorage.setItem(MK_SALES_EFFECT_SOURCE_KEY, 'autoEffect');
   }catch(e){}
+
   window.location.href = SALES_TOOL_URL;
 }
 
@@ -770,7 +798,7 @@ const STEPS=[
  {sel:'#featuresCard', t:'③ 機能の導入と分数', b:'チェックで導入ON/OFF。件数・分/件を調整すると結果とグラフが即時更新。'},
  {sel:'#chartArea', t:'④ Before→After', b:'横棒グラフで総時間・人件費のBefore/Afterと合計の「時間短縮」「人件費削減」を表示。'},
  {sel:'#kpiSavings', t:'⑤ 人件費削減／自動化率', b:'月間・年間の<strong>人件費削減</strong>、<strong>仕訳自動化率</strong>、機能別の寄与を確認。'},
- {sel:'#footerBtns', t:'⑥ 出力', b:'「コピー／CSV出力／印刷」で共有・資料化。CSVはUTF-8（BOM付）で文字化け対策済み。'}
+ {sel:'#footerBtns', t:'⑥ 出力・売上換算', b:'「売上換算／コピー／CSV出力／印刷」で共有・資料化。CSVはUTF-8（BOM付）で文字化け対策済み。'}
 ];
 let tourActive=false, step=0, rafId=null;
 
