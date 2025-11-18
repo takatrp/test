@@ -1,581 +1,903 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>CCC計算ツール</title>
-<link rel="icon" href="favicon192192.png" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>それ、売上に直すといくらですか？</title>
+
+<link rel="icon" href="favicon192192.png" sizes="192x192" />
+<link rel="apple-touch-icon" href="favicon192192.png" />
+<meta name="theme-color" content="#578899" />
+
 <style>
   :root{
-    --brand:#578899; --ink:#222; --muted:#666; --bg:#f7f9fb; --card:#fff; --line:#e6eef3;
-    --dio:#5AA47A;  /* DIO（緑） */
-    --dso:#EFB660;  /* DSO（橙） */
-    --dpo:#447EA6;  /* DPO（濃い青） */
-    --ccc:#2F6E8D;  /* CCC（やや濃い青） */
-    --rest:#EEF3F7; /* 余白部（薄） */
+    --bg:#f4f9fb; --card:#fff; --ink:#1e2a2d; --muted:#5a6a6d;
+    --accent:#578899; --accent-2:#7aa2b0; --shadow:0 10px 30px rgba(35,80,90,.12);
   }
-  *{box-sizing:border-box}
-  html,body{background:#f7f9fb;color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,"ヒラギノ角ゴ ProN","Noto Sans JP",sans-serif}
-  main{max-width:980px;margin:18px auto;padding:0 12px 96px}
-
-  .title{display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:8px 4px}
-  .title img{height:42px}
-  .title h1{margin:0;font-size:clamp(18px,3.5vw,22px);line-height:1.15}
-  .title .spacer{flex:1}
-  .btn-link{
-    display:inline-block;user-select:none;text-decoration:none;padding:6px 12px;line-height:1;font-size:13px;font-weight:700;
-    color:var(--brand);background:#fff;border-radius:12px;border:1.5px solid color-mix(in oklab,var(--brand),white 30%);box-shadow:0 0 0 1px #dfe7ee inset;
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",Segoe UI,Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+  }
+  .wrap{
+    padding:max(12px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));
+    max-width:560px;
+    margin:0 auto;
   }
 
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
-  .card h2{font-size:16px;margin:0 0 10px;color:var(--brand)}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  @media (max-width:720px){.row{grid-template-columns:1fr}}
-  label{font-size:13px;color:var(--muted);display:block;margin:6px 0 4px}
-  input[type="text"]{width:100%;padding:10px 12px;border:1px solid #cfd9e3;border-radius:10px;font-size:16px}
-  input[type="text"]:focus{outline:2px solid color-mix(in oklab,var(--brand),white 70%)}
+  /* header */
+  header{padding:8px 6px 2px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .logo-link{display:inline-flex;line-height:0;text-decoration:none}
+  .logo{height:48px;width:auto;object-fit:contain}
+  .title{
+    flex:1;min-width:0;white-space:nowrap;margin:0;
+    font-weight:800;letter-spacing:.02em;line-height:1.2;
+    font-size:clamp(16px,4.6vw,24px);color:#0e2430;
+  }
+  .subtitle{color:#5a6a6d;font-size:12px;margin:6px 0 0}
 
-  .chips{display:flex;flex-wrap:wrap;gap:8px}
-  .chip{border:2px solid var(--brand);padding:6px 10px;border-radius:999px;font-size:13px;cursor:pointer;user-select:none;background:#fff}
-  .chip[data-active="true"]{background:var(--brand);color:#fff;font-weight:700}
-  .badge{display:inline-block;border:1px solid var(--brand);border-radius:999px;padding:4px 8px;font-size:12px;background:#fff}
-  .badge.fill{background:var(--brand);color:#fff}
-  .sub{font-size:12px;color:var(--muted)}
+  .card{
+    background:#fff;border-radius:16px;
+    box-shadow:0 10px 30px rgba(35,80,90,.12);
+    padding:18px 16px;margin:12px 0 18px;
+  }
+  .field{margin:10px 0 16px}
+  .label.big{font-size:16px;font-weight:700;color:#324245}
+  .label-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 6px 2px}
+  .helper{font-size:12px;color:#6a7a7d;margin:4px 2px 0}
+  .helper a.inline-link{
+    color:#578899;
+    text-decoration:underline;
+    text-underline-offset:2px;
+    cursor:pointer;
+  }
+  .helper a.inline-link:hover{opacity:.85}
 
-  /* KPI（CCCは右端・強調） */
-  .kpi{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
-  @media (max-width:900px){.kpi{grid-template-columns:1fr 1fr}}
-  .metric{border:1px dashed #d7e2ea;border-radius:12px;padding:12px}
-  .metric .name{font-size:12px;color:var(--muted)}
-  .metric .value{font-size:24px;font-weight:800;margin-top:4px}
-  #mDIO .value{color:var(--dio)} #mDSO .value{color:var(--dso)} #mDPO .value{color:var(--dpo)}
-  #mCCC{border:2px solid var(--ccc);box-shadow:0 0 0 3px color-mix(in oklab,var(--ccc),white 70%) inset;background:linear-gradient(180deg,#f8fbff 0%,#ffffff 100%)}
-  #mCCC .value{color:var(--ccc);font-size:32px}
+  .ref-title{margin-top:10px;font-size:12px;color:#607c80}
 
-  /* グラフ（太め・密着・四角・印刷色維持） */
-  .flow{margin-top:12px;-webkit-print-color-adjust:exact; print-color-adjust: exact; color-adjust: exact;}
-  .rail{position:relative;height:44px;background:var(--rest)}
-  .rail + .rail{margin-top:2px}
-  .seg{position:absolute;top:0;left:0;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px}
-  .seg-dio{background:var(--dio)}
-  .seg-dso{background:var(--dso)}
-  .seg-dpo{background:var(--dpo)}
-  .seg-ccc{background:var(--ccc)}
-  .rest-right,.rest-left{position:absolute;top:0;bottom:0;background:#FAFCFE}
-  .rest-right{right:0} .rest-left{left:0}
-
-  .btn-card{display:flex;flex-wrap:wrap;gap:8px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
-  button{cursor:pointer;border:1px solid #d7e2ea;background:#fff;padding:9px 12px;border-radius:10px;font-size:14px}
-  button.primary{background:var(--brand);border-color:var(--brand);color:#fff}
-
-  .impact-box{
-    margin-top:10px;padding:8px 10px;border-radius:10px;
-    border:1px dashed #d7e2ea;background:#f9fbff;font-size:12px;color:var(--muted);
+  .range-row{display:flex;align-items:center;gap:12px;padding:8px 0}
+  input[type="range"]{-webkit-appearance:none;width:100%;height:26px;background:transparent}
+  input[type="range"]::-webkit-slider-runnable-track{
+    height:6px;
+    background:linear-gradient(90deg,#7aa2b0,#578899);
+    border-radius:999px;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:26px;height:26px;border-radius:50%;
+    background:#fff;border:2px solid #578899;
+    margin-top:-10px;
+    box-shadow:0 1px 6px rgba(0,0,0,.08);
   }
 
-  footer.mk-mini{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 12px;font-size:12px;color:#334}
-  .mk-mini .mini-line{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;line-height:1.6}
-  .mk-mini a{color:var(--brand);text-decoration:underline}
-  .mk-mini .sep{opacity:.6}
+  .yen-input,.pctbox{
+    display:flex;align-items:center;gap:8px;
+    background:#f8fcfd;border:1px solid #d9eaed;
+    border-radius:12px;padding:8px 10px;
+  }
+  .yen-input .prefix{
+    font-weight:700;color:#578899;
+    border-right:1px solid #e6f1f3;
+    padding-right:10px;
+  }
+  input.money,input.pct{
+    border:0;outline:none;background:transparent;
+    font-size:20px;font-weight:800;color:#1e2a2d;
+    width:120px;text-align:right;
+    font-feature-settings:"tnum";
+    font-variant-numeric:tabular-nums;
+  }
+  .pctbox .unit{font-weight:800;color:#1e2a2d}
 
-  @media print{ .title, .btn-card{display:none} main{padding-bottom:16px} }
+  .chip-grid{
+    display:grid;gap:8px;margin-top:8px;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
+  @media (max-width:380px){
+    .chip-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  }
+  .chip{
+    display:flex;align-items:center;justify-content:space-between;
+    border:1px solid #d9eaed;
+    background:#f3fafb;color:#578899;
+    padding:8px 10px;border-radius:12px;
+    font-size:12px;line-height:1.05;
+    cursor:pointer;
+  }
+  .chip .nm{font-weight:700}
+  .chip .val{
+    font-weight:900;color:#1f3a3e;
+    font-feature-settings:"tnum";
+  }
+
+  .btn{
+    background:linear-gradient(180deg,#7aa2b0,#578899);
+    color:#fff;font-weight:900;border:0;width:100%;
+    border-radius:12px;padding:16px 18px;font-size:17px;
+    box-shadow:0 10px 30px rgba(35,80,90,.12);
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn.secondary{
+    background:#eef7f8;color:#578899;
+    box-shadow:none;border:1px solid #d9eaed;
+  }
+  .tiny-btn{
+    background:#eef7f8;color:#578899;border:1px solid #d9eaed;
+    border-radius:999px;font-size:12px;padding:6px 10px;
+    font-weight:700;cursor:pointer;line-height:1;
+  }
+
+  .btn-row{display:none;gap:8px;margin-top:12px}
+  .btn-row.show{display:flex}
+  .btn-row .btn{flex:1;padding:12px 10px;font-size:15px}
+
+  .result{text-align:center;margin-top:16px}
+  .result .label{font-size:16px;font-weight:800;color:#324245}
+  .amount{
+    font-size:clamp(24px,7.5vw,36px);font-weight:900;
+    color:#578899;margin:8px 0 6px;
+    font-feature-settings:"tnum";
+    font-variant-numeric:tabular-nums;
+  }
+  .statement{
+    margin-top:12px;background:#e9f6f8;
+    border:1px dashed #7aa2b0;border-radius:12px;
+    padding:12px;color:#0f2022;font-weight:900;
+    line-height:1.6;font-size:clamp(16px,4.8vw,22px);
+  }
+  .statement .stmt-top{display:block}
+  .statement .stmt-bottom{display:block;margin-top:4px}
+
+  .avgrow{
+    margin-top:10px;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;
+  }
+  .avg-label{font-size:15px;font-weight:700;color:#324245}
+  .yen-input.small .money{font-size:16px}
+  .yen-input.small input::placeholder{
+    color:#7f8d91;opacity:.55;font-weight:500;
+  }
+
+  .metrics{margin-top:6px;text-align:right}
+  .metrics .only{color:#2b3a3d;font-size:15px}
+  .metrics .only b{font-weight:900}
+
+  .note{margin-top:10px;color:#6a7a7d;font-size:12px}
+
+  /* footer */
+  .mk-mini{
+    margin:18px 4px 6px;
+    text-align:center;color:#667;
+    font-size:11px;line-height:1.6;
+  }
+  .mk-mini a{
+    color:inherit;
+    text-decoration:underline;
+    text-underline-offset:2px;
+  }
+
+  /* tutorial */
+  .coach-overlay{
+    position:fixed;inset:0;background:transparent;
+    display:none;z-index:9999;
+  }
+  .coach-overlay.show{display:block}
+  .coach-spot{
+    position:fixed;left:0;top:0;width:100px;height:100px;border-radius:14px;
+    box-shadow:
+      0 0 0 9999px rgba(9,30,40,.55),
+      0 0 0 3px #fff,
+      0 12px 28px rgba(0,0,0,.25);
+    background:transparent;pointer-events:none;box-sizing:border-box;
+  }
+  .coach-card{
+    position:fixed;left:50%;transform:translateX(-50%);
+    max-width:calc(100vw - 32px);width:420px;background:#fff;color:#0d1c22;
+    border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.2);
+    padding:14px;z-index:10000;
+  }
+  @media (max-width:480px){.coach-card{width:calc(100vw - 32px)}}
+  .coach-step{font-size:12px;color:#6b7b80;margin-bottom:4px}
+  .coach-title{font-weight:800;font-size:14px;color:#1a2d31}
+  .coach-text{font-size:13px;color:#2c3f44;line-height:1.6;margin:6px 0 10px}
+  .coach-actions{display:flex;gap:8px;justify-content:flex-end}
+  .coach-btn{
+    border:1px solid #d9eaed;background:#eef7f8;color:#578899;
+    border-radius:10px;padding:8px 12px;font-weight:800;font-size:13px;
+  }
+  .coach-btn.primary{
+    background:linear-gradient(180deg,#7aa2b0,#578899);
+    color:#fff;border:0;
+  }
+
+  /* 下部ボタン分の余白を多めに確保 */
+  [data-focus]{scroll-margin-top:12px;scroll-margin-bottom:420px}
+
+  /* 動画モーダル */
+  .video-modal,
+  .image-modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.55);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    box-sizing:border-box;
+    z-index:11000;
+  }
+  .video-modal.show,
+  .image-modal.show{display:flex;}
+  .video-dialog,
+  .image-dialog{
+    background:#000;
+    border-radius:12px;
+    max-width:640px;
+    width:100%;
+    box-shadow:0 18px 40px rgba(0,0,0,.5);
+    position:relative;
+  }
+  .video-dialog video{
+    width:100%;
+    height:auto;
+    display:block;
+    border-radius:12px;
+  }
+  .image-dialog{
+    background:#fff;
+  }
+  .image-dialog img{
+    width:100%;
+    height:auto;
+    display:block;
+    border-radius:12px;
+  }
+  .video-close{
+    position:absolute;
+    top:8px;right:8px;
+    width:32px;height:32px;
+    border-radius:999px;border:none;
+    background:rgba(0,0,0,.6);
+    color:#fff;font-size:18px;font-weight:700;
+    cursor:pointer;
+  }
 </style>
 </head>
 <body>
-<main>
-  <!-- タイトル -->
-  <div class="title">
-    <img src="ロゴ.jpg" alt="松本会計" />
-    <h1>CCC（キャッシュ・コンバージョン・サイクル）計算ツール</h1>
-    <div class="spacer"></div>
-    <a class="btn-link" href="CCC.png" target="_blank" rel="noopener">解説</a>
-  </div>
-
-  <!-- STEP0: 期間日数・入力モードの選択 -->
-  <div class="card" id="intro">
-    <h2>STEP0 期間日数と入力方法</h2>
-    <div class="chips" id="modeChips">
-      <span class="chip" data-value="direct" data-active="true">① DIO/DSO/DPOを直接入力</span>
-      <span class="chip" data-value="auto">② 財務数値から自動算出</span>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <a class="logo-link" href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener" aria-label="税理士法人松本会計事務所 公式サイト">
+        <img src="ロゴ.jpg" alt="松本会計事務所ロゴ" class="logo" />
+      </a>
+      <h1 class="title">それ、売上に直すといくらですか？</h1>
     </div>
-    <div class="chips" id="daysChips" style="margin-top:8px">
-      <span class="chip" data-days="365" data-active="true">期間日数 365</span>
-      <span class="chip" data-days="360">360</span>
-      <span class="badge" id="presetCCC">業種平均CCC：— 日</span>
-    </div>
-    <p class="sub">CCC＝DIO＋DSO－DPO。DIO＝棚卸資産÷（売上原価÷日数）、DSO＝売上債権÷（売上高÷日数）、DPO＝仕入債務÷（売上原価÷日数）。</p>
-  </div>
+    <div class="subtitle">支出や投資の金額を「御社の売上相当額」に換算して意思決定の質を高めましょう。</div>
+  </header>
 
-  <!-- STEP1: 業種選択 -->
-  <div class="card" id="presets">
-    <h2>STEP1 業種を選択</h2>
-    <p class="sub">まず比較の基準となる業種を選びます。初期値として「全産業」を選択しています。</p>
-    <div class="chips" id="industryChips" role="tablist" aria-label="業種プリセット"></div>
-    <p class="sub" style="margin-top:8px">
-      ※各業種プリセットは令和7年版TKC経営指標（BAST）を元に計算しています。原表は365日基準のため、360日選択時は比例換算します。
-    </p>
-  </div>
-
-  <!-- STEP2-A: 自社のCCC入力（直接） -->
-  <div class="card" id="directBox">
-    <h2>STEP2-A 自社のDIO/DSO/DPOを直接入力</h2>
-    <div class="row">
-      <div><label>DIO（在庫回転期間）</label><input type="text" inputmode="decimal" placeholder="例）60.5" id="dioInput"></div>
-      <div><label>DSO（売上債権回転期間）</label><input type="text" inputmode="decimal" placeholder="例）30.2" id="dsoInput"></div>
-      <div><label>DPO（仕入債務回転期間）</label><input type="text" inputmode="decimal" placeholder="例）40.0" id="dpoInput"></div>
-    </div>
-    <p class="sub">業種チップをクリックすると、その業種の平均DIO/DSO/DPOを初期値として流し込めます。そこから自社の実態に合わせて調整してください。</p>
-  </div>
-
-  <!-- STEP2-B: 自動算出 -->
-  <div class="card" id="autoBox" style="display:none">
-    <h2>STEP2-B 財務数値から自社のDIO/DSO/DPOを自動算出</h2>
-    <div class="row">
-      <div><label>売上高（期間合計／円）</label><input type="text" inputmode="numeric" placeholder="例）239,874,000" id="sales"></div>
-      <div><label>売上原価（期間合計／円）</label><input type="text" inputmode="numeric" placeholder="例）164,617,000" id="cogs"></div>
-      <div><label>売上債権（平均／円）</label><input type="text" inputmode="numeric" placeholder="例）28,425,000" id="ar"></div>
-      <div><label>棚卸資産（平均／円）</label><input type="text" inputmode="numeric" placeholder="例）20,315,000" id="inv"></div>
-      <div><label>仕入債務（平均／円）</label><input type="text" inputmode="numeric" placeholder="例）18,069,000" id="ap"></div>
-    </div>
-    <p class="sub">元帳や試算表から「期間合計の売上高・売上原価」と「平均残高」を投入すると、自社のDIO/DSO/DPOを自動計算します。</p>
-  </div>
-
-  <!-- STEP3: 資金負担インパクト（任意） -->
-  <div class="card" id="impactInputs">
-    <h2>STEP3 CCC短縮による資金負担インパクト（任意）</h2>
-    <div class="row">
-      <div><label>年間売上高（円）</label><input type="text" inputmode="numeric" placeholder="例）300,000,000" id="impactSales"></div>
-      <div><label>限界利益率（％）</label><input type="text" inputmode="decimal" placeholder="例）40" id="marginRate"></div>
-    </div>
-    <p class="sub">選択した業種の平均CCCと自社CCCの差（Δ日）をもとに、CCCを業種平均まで短縮できた場合に、平常時に必要な運転資金の平均残高がどれだけ少なくて済むかをざっくり試算します。算式：年間売上高×(1−限界利益率)÷365×Δ日。</p>
-  </div>
-
-  <!-- 結果 -->
-  <div class="card" id="result">
-    <h2>結果（CCCと業種平均の比較）</h2>
-    <div class="kpi">
-      <div class="metric" id="mDIO"><div class="name">DIO（在庫回転期間）</div><div class="value" id="vDIO">— 日</div></div>
-      <div class="metric" id="mDSO"><div class="name">DSO（売上債権回転期間）</div><div class="value" id="vDSO">— 日</div></div>
-      <div class="metric" id="mDPO"><div class="name">DPO（仕入債務回転期間）</div><div class="value" id="vDPO">— 日</div></div>
-      <div class="metric" id="mCCC"><div class="name">CCC</div><div class="value" id="vCCC">— 日</div></div>
-    </div>
-
-    <!-- グラフ -->
-    <div class="flow" id="flow">
-      <div class="rail" id="railTop">
-        <span class="seg seg-dio" id="gDIO">在庫回転期間 — 日</span>
-        <span class="seg seg-dso" id="gDSO">売上債権回転期間 — 日</span>
+  <section class="card" aria-label="入力">
+    <!-- ① 支出額 -->
+    <div class="field" id="field-spend" data-focus>
+      <div class="label-row">
+        <div class="label big">① 今回検討する支出額（円）</div>
+        <button id="tutorialBtn" class="tiny-btn" type="button">チュートリアル</button>
       </div>
-      <div class="rail" id="railMid">
-        <span class="seg seg-dpo" id="gDPO">仕入債務回転期間 — 日</span>
-        <span class="rest-right" id="restRight" style="width:100%"></span>
-      </div>
-      <div class="rail" id="railBot">
-        <span class="rest-left" id="restLeft" style="width:100%"></span>
-        <span class="seg seg-ccc" id="gCCC">CCC — 日</span>
+      <div class="range-row">
+        <input id="spendRange" type="range" min="0" max="1000000" step="1000" value="100000" />
+        <div class="yen-input">
+          <span class="prefix">¥</span>
+          <input id="spend" class="money" type="text" inputmode="numeric" value="100,000" autocomplete="off" />
+        </div>
       </div>
     </div>
 
-    <p class="sub" id="comment">入力すると自動計算します（単位：日）。CCCが小さいほど運転資金効率は良好。負の場合は仕入先信用で回っている状態です。</p>
+    <!-- ② 限界利益率 -->
+    <div class="field" id="field-cmr" data-focus>
+      <div class="label big">② 御社の限界利益率（％）</div>
+      <div class="helper">
+        ※毎回の検討がスムーズになるよう、前回入力した限界利益率を端末上で自動的に保持します。<br>
+        ※限界利益率は、
+        <a href="#" id="openCmrVideo" class="inline-link">変動損益計算書</a>
+        もしくは
+        <a href="#" id="openMonthlyImg" class="inline-link">月次決算速報サービス</a>
+        にてご確認ください
+      </div>
+      <div class="range-row">
+        <input id="cmr" type="range" min="5" max="95" step="0.1" value="43.6" />
+        <div class="pctbox">
+          <input id="cmrInput" class="pct" type="text" inputmode="decimal" value="43.6" />
+          <span class="unit">%</span>
+        </div>
+      </div>
 
-    <!-- インパクト表示 -->
-    <div class="impact-box">
-      <p class="sub" id="impactSummary">
-        業種（初期値は「全産業」）と自社CCCを入力すると、業種平均とのギャップと、CCCを業種平均まで短縮した場合に平常時に必要な運転資金の平均残高がどれだけ少なくて済むかを表示します。
-      </p>
+      <div class="ref-title">参考：産業ごとの全国平均</div>
+      <div class="chip-grid" id="chips" data-focus>
+        <button class="chip" type="button" data-pct="43.6"><span class="nm">全産業</span><span class="val">43.6%</span></button>
+        <button class="chip" type="button" data-pct="64.6"><span class="nm">漁業</span><span class="val">64.6%</span></button>
+        <button class="chip" type="button" data-pct="39.9"><span class="nm">建設業</span><span class="val">39.9%</span></button>
+        <button class="chip" type="button" data-pct="44.8"><span class="nm">製造業</span><span class="val">44.8%</span></button>
+        <button class="chip" type="button" data-pct="20.5"><span class="nm">卸売業</span><span class="val">20.5%</span></button>
+        <button class="chip" type="button" data-pct="32.0"><span class="nm">小売業</span><span class="val">32.0%</span></button>
+        <button class="chip" type="button" data-pct="79.2"><span class="nm">宿泊業</span><span class="val">79.2%</span></button>
+        <button class="chip" type="button" data-pct="64.1"><span class="nm">飲食業</span><span class="val">64.1%</span></button>
+      </div>
+    </div>
+
+    <div class="field">
+      <button id="calc" class="btn" type="button" data-focus>御社の売上相当額を計算</button>
+    </div>
+
+    <!-- 結果表示 -->
+    <div class="result" id="resultArea" hidden data-focus>
+      <div class="label big">御社の売上相当額</div>
+      <div class="amount" id="sales"></div>
+      <div class="statement" id="statement"></div>
+
+      <div class="avgrow" id="avgRow" hidden data-focus>
+        <div class="avg-label">平均単価（任意）</div>
+        <div class="yen-input small">
+          <span class="prefix">¥</span>
+          <input id="avgPrice" class="money" type="text" inputmode="numeric" placeholder="例：10,000" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="metrics" id="metrics" hidden>
+        <div class="only">＝ 必要販売数： <b id="unitsNeeded">—</b></div>
+      </div>
+
+      <div class="note">
+        ※ 計算式：<b>御社の売上相当額 ＝ 支出額 ÷（限界利益率 / 100）</b><br>
+        ※各産業平均は令和7年版TKC経営指標（BAST）を参照しています。
+      </div>
+    </div>
+
+    <div class="btn-row" id="actionRow" data-focus>
+      <button id="copy" class="btn secondary" type="button">コピー</button>
+      <button id="reset" class="btn secondary" type="button">リセット</button>
+      <button id="print" class="btn secondary" type="button">印刷</button>
+    </div>
+  </section>
+
+  <footer class="mk-mini">
+    © <span id="cpy-year">2025</span>
+    <a href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener license">税理士法人松本会計事務所</a> ｜ 
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener">CC BY-NC-SA 4.0</a> ｜ 
+    <a href="/tool-portal/terms.html" target="_blank" rel="noopener">利用条件</a> ｜ 
+    <span id="build-rev">r42</span>（<span id="last-updated-date"></span>）
+  </footer>
+</div>
+
+<!-- 限界利益率の確認方法（FXC）動画モーダル -->
+<div id="videoModal" class="video-modal" aria-hidden="true">
+  <div class="video-dialog" role="dialog" aria-label="限界利益率の確認方法（FXC）の動画">
+    <button type="button" class="video-close" id="closeVideo" aria-label="閉じる">×</button>
+    <video id="cmrVideo" controls playsinline>
+      <source src="限界利益率の確認方法（FXC）.mp4" type="video/mp4" />
+      お使いのブラウザでは動画を再生できません。
+    </video>
+  </div>
+</div>
+
+<!-- 月次決算速報サービス画像モーダル -->
+<div id="imgModal" class="image-modal" aria-hidden="true">
+  <div class="image-dialog" role="dialog" aria-label="限界利益率の確認方法（月次決算速報サービス）の画像">
+    <button type="button" class="video-close" id="closeImg" aria-label="閉じる">×</button>
+    <img id="cmrImg" src="限界利益率の確認方法（月次決算速報サービス）.png" alt="限界利益率の確認方法（月次決算速報サービス）" />
+  </div>
+</div>
+
+<!-- Tutorial -->
+<div id="coach" class="coach-overlay" aria-hidden="true">
+  <div id="coachSpot" class="coach-spot" aria-hidden="true"></div>
+  <div id="coachCard" class="coach-card" role="dialog" aria-modal="true" aria-live="polite">
+    <div class="coach-step"><span id="coachStepNow">STEP 1</span> / <span id="coachStepAll">7</span>　<span id="coachTitle" class="coach-title"></span></div>
+    <div id="coachText" class="coach-text"></div>
+    <div class="coach-actions">
+      <button id="coachPrev" class="coach-btn" type="button">前へ</button>
+      <button id="coachSkip" class="coach-btn" type="button">スキップ</button>
+      <button id="coachNext" class="coach-btn primary" type="button">次へ</button>
     </div>
   </div>
-
-  <div class="btn-card">
-    <button class="primary" id="copyBtn" type="button">結果をコピー</button>
-    <button id="resetBtn" type="button">リセット</button>
-    <button id="printBtn" type="button">印刷 / PDF保存</button>
-    <button id="csvBtn" type="button">CSV</button>
-  </div>
-
-  <div id="terms" aria-hidden="true" style="display:none"></div>
-</main>
-
-<footer class="mk-mini">
-  <div class="mini-line">
-    © <span id="cpy-year"></span>
-    <a href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener">税理士法人松本会計事務所</a>
-    <span class="sep">｜</span>
-    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a>
-    <span class="sep">｜</span>
-    <a href="#terms">利用条件</a>
-    <span class="sep">｜</span>
-    <span id="rnum"></span>
-    <span>（<span id="lastmod"></span>）</span>
-  </div>
-</footer>
+</div>
 
 <script>
-(function(){
-  /* バージョン（今回 r22） */
-  const RNUM = 'r22';
-  const ORIGIN_DAYS = 365; // BAST原表の基準日数
+  const $=s=>document.querySelector(s);
 
-  const nfInt   = new Intl.NumberFormat('ja-JP');
-  const nf1     = new Intl.NumberFormat('ja-JP',{maximumFractionDigits:1,minimumFractionDigits:0});
-  const nf1flex = new Intl.NumberFormat('ja-JP',{maximumFractionDigits:1});
-  const $  = s=>document.querySelector(s);
-  const $$ = s=>document.querySelectorAll(s);
+  const spendEl=$('#spend'),spendRange=$('#spendRange');
+  const cmrRange=$('#cmr'),cmrInput=$('#cmrInput');
+  const salesEl=$('#sales'),statementEl=$('#statement');
+  const resultArea=$('#resultArea'),actionRow=$('#actionRow');
+  const avgRow=$('#avgRow'),avgPriceEl=$('#avgPrice'),metrics=$('#metrics'),unitsNeededEl=$('#unitsNeeded');
 
-  // 初期業種は「全産業」を前提
-  const state = {
-    mode:'direct',
-    days:365,
-    currentIndustry:'全産業',
-    ccc:0
-  };
+  const STORAGE_KEY_CMR='cmrPct_v1';
+  const DEFAULT_CMR=43.6; // プリセット値
 
-  // 年・r番号・更新日
+  // ★ 他ツールからの転送で使うキー（送り側と共通利用）
+  const MK_SALES_EFFECT_AMOUNT_KEY='mk_salesEffectAmount';
+  const MK_SALES_EFFECT_SOURCE_KEY='mk_salesEffectSource';
+
+  let lastSalesNeeded=0;
+
+  // footer date
   (function(){
-    const d = new Date(document.lastModified || Date.now());
-    $('#cpy-year').textContent = d.getFullYear();
-    $('#rnum').textContent = RNUM;
-    $('#lastmod').textContent = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const y=new Date().getFullYear(), lm=new Date(document.lastModified);
+    $('#cpy-year').textContent=y;
+    $('#last-updated-date').textContent=
+      `${lm.getFullYear()}-${String(lm.getMonth()+1).padStart(2,'0')}-${String(lm.getDate()).padStart(2,'0')}`;
   })();
 
-  /* ▼ R7 BAST（日数プリセット） */
-  const PRESETS_DAYS = {
-    "全産業":{"dio":30.9,"dso":43.3,"dpo":50.4},
-    "漁業":{"dio":70.6,"dso":16.1,"dpo":94.5},
-    "建設業":{"dio":40.8,"dso":44.6,"dpo":54.2},
-    "製造業":{"dio":45.5,"dso":61.4,"dpo":65.5},
-    "卸売業":{"dio":27.1,"dso":50.4,"dpo":53.6},
-    "小売業":{"dio":31.8,"dso":23.4,"dpo":32.8},
-    "宿泊業":{"dio":5.0,"dso":17.1,"dpo":41.6},
-    "飲食業":{"dio":6.9,"dso":11.1,"dpo":31.7}
+  // helpers
+  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+  const parseMoney=t=>Number(String(t??'').replace(/[^\d.-]/g,''));
+  const formatJPY=n=>n.toLocaleString('ja-JP',{style:'currency',currency:'JPY',maximumFractionDigits:0});
+  const formatPlainJPY=n=>n.toLocaleString('ja-JP',{maximumFractionDigits:0});
+  const parsePct=t=>Number(String(t??'').replace('%','').replace(',', '.').trim());
+
+  const countDigits=s=>(s.match(/\d/g)||[]).length;
+  const digitsOnly=s=>(s||'').replace(/[^\d]/g,'');
+  const toHalfWidthDigits=str=>{
+    if(!str) return '';
+    str=str.replace(/[０-９]/g,s=>String.fromCharCode(s.charCodeAt(0)-0xFEE0));
+    const map={'⓪':'0','①':'1','②':'2','③':'3','④':'4','⑤':'5','⑥':'6','⑦':'7','⑧':'8','⑨':'9'};
+    return str.replace(/[⓪①②③④⑤⑥⑦⑧⑨]/g,s=>map[s]||s);
   };
+  const groupThousands=d=>!d?'':d.replace(/^0+(?=\d)/,'').replace(/\B(?=(\d{3})+(?!\d))/g,',');
 
-  /* ユーティリティ */
-  function digits(s){return (s||'').replace(/[^\d.-]/g,'');}
-  function parseNum(s){
-    const t = digits(s);
-    if(t===''||t==='-'||t==='.'||t==='-.') return NaN;
-    return Number(t);
-  }
-  function valNum(id){
-    const el = $('#'+id);
-    if(!el) return 0;
-    const v = parseNum(el.value);
-    return isNaN(v)?0:v;
-  }
-
-  /* 小数入力（DIO/DSO/DPO・限界利益率）：入力中自由、blurで丸め */
-  function attachDecimalHandlers(el, maxDecimals=1){
-    if(!el) return;
-    el.dataset.prev = el.value || '';
-    const re = new RegExp(`^-?\\d*(?:\\.\\d{0,${maxDecimals}})?$`);
-    el.addEventListener('input', ()=>{
-      const v = el.value;
-      if (v === '' || re.test(v)) {
-        el.dataset.prev = v;
-        calc(); updateImpact();
-      } else {
-        el.value = el.dataset.prev || '';
-      }
-    });
-    el.addEventListener('blur', ()=>{
-      const n = parseFloat(el.value);
-      if (!isNaN(n)) el.value = n.toFixed(maxDecimals);
-      calc(); updateImpact();
-    });
-  }
-
-  /* 金額入力（千分位フォーマット維持） */
-  function keepFormatInt(el){
-    const raw = el.value;
-    const start = el.selectionStart || raw.length;
-    const leftDigits = raw.slice(0,start).replace(/[^\d]/g,'').length;
-    let val = parseNum(raw); if(isNaN(val)) val = '';
-    const formatted = (val===''? '' : nfInt.format(Math.trunc(val)));
-    el.value = formatted;
-    let pos=0, seen=0;
+  function caretFromDigits(formatted,n){
+    if(n<=0) return 0;
+    let seen=0;
     for(let i=0;i<formatted.length;i++){
-      if(/\d/.test(formatted[i])) seen++;
-      if(seen>=leftDigits){pos=i+1;break;}
+      const ch=formatted[i];
+      if(ch>='0'&&ch<='9') seen++;
+      if(seen===n) return i+1;
     }
-    el.setSelectionRange(pos,pos);
+    return formatted.length;
   }
 
-  /* モード切替 */
-  $$('#modeChips .chip').forEach(ch=>{
-    ch.addEventListener('click',()=>{
-      $$('#modeChips .chip').forEach(c=>c.dataset.active="false");
-      ch.dataset.active="true";
-      state.mode=ch.dataset.value;
-      $('#directBox').style.display = state.mode==='direct'?'block':'none';
-      $('#autoBox').style.display   = state.mode==='auto'  ?'block':'none';
-      calc(); updateImpact();
-    });
+  // persist CMR
+  function loadCmr(){
+    try{
+      const v=parsePct(localStorage.getItem(STORAGE_KEY_CMR));
+      if(!isNaN(v)) return clamp(v,+cmrRange.min,+cmrRange.max);
+    }catch{}
+    return DEFAULT_CMR;
+  }
+  function saveCmr(v){ try{localStorage.setItem(STORAGE_KEY_CMR, Number(v).toFixed(1));}catch{} }
+
+  // inputs sync
+  spendRange.addEventListener('input',()=>{
+    spendEl.value=formatPlainJPY(+spendRange.value);
+  });
+  spendEl.addEventListener('input',e=>{
+    const val=parseMoney(e.target.value); if(isNaN(val))return;
+    e.target.value=formatPlainJPY(val);
+    spendRange.value=clamp(val,+spendRange.min,+spendRange.max);
+  });
+  spendRange.dispatchEvent(new Event('input'));
+
+  const initCmr=loadCmr();
+  cmrRange.value=initCmr.toFixed(1);
+  cmrInput.value=initCmr.toFixed(1);
+
+  cmrRange.addEventListener('input',()=>{
+    if(document.activeElement!==cmrInput){
+      const v=+cmrRange.value;
+      cmrInput.value=v.toFixed(1);
+      saveCmr(v);
+    }
   });
 
-  /* 日数切替 */
-  $$('#daysChips .chip').forEach(ch=>{
-    if(!ch.dataset.days) return;
-    ch.addEventListener('click',()=>{
-      $$('#daysChips .chip').forEach(c=>c.dataset.active="false");
-      ch.dataset.active="true";
-      state.days = Number(ch.dataset.days)||365;
-      renderIndustryChips();
-      updatePresetBadge();
-      calc();
-      updateImpact();
-    });
-  });
-
-  /* 業種選択処理 */
-  function selectIndustry(name, prefill){
-    const base = PRESETS_DAYS[name];
-    if(!base) return;
-    state.currentIndustry = name;
-
-    // チップの見た目更新
-    $$('#industryChips .chip').forEach(ch=>{
-      ch.dataset.active = (ch.dataset.name === name) ? "true" : "false";
-    });
-
-    const factor = state.days / ORIGIN_DAYS;
-
-    if(prefill){
-      const dio = base.dio * factor;
-      const dso = base.dso * factor;
-      const dpo = base.dpo * factor;
-      // 直接入力モードにして初期値として流し込む
-      $$('#modeChips .chip').forEach(c=>c.dataset.active="false");
-      $('#modeChips .chip[data-value="direct"]').dataset.active="true";
-      state.mode='direct';
-      $('#autoBox').style.display='none';
-      $('#directBox').style.display='block';
-      $('#dioInput').value = dio.toFixed(1);
-      $('#dsoInput').value = dso.toFixed(1);
-      $('#dpoInput').value = dpo.toFixed(1);
-    }
-
-    updatePresetBadge();
-    calc();
-    updateImpact();
-  }
-
-  /* 業種チップ描画（BAST日数→比較用＋必要なら初期値に） */
-  function renderIndustryChips(){
-    const wrap = $('#industryChips');
-    wrap.innerHTML='';
-    const factor = state.days / ORIGIN_DAYS; // 360対応：比例換算
-    Object.entries(PRESETS_DAYS).forEach(([name,p])=>{
-      const dio = p.dio * factor, dso = p.dso * factor, dpo = p.dpo * factor;
-      const ccc = dio + dso - dpo;
-      const chip = document.createElement('span');
-      chip.className='chip';
-      chip.dataset.name = name;
-      if(name === state.currentIndustry) chip.dataset.active = "true";
-      chip.textContent = `${name}：${nf1flex.format(ccc)}日`;
-      chip.title = `DIO ${dio.toFixed(1)}日 / DSO ${dso.toFixed(1)}日 / DPO ${dpo.toFixed(1)}日`;
-      chip.addEventListener('click',()=>selectIndustry(name, true));
-      wrap.appendChild(chip);
-    });
-  }
-
-  /* 上部バッジ更新（常に「選択業種の平均CCC」） */
-  function updatePresetBadge(){
-    const badge = $('#presetCCC');
-    const base = PRESETS_DAYS[state.currentIndustry];
-    if(!base){
-      badge.textContent = '業種平均CCC：— 日';
-      badge.classList.remove('fill');
+  function commitCmrInput(){
+    const v=parsePct(cmrInput.value);
+    if(isNaN(v)){
+      cmrInput.value=(+cmrRange.value).toFixed(1);
       return;
     }
-    const factor = state.days / ORIGIN_DAYS;
-    const dio = base.dio * factor;
-    const dso = base.dso * factor;
-    const dpo = base.dpo * factor;
-    const cccAvg = dio + dso - dpo;
-    badge.textContent = `業種平均CCC：${nf1flex.format(cccAvg)} 日`;
-    badge.classList.remove('fill');
+    const c=clamp(v,+cmrRange.min,+cmrRange.max);
+    cmrRange.value=c.toFixed(1);
+    cmrInput.value=c.toFixed(1);
+    saveCmr(c);
   }
+  cmrInput.addEventListener('input',()=>{
+    const v=parsePct(cmrInput.value);
+    if(!isNaN(v)&&v>=+cmrRange.min&&v<=+cmrRange.max){
+      cmrRange.value=v.toFixed(1);
+    }
+  });
+  cmrInput.addEventListener('blur', commitCmrInput);
 
-  /* 入力監視 */
-  attachDecimalHandlers($('#dioInput'), 1);
-  attachDecimalHandlers($('#dsoInput'), 1);
-  attachDecimalHandlers($('#dpoInput'), 1);
-  attachDecimalHandlers($('#marginRate'), 1);
-
-  ['sales','cogs','ar','inv','ap','impactSales'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(!el) return;
-    el.addEventListener('input',()=>{ keepFormatInt(el); calc(); updateImpact(); });
-    el.addEventListener('blur', ()=>{ keepFormatInt(el); calc(); updateImpact(); });
+  // chips
+  document.querySelectorAll('.chip-grid .chip').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const v=+b.dataset.pct;
+      cmrRange.value=v.toFixed(1);
+      cmrInput.value=v.toFixed(1);
+      saveCmr(v);
+      cmrInput.blur();
+    });
   });
 
-  /* グラフ更新 */
-  function drawBars(dio,dso,dpo,ccc){
-    const max = Math.max(10, dio+dso, dpo, Math.abs(ccc));
+  // avg price realtime comma (IMEセーフ)
+  let composing=false;
+  avgPriceEl.addEventListener('compositionstart',()=>composing=true);
+  avgPriceEl.addEventListener('compositionend',()=>{composing=false;updateUnits();});
 
-    const pDIO = dio/max*100, pDSO = dso/max*100;
-    $('#gDIO').style.left = '0%';
-    $('#gDIO').style.width = pDIO+'%';
-    $('#gDSO').style.left = pDIO+'%';
-    $('#gDSO').style.width = pDSO+'%';
-    $('#gDIO').textContent = `在庫回転期間 ${dio?nf1.format(dio):'—'} 日`;
-    $('#gDSO').textContent = `売上債権回転期間 ${dso?nf1.format(dso):'—'} 日`;
+  function formatAvgInputRealtime(e){
+    if(composing) return;
+    const el=e.target, old=String(el.value), caret=el.selectionStart ?? old.length, left=old.slice(0,caret);
+    const before=countDigits(digitsOnly(toHalfWidthDigits(left)));
+    const raw=digitsOnly(toHalfWidthDigits(old));
+    const fmt=groupThousands(raw);
+    if(fmt!==old){
+      el.value=fmt;
+      const pos=caretFromDigits(fmt,before);
+      requestAnimationFrame(()=>{try{el.setSelectionRange(pos,pos);}catch{}});
+    }
+    updateUnits();
+  }
+  avgPriceEl.addEventListener('input', formatAvgInputRealtime);
 
-    const pDPO = dpo/max*100;
-    $('#gDPO').style.left = '0%';
-    $('#gDPO').style.width = pDPO+'%';
-    $('#gDPO').textContent = `仕入債務回転期間 ${dpo?nf1.format(dpo):'—'} 日`;
-    $('#restRight').style.left = pDPO+'%';
-    $('#restRight').style.width = (100-pDPO)+'%';
-
-    const cLeft = Math.max(dpo,0)/max*100;
-    const cWidth= Math.max(ccc,0)/max*100;
-    $('#restLeft').style.width = cLeft+'%';
-    $('#gCCC').style.left = cLeft+'%';
-    $('#gCCC').style.width= cWidth+'%';
-    $('#gCCC').textContent = `CCC ${ (dio||dso||dpo) ? nf1.format(ccc) : '—'} 日`;
+  function updateUnits(){
+    if(!lastSalesNeeded){
+      unitsNeededEl.textContent='—';
+      return;
+    }
+    const avg=parseMoney(avgPriceEl.value);
+    unitsNeededEl.textContent=(!isNaN(avg)&&avg>0)?(lastSalesNeeded/avg).toFixed(1):'—';
   }
 
-  /* 計算 */
+  // calc
   function calc(){
-    let dio=0,dso=0,dpo=0, ccc=0;
-    const days = state.days;
-
-    if(state.mode==='direct'){
-      dio = Math.max(0, parseFloat($('#dioInput').value) || 0);
-      dso = Math.max(0, parseFloat($('#dsoInput').value) || 0);
-      dpo = Math.max(0, parseFloat($('#dpoInput').value) || 0);
-    }else{
-      const sales = valNum('sales'), cogs = valNum('cogs');
-      const ar=valNum('ar'), inv=valNum('inv'), ap=valNum('ap');
-      dso = (sales>0 && ar>=0) ? (ar/sales)*days : 0;
-      dio = (cogs>0  && inv>=0) ? (inv/cogs)*days  : 0;
-      dpo = (cogs>0  && ap>=0 ) ? (ap/cogs )*days  : 0;
+    commitCmrInput();
+    const spend=parseMoney(spendEl.value);
+    const pct=parsePct(cmrInput.value);
+    if(isNaN(spend)||spend<=0){
+      alert('支出額を正しく入力してください。');
+      spendEl.focus();
+      return;
     }
-    ccc = dio + dso - dpo;
-    state.ccc = ccc;
-
-    $('#vDIO').textContent = (dio? nf1.format(dio):'—')+' 日';
-    $('#vDSO').textContent = (dso? nf1.format(dso):'—')+' 日';
-    $('#vDPO').textContent = (dpo? nf1.format(dpo):'—')+' 日';
-    $('#vCCC').textContent = ((dio||dso||dpo)? nf1.format(ccc):'—')+' 日';
-
-    drawBars(Math.max(dio,0), Math.max(dso,0), Math.max(dpo,0), (dio+dso-dpo));
-
-    const msg = (dio||dso||dpo)
-      ? (ccc<=0 ? `CCC＝${nf1.format(ccc)}日：仕入先信用（DPO）が回収（DIO+DSO）を上回り、持ち出し無し。`
-                : `CCC＝${nf1.format(ccc)}日：支払から回収まで平均${nf1.format(ccc)}日を要します。`)
-      : '入力すると自動計算します。CCCが小さいほど良好で、負の場合は仕入先信用で回っています。';
-    $('#comment').textContent = msg;
+    if(isNaN(pct)||pct<=0){
+      alert('限界利益率を正しく入力してください。');
+      cmrInput.focus();
+      return;
+    }
+    const rate=pct/100;
+    lastSalesNeeded=Math.ceil(spend/rate);
+    salesEl.textContent=formatJPY(lastSalesNeeded);
+    statementEl.innerHTML=
+      `<span class="stmt-top">${formatJPY(spend)} の支出は、</span>`+
+      `<span class="stmt-bottom">御社の売上 ${formatJPY(lastSalesNeeded)} に相当します。</span>`;
+    resultArea.hidden=false;
+    avgRow.hidden=false;
+    metrics.hidden=false;
+    actionRow.classList.add('show');
+    updateUnits();
   }
 
-  /* 資金負担インパクトの更新 */
-  function parseMarginRate(){
-    const raw = parseNum($('#marginRate')?.value || '');
-    if(isNaN(raw)) return NaN;
-    if(raw>1) return raw/100;   // 40 → 0.4 と解釈
-    return raw;                 // 0.4 → 0.4
-  }
-
-  function updateImpact(){
-    const el = $('#impactSummary');
-    if(!el) return;
-
-    const cccSelf = state.ccc;
-    const base = PRESETS_DAYS[state.currentIndustry];
-
-    if(!(cccSelf>0)){
-      el.textContent = '自社のCCCを計算すると、選択業種の平均CCCとのギャップと、CCCを業種平均まで短縮した場合に平常時に必要な運転資金の平均残高がどれだけ少なくて済むかを表示します。';
-      return;
+  $('#calc').addEventListener('click',()=>{
+    calc();
+    resultArea.scrollIntoView({behavior:'smooth',block:'center'});
+  });
+  cmrInput.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      e.preventDefault();
+      calc();
     }
-    if(!base){
-      el.textContent = `自社CCCは約${nf1.format(cccSelf)}日です。業種を選択すると、業種平均との比較と、平常時に必要な運転資金の平均残高がどれだけ少なくて済むかの目安を試算します。`;
-      return;
+  });
+  spendEl.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      e.preventDefault();
+      calc();
     }
-
-    const factor = state.days / ORIGIN_DAYS;
-    const dioAvg = base.dio * factor;
-    const dsoAvg = base.dso * factor;
-    const dpoAvg = base.dpo * factor;
-    const cccAvg = dioAvg + dsoAvg - dpoAvg;
-
-    const delta = cccSelf - cccAvg; // 自社−業種平均
-    const headLine = `選択業種「${state.currentIndustry}」の平均CCC：約${nf1.format(cccAvg)}日 / 自社：約${nf1.format(cccSelf)}日（Δ日＝${nf1.format(delta)}日）`;
-
-    if(delta <= 0){
-      el.textContent = headLine + '。既に業種平均以下のCCCのため、この指標ベースでは追加で「短縮して浮く運転資金」はありません。';
-      return;
-    }
-
-    // 売上高と限界利益率
-    let S = valNum('impactSales');
-    if(!S) S = valNum('sales'); // 自動算出の売上高を代用可
-
-    const m = parseMarginRate();
-    if(!(S>0) || isNaN(m) || !(m>0 && m<1)){
-      el.textContent = headLine + '。年間売上高と限界利益率（0〜100%）を入力すると、CCCを業種平均まで短縮した場合に、平常時に必要な運転資金の平均残高がどれだけ少なくて済むかの目安を表示します。';
-      return;
-    }
-
-    const V = S * (1 - m);                 // 年間変動費（ざっくり）
-    const impact = V / 365 * delta;        // 年間変動費×Δ日÷365
-    const impactMan = impact / 10000;
-
-    el.textContent = headLine +
-      `。このとき、CCCを業種平均まで短縮できれば、平常時に必要な運転資金の平均残高が、ざっくり「約${nf1flex.format(impactMan)}万円」少なくて済む計算になります（式：年間売上高×(1−限界利益率)÷365×Δ日）。`;
-  }
-
-  /* ボタン */
-  $('#copyBtn').addEventListener('click',()=>{
-    const text = [
-      '【CCC結果】',
-      `DIO（在庫回転期間）：${$('#vDIO').textContent}`,
-      `DSO（売上債権回転期間）：${$('#vDSO').textContent}`,
-      `DPO（仕入債務回転期間）：${$('#vDPO').textContent}`,
-      `CCC：${$('#vCCC').textContent}`,
-      `(日数基準：${state.days}日 / 入力モード：${state.mode==='direct'?'直接入力':'自動算出'} / 業種：${state.currentIndustry||'—'})`
-    ].join('\n');
-    navigator.clipboard.writeText(text).then(()=>alert('結果をコピーしました'));
   });
 
-  $('#resetBtn').addEventListener('click',()=>{
-    $$('input[type="text"]').forEach(el=>{ el.value=''; });
-    state.currentIndustry='全産業';
-    state.ccc = 0;
-    renderIndustryChips();
-    updatePresetBadge();
-    calc();
-    updateImpact();
+  // copy/reset/print
+  $('#copy').addEventListener('click', async ()=>{
+    if(resultArea.hidden) return;
+    const avgTxt=avgPriceEl.value?`平均単価: ¥${avgPriceEl.value}`:'平均単価: 未入力';
+    const text=
+      `御社の売上相当額: ${salesEl.textContent}\n`+
+      `${statementEl.textContent.replace(/\s+/g,' ')}\n`+
+      `＝ 必要販売数： ${unitsNeededEl.textContent}\n${avgTxt}`;
+    try{
+      if(navigator.clipboard?.writeText){
+        await navigator.clipboard.writeText(text);
+        alert('結果をコピーしました。');
+      }else{
+        const ta=document.createElement('textarea');
+        ta.value=text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        alert('結果をコピーしました。');
+      }
+    }catch{
+      alert('コピーに失敗しました。');
+    }
+  });
+
+  $('#reset').addEventListener('click',()=>{
+    spendRange.value=100000;
+    spendRange.dispatchEvent(new Event('input'));
+    const cmr0=loadCmr();
+    cmrRange.value=cmr0.toFixed(1);
+    cmrInput.value=cmr0.toFixed(1);
+    lastSalesNeeded=0;
+    avgPriceEl.value='';
+    resultArea.hidden=true;
+    avgRow.hidden=true;
+    metrics.hidden=true;
+    unitsNeededEl.textContent='—';
+    actionRow.classList.remove('show');
     window.scrollTo({top:0,behavior:'smooth'});
   });
 
-  $('#printBtn').addEventListener('click',()=>window.print());
-
-  $('#csvBtn').addEventListener('click',()=>{
-    const rows = [
-      ['指標','値'],
-      ['DIO（日）', $('#vDIO').textContent.replace(' 日','')],
-      ['DSO（日）', $('#vDSO').textContent.replace(' 日','')],
-      ['DPO（日）', $('#vDPO').textContent.replace(' 日','')],
-      ['CCC（日）', $('#vCCC').textContent.replace(' 日','')],
-      ['日数基準',  state.days],
-      ['業種',       state.currentIndustry||'']
-    ];
-    const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-    const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'ccc_result.csv';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  $('#print').addEventListener('click',()=>{
+    if(resultArea.hidden) return;
+    window.print();
   });
 
-  // 初期化：業種「全産業」を前提に描画
-  renderIndustryChips();
-  updatePresetBadge();
-  calc();
-  updateImpact();
-})();
+  /* ===== Tutorial Engine ===== */
+  const coach=$('#coach'),spot=$('#coachSpot'),card=$('#coachCard');
+  const tPrev=$('#coachPrev'),tSkip=$('#coachSkip'),tNext=$('#coachNext'),tBtn=$('#tutorialBtn');
+  const tStepNow=$('#coachStepNow'),tStepAll=$('#coachStepAll'),tTitle=$('#coachTitle'),tText=$('#coachText');
+
+  const steps=[
+    { el:'#field-spend', title:'支出額（円）',            text:'スライダーか右側の入力欄から支出額を設定します。',             place:'below' },
+    { el:'#field-cmr',   title:'限界利益率（％）',        text:'御社の限界利益率を入力／調整してください（0.1%刻み）。',        place:'below' },
+    { el:'#chips',       title:'産業別の参考値',          text:'不明な場合は業種チップを押すと全国平均が反映されます。',       place:'below' },
+    { el:'#calc',        title:'計算',                    text:'次へ を押すと自動で計算を行い、結果を表示します。',             place:'below', onNext:()=>{ if(resultArea.hidden) calc(); } },
+    { el:'#sales',       title:'御社の売上相当額',        text:'支出を売上ベースに換算した結果が表示されます。',               place:'above' },
+    { el:'#avgRow',      title:'平均単価（任意）',        text:'平均単価を入力すると「＝必要販売数」を自動計算します。',        place:'below' },
+    { el:'#actionRow',   title:'コピー／リセット／印刷', text:'結果の共有や再試算、印刷ができます。',                         place:'above' }
+  ];
+  tStepAll.textContent=steps.length;
+  let ti=0, targetEl=null;
+
+  function layoutCoach(){
+    if(!targetEl) return;
+    const r=targetEl.getBoundingClientRect();
+    const pad=6, rad=14, gap=12;
+
+    spot.style.left=(r.left-pad)+'px';
+    spot.style.top=(r.top-pad)+'px';
+    spot.style.width=(r.width+pad*2)+'px';
+    spot.style.height=(r.height+pad*2)+'px';
+    spot.style.borderRadius=rad+'px';
+
+    const cardRect=card.getBoundingClientRect();
+    const margin=gap;
+
+    let topBelow=r.bottom+margin;
+    if(topBelow+cardRect.height+margin>window.innerHeight){
+      topBelow=window.innerHeight-cardRect.height-margin;
+    }
+    let topAbove=r.top-cardRect.height-margin;
+    if(topAbove<margin) topAbove=margin;
+
+    const pref=steps[ti].place||'auto';
+    let finalTop;
+    if(pref==='above')      finalTop=topAbove;
+    else if(pref==='below') finalTop=topBelow;
+    else{
+      const overlapBelow=Math.max(0,(r.bottom+gap)-topBelow);
+      const overlapAbove=Math.max(0,(topAbove+cardRect.height)-(r.top-gap));
+      finalTop = overlapBelow<=overlapAbove ? topBelow : topAbove;
+    }
+    card.style.top=finalTop+'px';
+    card.style.left='50%';
+    card.style.transform='translateX(-50%)';
+  }
+
+  function ensureSeparation(){
+    const s=steps[ti]; if(!s) return;
+    const r=targetEl.getBoundingClientRect();
+    const c=card.getBoundingClientRect();
+    const gap=12;
+
+    if(s.place==='above'){
+      const overlap=c.bottom - (r.top - gap);
+      if(overlap>0){
+        window.scrollBy({top:-overlap,behavior:'smooth'});
+        setTimeout(layoutCoach,300);
+      }
+    }else if(s.place==='below'){
+      const overlap=(r.bottom + gap) - c.top;
+      if(overlap>0){
+        window.scrollBy({top:overlap,behavior:'smooth'});
+        setTimeout(layoutCoach,300);
+      }
+    }
+  }
+
+  function showStep(i){
+    ti=Math.max(0,Math.min(steps.length-1,i));
+    const s=steps[ti];
+    tStepNow.textContent=`STEP ${ti+1}`;
+    tTitle.textContent=s.title;
+    tText.textContent=s.text;
+
+    targetEl=document.querySelector(s.el);
+    if(!targetEl) return;
+
+    targetEl.scrollIntoView({behavior:'smooth',block:(s.place==='above'?'end':'center')});
+    requestAnimationFrame(layoutCoach);
+    setTimeout(()=>{layoutCoach();ensureSeparation();},350);
+
+    tPrev.disabled=(ti===0);
+    tNext.textContent=(ti===steps.length-1)?'完了':'次へ';
+  }
+
+  function startTutorial(){
+    document.body.style.overflow='hidden';
+    coach.classList.add('show');
+    showStep(0);
+  }
+  function endTutorial(){
+    coach.classList.remove('show');
+    document.body.style.overflow='';
+  }
+
+  tBtn.addEventListener('click',startTutorial);
+  tPrev.addEventListener('click',e=>{e.stopPropagation();showStep(ti-1);});
+  tSkip.addEventListener('click',e=>{e.stopPropagation();endTutorial();});
+  tNext.addEventListener('click',e=>{
+    e.stopPropagation();
+    const s=steps[ti]; if(s.onNext) s.onNext();
+    if(ti===steps.length-1) endTutorial(); else showStep(ti+1);
+  });
+  coach.addEventListener('click',()=>{
+    const s=steps[ti]; if(s.onNext) s.onNext();
+    if(ti===steps.length-1) endTutorial(); else showStep(ti+1);
+  });
+  $('#coachCard').addEventListener('click',e=>e.stopPropagation());
+
+  document.addEventListener('keydown',e=>{
+    if(!coach.classList.contains('show')) return;
+    if(e.key==='Enter'||e.key===' '){
+      e.preventDefault();
+      const s=steps[ti]; if(s.onNext) s.onNext();
+      if(ti===steps.length-1) endTutorial(); else showStep(ti+1);
+    }
+    if(e.key==='Escape'){ endTutorial(); }
+    if(e.key==='ArrowLeft'){ showStep(ti-1); }
+    if(e.key==='ArrowRight'){
+      const s=steps[ti]; if(s.onNext) s.onNext();
+      showStep(Math.min(steps.length-1,ti+1));
+    }
+  });
+
+  window.addEventListener('resize',()=>{ if(coach.classList.contains('show')) layoutCoach(); });
+  window.addEventListener('orientationchange',()=>{ if(coach.classList.contains('show')) setTimeout(layoutCoach,300); });
+
+  // 初期値（保存がなければ43.6%）
+  (function initDefaults(){
+    const cmr0=loadCmr();
+    cmrRange.value=cmr0.toFixed(1);
+    cmrInput.value=cmr0.toFixed(1);
+  })();
+
+  // ★ 他ツールからの試算額転送を受け取って自動計算する処理
+  (function handleExternalEffect(){
+    let effectRaw=null;
+    let source=null;
+    try{
+      effectRaw=localStorage.getItem(MK_SALES_EFFECT_AMOUNT_KEY);
+      source=localStorage.getItem(MK_SALES_EFFECT_SOURCE_KEY);
+      if(effectRaw!==null){
+        localStorage.removeItem(MK_SALES_EFFECT_AMOUNT_KEY);
+        localStorage.removeItem(MK_SALES_EFFECT_SOURCE_KEY);
+      }
+    }catch(_){}
+
+    if(effectRaw===null) return;
+
+    const amount=parseMoney(effectRaw);
+    if(isNaN(amount) || amount<=0) return;
+
+    // 支出欄にセットし、スライダーも追従
+    const min=+spendRange.min;
+    const max=+spendRange.max;
+    const clamped=clamp(amount,min,max);
+
+    spendEl.value=formatPlainJPY(amount);
+    spendRange.value=isNaN(clamped)?spendRange.value:clamped;
+
+    // 自動計算＆スクロール
+    calc();
+    resultArea.scrollIntoView({behavior:'smooth',block:'center'});
+
+    // source は現状UIでは使用しないが、必要ならここで分岐可能
+    // 例: if(source==='jinken'){ ... } など
+  })();
+
+  // ===== 動画モーダル =====
+  const openVideoLink=$('#openCmrVideo');
+  const videoModal=$('#videoModal');
+  const closeVideoBtn=$('#closeVideo');
+  const cmrVideo=$('#cmrVideo');
+
+  function openVideo(e){
+    e.preventDefault();
+    if(!videoModal) return;
+    videoModal.classList.add('show');
+    document.body.style.overflow='hidden';
+    if(cmrVideo){
+      try{
+        cmrVideo.currentTime = 0;
+        const p = cmrVideo.play();
+        if(p && typeof p.catch === 'function'){
+          p.catch(()=>{ /* autoplay 失敗時は黙って無視 */ });
+        }
+      }catch(_){}
+    }
+  }
+  function closeVideo(){
+    if(!videoModal) return;
+    videoModal.classList.remove('show');
+    document.body.style.overflow='';
+    if(cmrVideo){
+      cmrVideo.pause();
+      cmrVideo.currentTime=0;
+    }
+  }
+
+  if(openVideoLink){
+    openVideoLink.addEventListener('click',openVideo);
+  }
+  if(closeVideoBtn){
+    closeVideoBtn.addEventListener('click',closeVideo);
+  }
+  if(videoModal){
+    videoModal.addEventListener('click',e=>{
+      if(e.target===videoModal) closeVideo();
+    });
+  }
+
+  // ===== 月次決算速報サービス 画像モーダル =====
+  const openMonthlyLink=$('#openMonthlyImg');
+  const imgModal=$('#imgModal');
+  const closeImgBtn=$('#closeImg');
+
+  function openImg(e){
+    e.preventDefault();
+    if(!imgModal) return;
+    imgModal.classList.add('show');
+    document.body.style.overflow='hidden';
+  }
+  function closeImg(){
+    if(!imgModal) return;
+    imgModal.classList.remove('show');
+    document.body.style.overflow='';
+  }
+
+  if(openMonthlyLink){
+    openMonthlyLink.addEventListener('click',openImg);
+  }
+  if(closeImgBtn){
+    closeImgBtn.addEventListener('click',closeImg);
+  }
+  if(imgModal){
+    imgModal.addEventListener('click',e=>{
+      if(e.target===imgModal) closeImg();
+    });
+  }
+
+  // Esc キーでモーダルを閉じる
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='Escape') return;
+    if(videoModal && videoModal.classList.contains('show')){
+      e.preventDefault(); closeVideo(); return;
+    }
+    if(imgModal && imgModal.classList.contains('show')){
+      e.preventDefault(); closeImg(); return;
+    }
+  });
 </script>
 </body>
 </html>
