@@ -2,611 +2,885 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>人件費見える化ツール</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>自動化効果試算ツール（r67）</title>
 
-<link rel="icon" href="favicon192192.png" sizes="192x192" />
-<link rel="shortcut icon" href="favicon192192.png" />
-<link rel="apple-touch-icon" href="favicon192192.png" />
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="192x192" href="./favicon192192.png">
+<meta name="theme-color" content="#2084A8"/>
 
 <style>
 :root{
-  --bg:#f5f8fb; --card:#fff; --ink:#1f2937; --muted:#6b7280;
-  --accent:#3aa2c8; --accent-strong:#2384a8; --line:#e7eef3;
-  --overlay:rgba(15,23,42,.28); --focus:rgba(58,162,200,.45);
+  --bg:#eef5f9; --card:#fff; --ink:#0f172a; --muted:#64748b;
+  --accent:#2084A8; --accent-600:#1b7899; --accent-700:#166b8a;
+  --ring:rgba(32,132,168,.18);
+  --good:#059669; --warn:#b45309; --radius:14px;
+  --cols:.9fr 1fr 2.8fr 1.0fr 1.15fr .35fr 1.15fr .8fr;
+  --row-gap:6px; --col-gap:4px; --kpiRowH:auto;
+  --bar-after:#4fb3c1;
 }
 *{box-sizing:border-box}
-html,body{height:100%}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic","Meiryo",Arial,sans-serif;color:var(--ink);background:var(--bg);}
-.container{max-width:1100px;margin:10px auto;padding:0 10px}
-
-/* header */
-header{display:flex;gap:8px;align-items:center;margin-bottom:6px}
-.logo{height:48px;width:auto;object-fit:contain;border-radius:4px}
-.logo-link{display:inline-block;line-height:0}
-h1{font-weight:700;letter-spacing:.3px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;margin:0;font-size:20px}
-@media (orientation:portrait){ h1{font-size:clamp(18px,5.6vw,22px);} }
-.header-actions{display:flex;gap:6px;align-items:center}
-.help-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:9px;border:1px solid var(--line);background:#f3f7fb;color:#0f172a;cursor:pointer;font-weight:700;font-size:13.5px}
-.help-btn:focus-visible{outline:3px solid var(--focus);outline-offset:2px;box-shadow:0 0 0 6px rgba(58,162,200,.18)}
-
-/* layout */
-.grid{display:grid;grid-template-columns:1fr;gap:10px}
-@media (min-width:900px){.grid{grid-template-columns:1.1fr 0.9fr}}
-@media (max-width:899px) and (orientation:landscape){.grid{grid-template-columns:1fr 1fr}}
-
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
-.section{padding:10px 10px 4px 10px;border-bottom:1px solid var(--line)}
-.section:last-child{border-bottom:none;padding-bottom:10px}
-.section h2{margin:0 0 4px 0;font-size:14px}
-
-.help{font-size:11px;color:var(--muted)}
-.row{display:grid;grid-template-columns:130px 1fr;gap:8px;align-items:center;padding:4px 0}
-.row + .row{border-top:1px dashed var(--line)}
-.label{color:var(--muted);font-size:13.5px;font-weight:600}
-
-/* inputs */
-input[type="text"],input[type="number"],select{
-  width:100%;padding:7px 9px;font-size:13.5px;border-radius:9px;border:1px solid var(--line);
-  background:#f9fbfd;outline:none;transition:border .15s,box-shadow .15s,background .15s;
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,
+  "Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",sans-serif}
+.wrap{max-width:1000px;margin:24px auto 64px;padding:0 16px}
+header{display:flex;justify-content:space-between;gap:8px;margin-bottom:16px}
+header .brand{display:flex;align-items:center;gap:10px}
+header .brand img{height:48px;width:auto;display:block}
+h1{font-size:clamp(18px,2.4vw,24px);margin:0 0 6px}
+.sub{color:var(--muted);font-size:13px;line-height:1.5}
+@media (max-width:932px) and (orientation:landscape){
+  .sub{font-size:10.5px;line-height:1.45}
 }
-input[type="text"]:focus-visible,input[type="number"]:focus-visible,select:focus-visible{
-  border-color:var(--accent);box-shadow:0 0 0 3px rgba(58,162,200,.18);background:#fff;
-  outline:3px solid var(--focus);outline-offset:2px;
+/* 「チュートリアル」ボタン（1行・小さめ） */
+.help-btn{
+  white-space:nowrap;
+  align-self:flex-start;background:#fff;color:var(--accent);
+  border:1px solid rgba(32,132,168,.45);border-radius:999px;
+  padding:6px 10px;font-size:12px;letter-spacing:.02em;cursor:pointer;
+  box-shadow:0 1px 6px rgba(2,6,23,.05)
 }
+.help-btn:hover{background:#f3f9fc;box-shadow:0 8px 18px rgba(32,132,168,.18);transform:translateY(-1px)}
+.help-btn:active{transform:translateY(0)}
 
-/* slider */
-.slider-row{display:grid;grid-template-columns:1fr;gap:3px}
-input[type="range"]{width:100%;height:26px;-webkit-appearance:none;appearance:none;background:transparent}
-input[type="range"]::-webkit-slider-runnable-track{height:6px;background:linear-gradient(90deg,var(--accent) 0%,var(--accent-strong) 100%);border-radius:999px;opacity:.35}
-input[type="range"]::-moz-range-track{height:6px;background:linear-gradient(90deg,var(--accent) 0%,var(--accent-strong) 100%);border-radius:999px;opacity:.35}
-input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--accent-strong);margin-top:-6px;box-shadow:0 2px 6px rgba(0,0,0,.15);transition:box-shadow .15s,transform .15s,border-color .15s}
-input[type="range"]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--accent-strong);box-shadow:0 2px 6px rgba(0,0,0,.15);transition:box-shadow .15s,transform .15s,border-color .15s}
-input[type="range"]:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
-input[type="range"]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 6px rgba(58,162,200,.25),0 2px 8px rgba(0,0,0,.3);transform:scale(1.05);border-color:#30a0c3}
-input[type="range"]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 6px rgba(58,162,200,.25),0 2px 8px rgba(0,0,0,.3);transform:scale(1.05);border-color:#30a0c3}
+.card{background:var(--card);border-radius:var(--radius);
+  box-shadow:0 1px 2px rgba(15,23,42,.06),0 8px 24px rgba(2,6,23,.08);
+  padding:16px;margin:12px 0}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(12,1fr)}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+input[type="number"],input[type="text"]{
+  width:100%;padding:10px 12px;border-radius:10px;border:1px solid #e5e7eb;
+  background:#fff;font-size:14px;outline:none;transition:border-color .15s,box-shadow .15s}
+input[type="number"]:focus,input[type="text"]:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--ring)}
+input[readonly]{background:#f8fafc;color:#334155}
+.thead{color:var(--muted);font-size:12px;font-weight:600;border-bottom:1px solid #e3edf4}
+.td.res{text-align:right;font-variant-numeric:tabular-nums}
+.note{font-size:12px;color:var(--muted)}
+.note-right{font-size:11px;color:var(--muted);text-align:right;margin-top:4px}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+button{cursor:pointer;border:none;border-radius:12px;padding:10px 14px;font-size:14px;transition:.15s}
+.outline{background:#fff;border:1px solid rgba(32,132,168,.45);color:var(--accent);box-shadow:0 1px 6px rgba(2,6,23,.05)}
+.outline:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(32,132,168,.18);background:#f3f9fc}
+.outline:active{transform:translateY(0);background:#eef7fb}
 
-/* segment */
+/* KPI */
+.kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.kpi .item{background:#fff;border:1px dashed #e2e8f0;border-radius:12px;padding:8px;min-height:var(--kpiRowH);display:flex;flex-direction:column;justify-content:space-between}
+.kpi h3{margin:0 0 4px;font-size:11.5px;color:var(--muted)}
+.kpi .val{font-size:clamp(16px,2.4vw,20px)}
+.krow{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.aside{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.aside .label{font-size:10.5px;color:var(--muted)}
+.aside .yen{font-size:clamp(13px,2.0vw,17px);color:#0f5132}
+
+/* 人件費削減を枠で強調 */
+.item--emph{border:2px solid rgba(32,132,168,.9)!important;box-shadow:none}
+.savings .val-main{font-size:clamp(21px,3.2vw,29px);font-weight:800;color:#059669;line-height:1}
+
+/* 自動化率を大きく */
+.rate-hero{font-size:clamp(21px,3.2vw,29px);font-weight:800;color:var(--accent)}
+#kpiBreakdown{font-size:10.5px;line-height:1.35;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
+
+/* 機能別テーブル（詰め） */
+.compact-table{ --row-gap:2px }
+.headbar{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.headnote{font-size:12px;color:var(--muted);white-space:nowrap}
+.features-head,.features-rows{
+  display:grid;grid-template-columns:var(--cols);gap:var(--row-gap) var(--col-gap);align-items:center;font-size:12px}
+.features-rows .td,.features-head .th{padding:3px 4px}
+.features-rows .c-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.features-rows .td.arrow,.features-head .th.arrow{text-align:center;color:#64748b}
+.features-head .th:last-child,.features-rows .td.res{text-align:right}
+.features-head .th.kind,.features-rows .td.kind{padding-left:2px;margin-left:-2px}
+.feat-link{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+.adopt-box{display:flex;justify-content:center;width:22px}
+.adopt-dash{display:inline-block;width:22px;text-align:center;color:#94a3b8}
+.bulk-label{display:flex;align-items:center;justify-content:center;gap:6px;color:var(--muted);font-size:12px}
+.comp-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .seg{display:flex;gap:6px}
-.seg button{flex:1;border:1px solid var(--line);background:#f3f7fb;color:#111;padding:6px 8px;border-radius:9px;cursor:pointer;font-weight:700;font-size:13.5px}
-.seg button.active{background:linear-gradient(180deg,var(--accent),var(--accent-strong));color:#fff;border-color:transparent}
-.seg button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.seg.sm .segbtn{padding:6px 10px;font-size:12px;border-radius:10px}
+.segbtn{background:#fff;border:1px solid rgba(32,132,168,.45);color:var(--accent);padding:10px 14px;border-radius:12px;cursor:pointer}
+.segbtn.active{background:var(--accent);color:#fff}
+.comp-row input[type="text"]{flex:1 1 280px;min-width:180px}
+.calc-note{margin-top:6px;color:var(--muted);font-size:12px}
+.hourly-badge{margin-top:6px;font-weight:700}
 
-/* result */
-.result{display:grid;grid-template-columns:1fr;gap:8px;padding:10px}
-.tile{border:1px solid var(--line);border-radius:9px;padding:8px;background:linear-gradient(180deg,#fff 0%,#f7fbfe 100%)}
-.tile h3{margin:0 0 3px 0;font-size:12.5px;color:var(--muted)}
-.main-figure{font-size:24px;font-weight:600;letter-spacing:.2px;color:var(--accent-strong);border-radius:8px;padding:2px 4px}
-.main-figure:focus-visible,.permin b:focus-visible,.accent-chip:focus-visible{outline:3px solid var(--focus);outline-offset:3px;box-shadow:0 0 0 6px rgba(58,162,200,.2);background:linear-gradient(180deg,#fff 0%,#eef8fc 100%)}
-.figure-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-.accent-chip{font-size:13px;font-weight:700;color:var(--accent-strong);background:rgba(58,162,200,.12);border:1px solid rgba(35,132,168,.36);padding:3px 8px;border-radius:999px;white-space:nowrap}
+.sumline{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 12px;background:#eaf2f7;border-radius:10px;font-size:13px}
+.ok{color:var(--good)} .warn{color:var(--warn)}
 
-/* 1分あたり強調 */
-.permin{margin-top:2px;font-weight:700;color:var(--accent-strong);display:inline-flex;align-items:baseline;gap:6px}
-.permin b{font-size:22px;font-weight:700;border-radius:6px;padding:1px 4px}
+/* グラフ */
+.chart-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+.chart-title{font-weight:800;color:var(--accent);font-size:clamp(16px,2.6vw,20px)}
+.chart-sub{color:var(--muted);font-size:12px}
+.chart-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.chartbox{background:#fff;border:1px dashed #e2e8f0;border-radius:12px;padding:8px}
+.chartbox h4{margin:0 0 6px;font-size:12px;color:var(--muted)}
+canvas{width:100%;height:120px;display:block}
+@media (max-width:720px){.chart-grid{grid-template-columns:1fr}canvas{height:110px}}
 
-/* buttons */
-.btn{display:inline-flex;gap:6px;align-items:center;padding:7px 10px;background:linear-gradient(180deg,var(--accent),var(--accent-strong));border:none;color:#fff;border-radius:9px;cursor:pointer;font-weight:700}
-.btn.secondary{background:#eef5f9;color:#2384a8;border:1px solid var(--line)}
-.btn.outline{background:#fff;color:#2384a8;border:1px solid var(--accent-strong)}
-.btn:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
-.btns{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
-
-.footer{font-size:11px;color:#6b7280;padding:6px 10px 10px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.hr{height:1px;background:var(--line);margin:6px 0}
-
-/* mini footer (CC) */
-.mk-mini{ text-align:center;font-size:12px;color:#7b8794;padding:10px 10px 14px;border-top:1px solid var(--line);margin-top:8px;white-space:nowrap;overflow-x:auto }
-.mk-mini a{color:inherit;text-decoration:underline}
-.mk-mini::-webkit-scrollbar{height:8px}
-.mk-mini::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px}
-
-.switch{display:flex;align-items:center;gap:8px}
-.err{color:#b91c1c;font-size:11.5px;display:none}
-.toast{position:fixed;left:8px;right:8px;bottom:8px;background:#111;color:#fff;padding:8px 10px;border-radius:8px;opacity:.95;font-size:12px;z-index:9999;text-align:center}
+/* ===== フローティング型チュートリアル（ハイライト＋吹き出し） ===== */
+.tour{position:fixed;inset:0;z-index:9998;display:none}
+.tour.show{display:block}
+/* ぼかしを完全無効化（対象UIをくっきり表示） */
+#tourShade{
+  position:absolute;inset:0;
+  background:transparent !important;
+  backdrop-filter:none !important;
+  pointer-events:none;
+}
+#tourSpot{
+  position:absolute;left:0;top:0;width:0;height:0;border:2px solid var(--accent);border-radius:12px;
+  /* 外側のみ暗転：内側は無加工でクッキリ */
+  box-shadow:0 0 0 9999px rgba(2,6,23,.55);
+  pointer-events:none;transition:all .18s ease
+}
+#tourSheet{
+  position:absolute;left:0;top:0;background:#fff;border-radius:12px;
+  box-shadow:0 12px 30px rgba(2,6,23,.35);padding:14px 16px;
+  width:min(92vw,420px);max-width:420px
+}
+#tourSheet::after{content:"";position:absolute;width:0;height:0;border:8px solid transparent}
+#tourSheet[data-pos="bottom"]::after{top:-16px;left:24px;border-bottom-color:#fff;filter:drop-shadow(0 -2px 2px rgba(2,6,23,.1))}
+#tourSheet[data-pos="top"]::after{bottom:-16px;left:24px;border-top-color:#fff;filter:drop-shadow(0 2px 2px rgba(2,6,23,.1))}
+#tourStep{color:#475569;font-size:12px}
+#tourTitle{margin:4px 0 4px;font-size:18px;color:var(--accent)}
+#tourBody{margin:0 0 8px;font-size:14px;color:#334155;line-height:1.7}
+.tnav{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+.tbtn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px}
+.tbtn.outline{background:#fff;color:var(--accent);border:1px solid rgba(32,132,168,.45)}
+.dots{display:flex;gap:6px;margin-right:auto}
+.dot{width:8px;height:8px;border-radius:50%;background:#cbd5e1}
+.dot.on{background:var(--accent)}
+.tHint{font-size:12px;color:#64748b;margin-top:6px}
 
 /* print */
-@media print{
-  body{background:#fff}
-  .card{box-shadow:none}
-  .btns{display:none}
-  .mk-mini{border-top:none}
-  #tourBanner,.tour-overlay,.tour-tip{display:none!important}
-}
-
-/* --- Tutorial --- */
-#tourBanner{display:none;margin:6px 0 10px 0;padding:8px 10px;border:1px solid var(--line);background:#f0f7fb;border-radius:10px;font-size:13px;color:#0f172a;align-items:center;justify-content:space-between;gap:8px}
-#tourBanner .actions{display:flex;gap:8px}
-#tourBanner button{padding:6px 9px;border-radius:8px;border:1px solid var(--accent-strong);background:#fff;color:#2384a8;font-weight:700;cursor:pointer}
-#tourBanner .skip{border-color:var(--line);color:#334155}
-
-.tour-overlay{position:fixed;inset:0;background:var(--overlay);backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
-  z-index:9998; pointer-events:auto;}
-.tour-tip{position:fixed;max-width:420px;background:#fff;color:#0f172a;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 10px 30px rgba(0,0,0,.18);z-index:10020;padding:12px}
-.tour-step{font-size:11px;color:#64748b;margin-bottom:4px;letter-spacing:.4px}
-.tour-tip h4{margin:0 0 6px 0;font-size:15px}
-.tour-tip p{margin:0 10px 10px 0;font-size:13px;color:#334155;line-height:1.5}
-.tour-ctrl{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.tour-ctrl .left{display:flex;gap:6px}
-.tour-ctrl .right{display:flex;gap:6px}
-.tour-btn{padding:6px 10px;border-radius:9px;border:1px solid var(--line);background:#f8fafc;color:#0f172a;font-weight:700;cursor:pointer;font-size:13px}
-.tour-btn.primary{background:linear-gradient(180deg,var(--accent),var(--accent-strong));color:#fff;border-color:transparent}
-.tour-btn:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
-
-/* Docked tip only when really necessary */
-.tour-tip.docked{left:8px!important;right:8px!important;bottom:8px!important;top:auto!important;max-width:none}
-
-/* Highlight */
-.tour-target{position:relative;z-index:10010!important;border-radius:12px;background:#fff!important;
-  box-shadow:0 0 0 6px rgba(58,162,200,.38),0 12px 42px rgba(0,0,0,.35)!important}
+@media print{.btns,#footerBtns,footer.mk-mini,.tour{display:none!important}.card{box-shadow:none;border:1px solid #e5e7eb}}
+footer.mk-mini{margin-top:18px;padding:10px 0;text-align:center;color:#475569;font-size:12px}
+footer.mk-mini a{color:inherit;text-decoration:underline}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap" id="app">
   <header>
-    <a class="logo-link" href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener" aria-label="税理士法人松本会計事務所 公式サイト">
-      <img src="ロゴ.jpg" alt="松本会計ロゴ" class="logo"/>
-    </a>
-    <h1>人件費見える化ツール</h1>
-    <div class="header-actions">
-      <button id="helpBtn" class="help-btn" aria-haspopup="dialog" aria-controls="tour">チュートリアル</button>
+    <div class="brand" id="hdrBrand">
+      <a href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener">
+        <img src="./ロゴ.jpg" alt="松本会計ロゴ">
+      </a>
+      <div>
+        <h1>自動化効果試算ツール</h1>
+        <div class="sub">5機能のチェックで<strong>導入（自動化後）/未導入（手作業）</strong>を切替。導入効果（時間・人件費）を算出します。月間仕訳総数との差分は<strong>「その他」</strong>として自動調整。</div>
+      </div>
     </div>
+    <button id="helpBtn" class="help-btn" type="button" title="チュートリアル">チュートリアル</button>
   </header>
 
-  <!-- Onboarding banner -->
-  <div id="tourBanner" role="region" aria-label="初回ガイド">
-    <div>はじめての方へ：このツールの使い方を <b>2分</b> でご案内します。</div>
-    <div class="actions">
-      <button id="startTourBtn">チュートリアルを開始</button>
-      <button id="skipTourBtn" class="skip">今回はスキップ</button>
-    </div>
-  </div>
-
-  <div class="grid">
-    <!-- left -->
-    <div class="card">
-      <div class="section">
-        <h2>1) 入力</h2>
-
-        <div class="row">
-          <div class="label">給与の単位</div>
-          <div class="seg" role="tablist" aria-label="給与の単位">
-            <button id="btnHourly" aria-selected="false">時給</button>
-            <button id="btnMonthly" aria-selected="false">月給</button>
-            <button id="btnYearly" class="active" aria-selected="true">年収</button>
+  <!-- 入力 -->
+  <section class="card" id="premiseCard">
+    <div class="grid">
+      <div class="td field" style="grid-column:span 6" id="payUnitBlock">
+        <label>給与の単位を選択して入力（社保等<strong>事業主負担16%</strong>は換算時に自動加算）</label>
+        <div class="comp-row">
+          <div class="seg sm" role="tablist" aria-label="給与単位">
+            <button type="button" class="segbtn" data-unit="hour"  onclick="setUnit('hour')">時給</button>
+            <button type="button" class="segbtn" data-unit="month" onclick="setUnit('month')">月給</button>
+            <button type="button" class="segbtn active" data-unit="year" onclick="setUnit('year')">年収</button>
           </div>
+          <input id="baseComp" type="text" inputmode="numeric" value="4,780,000" oninput="formatLive(this);updateWage()">
         </div>
-
-        <div class="row">
-          <div class="label"><span id="salaryLabel">年収（税引前）</span></div>
-          <div class="slider-row">
-            <input id="salary" type="text" inputmode="numeric" placeholder="例：4,780,000" value="4,780,000"/>
-            <input id="salaryRange" type="range" min="1000000" max="30000000" step="10000"/>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="label">社保上乗せ</div>
-          <div class="switch">
-            <input id="overheadSoc" type="checkbox"/>
-            <label for="overheadSoc" class="help">社会保険の<b>事業主負担</b>を上乗せ（標準率を適用）</label>
-          </div>
-        </div>
+        <div class="calc-note">※初期値：令和6年民間給与実態統計調査の平均年収<strong>478万円</strong>をベースに算出。換算は<strong>月160時間×12ヶ月</strong>、<strong>事業主負担16％</strong>を自動加算して時給化。</div>
+        <div class="hourly-badge">換算結果：<span id="hourlyDisplay">¥2,888 / 時</span>（16％込み）</div>
+        <input type="hidden" id="wage" value="2888">
       </div>
 
-      <div class="section" id="monthlyBlock" style="display:none">
-        <h2>2) 稼働時間（<span style="color:var(--accent-strong)">月給ベース</span>）</h2>
-        <div class="row"><div class="label">月の稼働日数</div><input id="mDays" type="number" inputmode="numeric" min="1" max="31" step="1" value="20"/></div>
-        <div class="help err" id="err_mDays"></div>
-        <div class="row"><div class="label">1日の労働時間</div><input id="mHoursPerDay" type="text" inputmode="decimal" placeholder="例：7.5" value="8"/></div>
-        <div class="help err" id="err_mHoursPerDay"></div>
-        <div class="row"><div class="label">月の稼働時間</div><input id="mHours" type="number" min="1" step="1" value="160"/></div>
-        <div class="help">※ 上の2項目を変更すると自動で再計算（手入力も可）。</div>
-      </div>
-
-      <div class="section" id="yearlyBlock">
-        <h2>2) 稼働時間（<span style="color:var(--accent-strong)">年収ベース</span>）</h2>
-        <div class="row"><div class="label">年間の稼働日数</div><input id="yDays" type="number" inputmode="numeric" min="1" max="366" step="1" value="240"/></div>
-        <div class="help err" id="err_yDays"></div>
-        <div class="row"><div class="label">1日の労働時間</div><input id="yHoursPerDay" type="text" inputmode="decimal" placeholder="例：7.5" value="8"/></div>
-        <div class="help err" id="err_yHoursPerDay"></div>
-        <div class="row"><div class="label">年間の稼働時間</div><input id="yHours" type="number" min="1" step="1" value="1920"/></div>
-        <div class="help">※ 上の2項目を変更すると自動で再計算（手入力も可）。</div>
-      </div>
-
-      <div class="section">
-        <h2>3) 所要時間</h2>
-        <div class="row">
-          <div class="label">所要時間（h）</div>
-          <div class="slider-row">
-            <input id="useHours" type="number" inputmode="decimal" min="0" step="0.25" value="1.0"/>
-            <input id="useHoursRange" type="range" min="0" max="12" step="0.25"/>
-          </div>
-        </div>
+      <div class="td field" style="grid-column:span 6" id="journalsBlock">
+        <label>月間仕訳数（<span class="note">総数</span>）</label>
+        <input id="totalJournals" type="number" value="320" min="0" oninput="calc()">
       </div>
     </div>
+  </section>
 
-    <!-- right -->
-    <div class="card">
-      <div class="section">
-        <h2>結果</h2>
-        <div class="result">
-          <div class="tile" id="tileHourly">
-            <h3>時間単価（税込/ベース×上乗せ率）</h3>
-            <div class="main-figure" id="hourly" tabindex="0" aria-label="時間単価">–</div>
-            <div class="permin">1分あたり：<b id="perMin" tabindex="0" aria-label="1分あたり単価">–</b></div>
-            <div class="help">社保上乗せ率（標準）：<b id="socRateLabel">–</b></div>
-          </div>
+  <!-- 機能別 -->
+  <section class="card compact-table" id="featuresCard">
+    <div class="headbar">
+      <div class="thead">機能別（チェックで導入状態を切替）</div>
+      <div class="headnote">※各数値は社内の実測値を入れてください。</div>
+    </div>
+    <div class="features-head">
+      <div class="th bulk">
+        <label class="bulk-label"><span>一括</span><input id="cb_all" type="checkbox" onclick="toggleAll(this.checked)"></label>
+      </div>
+      <div class="th kind">取引種類</div>
+      <div class="th c-name">機能</div>
+      <div class="th">件数/月</div>
+      <div class="th">手作業 分/件</div>
+      <div class="th arrow"></div>
+      <div class="th">自動化 分/件</div>
+      <div class="th">削減h</div>
+    </div>
 
-          <div class="tile" id="tileCost">
-            <h3>所要時間のコスト</h3>
-            <div class="figure-row">
-              <div class="main-figure" id="cost" tabindex="0" aria-label="所要時間のコスト">–</div>
-              <div class="accent-chip" id="costTimes12" tabindex="0" aria-label="12倍の目安">（×12＝—）</div>
-            </div>
-            <div class="help">15分：<b id="c15">–</b> ／ 30分：<b id="c30">–</b> ／ 1時間：<b id="c60">–</b></div>
-          </div>
+    <div class="features-rows">
+      <!-- 証憑 -->
+      <div class="td"><div class="adopt-box"><input class="feat-cb" id="cb_receipts" type="checkbox" checked onchange="calc()"></div></div>
+      <div class="td kind">現金</div>
+      <div class="td c-name"><a class="feat-link" href="https://www.matsumoto-kaikei.or.jp/tkc-tds" target="_blank" rel="noopener">証憑保存機能（スマホで経費）</a></div>
+      <div class="td"><input id="n_receipts" type="number" value="30" min="0" oninput="calc()"></div>
+      <div class="td"><input id="tb_receipts" type="number" value="3" min="0" step="0.1" oninput="calc()"></div>
+      <div class="td arrow">▷</div>
+      <div class="td"><input id="ta_receipts" type="number" value="2" min="0" step="0.1" oninput="calc()"></div>
+      <div class="td res" id="sv_receipts">0.00</div>
 
-          <div class="tile">
-            <h3>前提（現在の設定）</h3>
-            <div class="grid-2">
-              <div><div class="help">給与ベース</div><div id="baseKind" style="font-weight:700">年収</div></div>
-              <div><div class="help">社保上乗せ</div><div id="vhOverheadSoc" style="font-weight:700">なし</div></div>
-            </div>
-            <div class="hr"></div>
-            <div class="grid-2">
-              <div><div class="help">対象給与</div><div id="vhSalary" style="font-weight:700">–</div></div>
-              <div><div class="help">稼働時間（基準）</div><div id="vhWorkH" style="font-weight:700">–</div></div>
-            </div>
-          </div>
+      <!-- 銀行信販 -->
+      <div class="td"><div class="adopt-box"><input class="feat-cb" id="cb_bank" type="checkbox" checked onchange="calc()"></div></div>
+      <div class="td kind">預金・カード</div>
+      <div class="td c-name"><a class="feat-link" href="https://www.matsumoto-kaikei.or.jp/tkc-FinTech" target="_blank" rel="noopener">銀行信販データ受信機能</a></div>
+      <div class="td"><input id="n_bank" type="number" value="260" min="0" oninput="calc()"></div>
+      <div class="td"><input id="tb_bank" type="number" value="2" min="0" step="0.1" oninput="calc()"></div>
+      <div class="td arrow">▷</div>
+      <div class="td"><input id="ta_bank" type="number" value="0.5" min="0" step="0.1" oninput="calc()"></div>
+      <div class="td res" id="sv_bank">0.00</div>
 
-          <div class="btns">
-            <button id="toSalesBtn" class="btn">売上換算</button>
-            <button id="copyBtn" class="btn secondary">コピー</button>
-            <button id="resetBtn" class="btn secondary">リセット</button>
-            <button id="printBtn" class="btn outline">印刷</button>
+      <!-- 給与 -->
+      <div class="td"><div class="adopt-box"><input class="feat-cb" id="cb_payroll" type="checkbox" checked onchange="calc()"></div></div>
+      <div class="td kind">給与</div>
+      <div class="td c-name"><a class="feat-link" href="https://www.matsumoto-kaikei.or.jp/tkc-system012" target="_blank" rel="noopener">給与計算機能（仕訳含む）</a></div>
+      <div class="td"><input id="n_payroll" type="number" value="10" min="0" oninput="calc()"></div>
+      <div class="td"><input id="tb_payroll" type="number" value="8" min="0" step="0.1" oninput="calc()"></div>
+      <div class="td arrow">▷</div>
+      <div class="td"><input id="ta_payroll" type="number" value="3" min="0" step="0.1" oninput="calc()"></div>
+      <div class="td res" id="sv_payroll">0.00</div>
+
+      <!-- 販売管理 -->
+      <div class="td"><div class="adopt-box"><input class="feat-cb" id="cb_sales" type="checkbox" checked onchange="calc()"></div></div>
+      <div class="td kind">売上</div>
+      <div class="td c-name"><a class="feat-link" href="https://www.tkc.jp/file.jsp?id=166750" target="_blank" rel="noopener">販売管理機能（売上計上・請求）</a></div>
+      <div class="td"><input id="n_sales" type="number" value="12" min="0" oninput="calc()"></div>
+      <div class="td"><input id="tb_sales" type="number" value="10" min="0" step="0.1" oninput="calc()"></div>
+      <div class="td arrow">▷</div>
+      <div class="td"><input id="ta_sales" type="number" value="5" min="0" step="0.1" oninput="calc()"></div>
+      <div class="td res" id="sv_sales">0.00</div>
+
+      <!-- レジ -->
+      <div class="td"><div class="adopt-box"><input class="feat-cb" id="cb_pos" type="checkbox" checked onchange="calc()"></div></div>
+      <div class="td kind">レジ</div>
+      <div class="td c-name"><a class="feat-link" href="https://www.tkc.jp/fx/#:~:text=%E3%81%97%E3%81%8F%E3%81%AF%E3%81%93%E3%81%A1%E3%82%89-,%E5%A3%B2%E4%B8%8A%E4%BB%95%E8%A8%B3%E3%81%AE%E5%85%A5%E5%8A%9B%E6%A5%AD%E5%8B%99%E3%82%92%E5%A4%A7%E5%B9%85%E3%81%AB%E7%9C%81%E5%8A%9B%E5%8C%96,-%E3%82%BF%E3%83%96%E3%83%AC%E3%83%83%E3%83%88POS%E3%83%AC%E3%82%B8" target="_blank" rel="noopener">レジからのデータ受信</a></div>
+      <div class="td"><input id="n_pos" type="number" value="0" min="0" oninput="calc()"></div>
+      <div class="td"><input id="tb_pos" type="number" value="3" min="0" step="0.1" oninput="calc()"></div>
+      <div class="td arrow">▷</div>
+      <div class="td"><input id="ta_pos" type="number" value="0.5" min="0" step="0.1" oninput="calc()"></div>
+      <div class="td res" id="sv_pos">0.00</div>
+
+      <!-- その他 -->
+      <div class="td"><div class="adopt-box"><span class="adopt-dash">—</span></div></div>
+      <div class="td kind">その他</div>
+      <div class="td c-name">その他（自動調整・対象外）</div>
+      <div class="td"><input id="n_other" type="number" value="0" readonly></div>
+      <div class="td"><input id="tb_other" type="number" value="3" min="0" step="0.1" oninput="syncOther();calc()"></div>
+      <div class="td arrow">▷</div>
+      <div class="td"><input id="ta_other" type="number" value="3" readonly></div>
+      <div class="td res" id="sv_other">0.00</div>
+    </div>
+
+    <div class="sumline">
+      <div>入力合計（5機能）＝ <strong id="sumFeat">312</strong> 件 ／ その他＝ <strong id="sumOther">8</strong> 件 ／ 総合計＝ <strong id="sumTotal">320</strong> 件</div>
+      <div id="deltaMsg" class="ok">その他は自動調整されます。合計は常に総数と一致します。</div>
+    </div>
+
+    <div class="btns" style="margin-top:8px">
+      <button class="outline" onclick="resetAll();calc()">リセット</button>
+    </div>
+  </section>
+
+  <!-- グラフ -->
+  <section class="card" id="chartArea">
+    <div class="chart-head">
+      <div class="chart-title">削減率 <span id="chartRate">0.00%</span></div>
+      <div class="chart-sub">Before → After 可視化</div>
+    </div>
+    <div class="chart-grid">
+      <div class="chartbox">
+        <h4>総時間（時間）</h4>
+        <canvas id="chartTime" width="600" height="240"></canvas>
+      </div>
+      <div class="chartbox">
+        <h4>人件費（円）</h4>
+        <canvas id="chartCost" width="600" height="240"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- 結果 -->
+  <section class="card" id="kpiArea">
+    <div class="kpi">
+      <div class="item">
+        <h3>仕訳自動化率</h3>
+        <div class="krow">
+          <div class="rate-hero" id="kpiRate">0.00%</div>
+          <div class="aside">
+            <div class="label">導入機能数</div>
+            <div class="val" id="kpiAdopt">0 / 5</div>
+            <div class="note-right">チェックあり＆件数>0を採用としてカウント</div>
           </div>
         </div>
       </div>
-      <div class="footer">
-        <div class="note">※ このツールは、単純な換算法（時間単価＝給与÷稼働時間）に基づきます。労基法上の一般的な所定労働時間（1日8時間・週40時間）に合わせ、初期値を 8h×20日/月・8h×240日/年としてあります。また、社保上乗せは標準率を使用しており、実際の料率は保険者・業種・地域・年度等により異なります。</div>
-      </div>
+      <div class="item" id="kpiBefore"><h3>導入なし 総時間（月）</h3><div class="krow"><div class="val" id="kpiHBefore">0.00 時間</div><div class="aside"><div class="label">人件費相当額</div><div class="yen" id="kpiCostBefore">¥0</div></div></div></div>
+      <div class="item" id="kpiAfter"><h3>導入あり 総時間（月）</h3><div class="krow"><div class="val" id="kpiHAfter">0.00 時間</div><div class="aside"><div class="label">人件費相当額</div><div class="yen" id="kpiCostAfter">¥0</div></div></div></div>
+
+      <!-- 入替：時間短縮 → 左、人件費削減（強調） → 右 -->
+      <div class="item"><h3>時間短縮（合計・月間）</h3><div class="val" id="kpiSaved">0.00 時間</div><div class="note">（導入なし − 導入あり）</div></div>
+      <div class="item item--emph savings" id="kpiSavings"><h3>人件費削減</h3><div class="krow"><div class="val-main" id="kpiYen">¥0</div><div class="aside"><div class="label">年間（12ヶ月換算）</div><div class="yen" id="kpiYenYear">¥0</div></div></div></div>
+
+      <div class="item"><h3>機能別 削減時間（h）</h3><div class="note">チェック時のみ削減 > 0</div><div class="val" id="kpiBreakdown">—</div></div>
     </div>
+  </section>
+
+  <div class="btns" id="footerBtns" style="justify-content:center;margin-top:8px">
+    <button class="outline" id="copyBtn" onclick="copySummary()">コピー</button>
+    <button class="outline" id="csvBtn" onclick="exportCSV()">CSV出力</button>
+    <button class="outline" id="salesBtn" onclick="jumpToSalesTool()">売上換算</button>
+    <button class="outline" id="printBtn" onclick="printPage()">印刷</button>
   </div>
 
   <footer class="mk-mini">
     © <span id="cpy-year">2025</span>
-    <a href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener license">税理士法人松本会計事務所</a> ｜ 
+    <a href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener">税理士法人松本会計事務所</a> ｜ 
     <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener">CC BY-NC-SA 4.0</a> ｜ 
     <a href="/tool-portal/terms.html" target="_blank" rel="noopener">利用条件</a> ｜ 
-    <span id="build-rev">r40</span>（<span id="last-updated-date"></span>）
+    <span id="build-rev">r67</span>（<span id="last-updated-date"></span>）
   </footer>
 </div>
 
+<!-- ===== Tutorial (floating + focus) ===== -->
+<div class="tour" id="tour" aria-hidden="true">
+  <div id="tourShade"></div>
+  <div id="tourSpot" aria-hidden="true"></div>
+  <div id="tourSheet" role="dialog" aria-modal="true" aria-live="polite" data-pos="bottom">
+    <div style="display:flex;align-items:center;gap:8px;justify-content:space-between">
+      <span id="tourStep">1/7</span>
+      <div class="dots" id="tourDots"></div>
+      <button class="tbtn outline" id="tourEnd" type="button">終了</button>
+    </div>
+    <h3 id="tourTitle">ようこそ</h3>
+    <p id="tourBody"></p>
+    <div class="tnav">
+      <button class="tbtn outline" id="tourPrev" type="button">戻る</button>
+      <button class="tbtn" id="tourNext" type="button">次へ</button>
+    </div>
+    <div class="tHint">Enter / クリックで<strong>次へ</strong>　←で<strong>戻る</strong>　Escで<strong>終了</strong></div>
+  </div>
+</div>
+
 <script>
-(function(){
-  'use strict';
-  var VERSION='r40';
-  var SOC_RATE=16.0;
-  var TUTORIAL_SEEN_KEY='rate_tool_tutorial_seen_v1';
-  var KEY='rate_tool_r40';
+/* ---- utilities ---- */
+const $=id=>document.getElementById(id);
+const safeFixed=(n,d=2)=>Number.isFinite(n)?n.toFixed(d):(0).toFixed(d);
+const yen=n=>Number.isFinite(n)?n.toLocaleString('ja-JP',{style:'currency',currency:'JPY',maximumFractionDigits:0}):'¥0';
+const num=id=>parseFloat(String($(id).value||'').replace(/[,\s]/g,''))||0;
+function formatLive(el){const raw=(el.value||'').replace(/[^\d]/g,'');el.value=raw?Number(raw).toLocaleString('ja-JP'):'';}
+(function(){const y=new Date().getFullYear();$('cpy-year').textContent=y;
+ const d=new Date(document.lastModified),p=x=>String(x).padStart(2,'0');
+ $('last-updated-date').textContent=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;})();
 
-  // ★ 売上換算ツール連携用（「それ、売上に直すといくらですか？」側と共通のキー名を使用）
-  var MK_SALES_EFFECT_AMOUNT_KEY='mk_salesEffectAmount';
-  var MK_SALES_EFFECT_SOURCE_KEY='mk_salesEffectSource';
-  // ★ 「それ、売上に直すといくらですか？」のURL
-  var SALES_TOOL_URL='https://takatrp.github.io/convert-to-sales/';
-
-  var initialized=false, justEnded=false;
-
-  function el(id){return document.getElementById(id)}
-  function on(id,ev,fn){var e=el(id);if(e){e.addEventListener?e.addEventListener(ev,fn,false):e.attachEvent('on'+ev,fn)}}
-  function fmtJPY(n){try{return new Intl.NumberFormat('ja-JP',{style:'currency',currency:'JPY',maximumFractionDigits:0}).format(n)}catch(_){try{return '¥'+(Math.round(n)).toLocaleString('ja-JP')}catch(__){return '¥'+String(Math.round(n))}}}
-  function clamp(v,min,max){v=Number(v);if(!isFinite(v))return v;if(v<min)return min;if(v>max)return max;return v}
-
-  /* ------------ state ------------ */
-  var state={mode:'yearly',salary:4780000,overheadSoc:false,mDays:20,mHoursPerDay:8,mHours:160,yDays:240,yHoursPerDay:8,yHours:1920,useHours:1};
-
-  function monthlyHours(){return Number(state.mHours)||0}
-  function yearlyHours(){return Number(state.yHours)||0}
-  function baseSalary(){return Number(state.salary)||0}
-  function loadedSalary(){return baseSalary()*(1+(state.overheadSoc?SOC_RATE/100:0))}
-  function hourlyRate(){var d=state.mode==='monthly'?monthlyHours():state.mode==='yearly'?yearlyHours():1;var r=d>0?loadedSalary()/d:0;return Math.round(r)}
-  function costFor(h){return Math.round(hourlyRate()*(Number(h)||0))}
-
-  function setSegment(){
-    ['btnHourly','btnMonthly','btnYearly'].forEach(function(id){var b=el(id);if(b)b.classList.remove('active')});
-    if(state.mode==='hourly')el('btnHourly').classList.add('active');
-    if(state.mode==='monthly')el('btnMonthly').classList.add('active');
-    if(state.mode==='yearly')el('btnYearly').classList.add('active');
-    el('salaryLabel').textContent=state.mode==='monthly'?'月給（税引前）':state.mode==='yearly'?'年収（税引前）':'時給（税引前）';
+/* ---- inputs / calc ---- */
+function syncOther(){ $('ta_other').value=$('tb_other').value; }
+function recalcOther(){
+  const total=num('totalJournals');
+  const sumFeat=num('n_receipts')+num('n_bank')+num('n_payroll')+num('n_sales')+num('n_pos');
+  const other=total-sumFeat;
+  $('n_other').value=other;
+  $('sumFeat').textContent=sumFeat;
+  $('sumOther').textContent=other;
+  $('sumTotal').textContent=sumFeat+other;
+  const m=$('deltaMsg');
+  if(other<0){
+    m.textContent='合計が総数を超過しています（その他が負値）。件数配分を見直してください。';
+    m.className='warn';
+  }else{
+    m.textContent='その他は自動調整されます。合計は常に総数と一致します。';
+    m.className='ok';
   }
-  function syncSalaryRange(){
-    var r=el('salaryRange');if(!r)return;
-    if(state.mode==='monthly'){r.min=100000;r.max=2000000;r.step=1000}
-    else if(state.mode==='yearly'){r.min=1000000;r.max=30000000;r.step=10000}
-    else{r.min=800;r.max=10000;r.step=10}
-    r.value=String(baseSalary());
-  }
-  function syncUseHoursRange(){var r=el('useHoursRange');if(r){r.min=0;r.max=12;r.step=0.25;r.value=String(state.useHours||0)}}
-  function updateVisibility(){
-    var mb=el('monthlyBlock'),yb=el('yearlyBlock');
-    if(state.mode==='monthly'){mb.style.display='';yb.style.display='none'}
-    else if(state.mode==='yearly'){mb.style.display='none';yb.style.display=''}
-    else{mb.style.display='none';yb.style.display='none'}
-  }
-  function updateView(){
-    setSegment();syncSalaryRange();syncUseHoursRange();updateVisibility();
-    el('vhSalary').textContent=fmtJPY(baseSalary());
-    el('vhOverheadSoc').textContent=state.overheadSoc?('あり（'+SOC_RATE+'%）'):'なし';
-    el('socRateLabel').textContent=SOC_RATE+'%';
-    var w=state.mode==='monthly'?monthlyHours():state.mode==='yearly'?yearlyHours():null;
-    el('vhWorkH').textContent=(w==null)?'—':(w.toLocaleString('ja-JP')+' 時間/'+(state.mode==='monthly'?'月':'年'));
+}
 
-    var h=hourlyRate();
-    el('hourly').textContent=fmtJPY(h)+' / 時間';
-    el('perMin').textContent=fmtJPY(Math.round(h/60));
+const HOURS_PER_MONTH=160;
+const MK_SALES_EFFECT_AMOUNT_KEY='mk_salesEffectAmount';
+const MK_SALES_EFFECT_SOURCE_KEY='mk_salesEffectSource';
+const SALES_TOOL_URL='https://takatrp.github.io/convert-to-sales/';
+let payUnit='year';
 
-    var useH=Number(state.useHours)||0;
-    var cVal=costFor(useH);
-    el('cost').textContent=fmtJPY(cVal);
-    el('costTimes12').textContent='（×12＝'+fmtJPY(cVal*12)+'）';
-    el('c15').textContent=fmtJPY(costFor(0.25));
-    el('c30').textContent=fmtJPY(costFor(0.5));
-    el('c60').textContent=fmtJPY(costFor(1));
+function setUnit(u){
+  payUnit=u;
+  document.querySelectorAll('.segbtn').forEach(b=>{
+    const on=b.dataset.unit===u;
+    b.classList.toggle('active',on);
+  });
+  const base=$('baseComp');
+  if(u==='hour') base.value='2,500';
+  if(u==='month') base.value='300,000';
+  if(u==='year') base.value='4,780,000';
+  formatLive(base);
+  updateWage();
+}
 
-    el('baseKind').textContent=state.mode==='monthly'?'月給':state.mode==='yearly'?'年収':'時給';
-  }
+function updateWage(){
+  const v=num('baseComp');
+  let hourly = (payUnit==='hour')?v:(payUnit==='month')?v/HOURS_PER_MONTH:v/12/HOURS_PER_MONTH;
+  hourly*=1.16;
+  $('hourlyDisplay').textContent=yen(Math.round(hourly))+' / 時';
+  $('wage').value=Math.round(hourly);
+  calc();
+}
 
-  /* ------------ formatting & calc ------------ */
-  function liveFormatSalary(){
-    var input=el('salary');var raw=input.value;var cleaned=raw.replace(/[^\d]/g,'');
-    if(cleaned===''){state.salary=0;input.value='';el('salaryRange').value='0';updateView();save();return}
-    var n=Number(cleaned);state.salary=n;input.value=n.toLocaleString('ja-JP');
-    try{input.setSelectionRange(input.value.length,input.value.length)}catch(_){}
-    el('salaryRange').value=String(n);updateView();save();
-  }
-  function recalcMonthly(soft){if(soft===undefined)soft=true;var d=Number(state.mDays);var hpd=parseFloat(state.mHoursPerDay);if(!isFinite(d)||isNaN(hpd))return;
-    if(!soft){d=clamp(d,1,31);hpd=clamp(hpd,0.1,24);state.mDays=d;state.mHoursPerDay=hpd;el('mDays').value=String(d);el('mHoursPerDay').value=String(hpd)}
-    state.mHours=d*hpd;el('mHours').value=String(state.mHours)}
-  function recalcYearly(soft){if(soft===undefined)soft=true;var d=Number(state.yDays);var hpd=parseFloat(state.yHoursPerDay);if(!isFinite(d)||isNaN(hpd))return;
-    if(!soft){d=clamp(d,1,366);hpd=clamp(hpd,0.1,24);state.yDays=d;state.yHoursPerDay=hpd;el('yDays').value=String(d);el('yHoursPerDay').value=String(hpd)}
-    state.yHours=d*hpd;el('yHours').value=String(state.yHours)}
-
-  /* ------------ copy & reset & print ------------ */
-  function showToast(msg){var t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(function(){t.remove()},1500)}
-  function copySummary(){
-    var base=state.mode==='monthly'?'月給':state.mode==='yearly'?'年収':'時給';
-    var work=state.mode==='monthly'?('稼働時間：'+state.mHours.toLocaleString('ja-JP')+' 時間/月'):
-             state.mode==='yearly'?('稼働時間：'+state.yHours.toLocaleString('ja-JP')+' 時間/年'):'稼働時間：—（時給ベース）';
-    var txt=['【時間単価・コスト可視化】',
-             '給与ベース：'+base,
-             '対象給与：'+fmtJPY(baseSalary()),
-             '社保上乗せ：'+(state.overheadSoc?('あり（'+SOC_RATE+'%）'):'なし'),
-             work,
-             '時間単価：'+fmtJPY(hourlyRate())+' /h',
-             '1分あたり：'+fmtJPY(Math.round(hourlyRate()/60)),
-             '15分：'+fmtJPY(costFor(0.25))+' ／ 30分：'+fmtJPY(costFor(0.5))+' ／ 1時間：'+fmtJPY(costFor(1)),
-             '(ver '+VERSION+')'].join('\n');
-    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){showToast('コピーしました')}).catch(function(){fallbackCopy(txt)})}else{fallbackCopy(txt)}
-  }
-  function fallbackCopy(txt){var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}ta.remove();showToast('コピーしました')}
-  function resetAll(){state={mode:'yearly',salary:4780000,overheadSoc:false,mDays:20,mHoursPerDay:8,mHours:160,yDays:240,yHoursPerDay:8,yHours:1920,useHours:1};
-    el('salary').value='4,780,000';el('overheadSoc').checked=false;el('mDays').value='20';el('mHoursPerDay').value='8';el('mHours').value='160';
-    el('yDays').value='240';el('yHoursPerDay').value='8';el('yHours').value='1920';el('useHours').value='1.0';
-    syncUseHoursRange();syncSalaryRange();updateView();save();showToast('リセットしました');
-    ['err_mDays','err_mHoursPerDay','err_yDays','err_yHoursPerDay'].forEach(function(id){var e=el(id);if(e)e.style.display='none'})}
-  function defaultSalaryFor(m){return m==='hourly'?2000:m==='yearly'?4780000:300000}
-  function resetSalaryForMode(){state.salary=defaultSalaryFor(state.mode);el('salary').value=state.salary.toLocaleString('ja-JP');syncSalaryRange();el('salaryRange').value=String(state.salary)}
-
-  /* ------------ 売上換算ツールへの連携 ------------ */
-  function jumpToSalesTool(){
-    var useH=Number(state.useHours)||0;
-    var amount=costFor(useH); // 今回の「所要時間のコスト」をそのまま支出額として渡す
-    if(!isFinite(amount) || amount<=0){
-      showToast('所要時間（h）を0より大きく設定してください。');
-      return;
-    }
-    try{
-      localStorage.setItem(MK_SALES_EFFECT_AMOUNT_KEY, String(amount));
-      localStorage.setItem(MK_SALES_EFFECT_SOURCE_KEY, 'jinken'); // 人件費見える化ツール由来
-    }catch(e){}
-    // 同一オリジン内なので、単純遷移でOK
-    window.location.href = SALES_TOOL_URL;
-  }
-
-  /* ------------ events ------------ */
-  on('btnMonthly','click',function(){state.mode='monthly';resetSalaryForMode();updateView();save()})
-  on('btnYearly','click',function(){state.mode='yearly';resetSalaryForMode();updateView();save()})
-  on('btnHourly','click',function(){state.mode='hourly';resetSalaryForMode();updateView();save()})
-
-  on('salary','input',liveFormatSalary); on('salary','blur',liveFormatSalary);
-  on('salaryRange','input',function(e){state.salary=Number(e.target.value)||0;el('salary').value=state.salary.toLocaleString('ja-JP');updateView();save()})
-  on('salaryRange','change',function(e){state.salary=Number(e.target.value)||0;el('salary').value=state.salary.toLocaleString('ja-JP');updateView();save()})
-  on('overheadSoc','change',function(e){state.overheadSoc=!!e.target.checked;updateView();save()})
-
-  on('mDays','input',function(e){var n=Number(e.target.value);if(isFinite(n)){state.mDays=n;recalcMonthly(true);updateView();save()}})
-  on('mDays','blur',function(e){var n=Number(e.target.value);if(!isFinite(n))n=20;var raw=n;n=clamp(n,1,31);if(raw>31)showErr('err_mDays','月の稼働日数の上限は31日です（入力値を補正しました）');state.mDays=n;e.target.value=String(n);recalcMonthly(false);updateView();save()})
-  on('mHoursPerDay','input',function(e){var v=e.target.value;if(v==='')return;var n=parseFloat(v);if(!isNaN(n)){state.mHoursPerDay=n;recalcMonthly(true);updateView();save()}})
-  on('mHoursPerDay','blur',function(e){var v=e.target.value.trim();var n=parseFloat(v);if(isNaN(n))n=8;var raw=n;n=clamp(n,0.1,24);if(raw>24)showErr('err_mHoursPerDay','1日の労働時間の上限は24時間です（入力値を補正しました）');state.mHoursPerDay=n;e.target.value=String(n);recalcMonthly(false);updateView();save()})
-  on('mHours','input',function(e){var n=Number(e.target.value);if(isFinite(n)){state.mHours=n;updateView();save()}})
-
-  on('yDays','input',function(e){var n=Number(e.target.value);if(isFinite(n)){state.yDays=n;recalcYearly(true);updateView();save()}})
-  on('yDays','blur',function(e){var n=Number(e.target.value);if(!isFinite(n))n=240;var raw=n;n=clamp(n,1,366);if(raw>366)showErr('err_yDays','年間の稼働日数の上限は366日です（入力値を補正しました）');state.yDays=n;e.target.value=String(n);recalcYearly(false);updateView();save()})
-  on('yHoursPerDay','input',function(e){var v=e.target.value;if(v==='')return;var n=parseFloat(v);if(!isNaN(n)){state.yHoursPerDay=n;recalcYearly(true);updateView();save()}})
-  on('yHoursPerDay','blur',function(e){var v=e.target.value.trim();var n=parseFloat(v);if(isNaN(n))n=8;var raw=n;n=clamp(n,0.1,24);if(raw>24)showErr('err_yHoursPerDay','1日の労働時間の上限は24時間です（入力値を補正しました）');state.yHoursPerDay=n;e.target.value=String(n);recalcYearly(false);updateView();save()})
-  on('yHours','input',function(e){var n=Number(e.target.value);if(isFinite(n)){state.yHours=n;updateView();save()}})
-
-  on('useHours','input',function(e){var n=parseFloat(e.target.value);if(!isNaN(n)){state.useHours=n;el('useHoursRange').value=String(state.useHours);updateView();save()}})
-  on('useHoursRange','input',function(e){state.useHours=Number(e.target.value)||0;el('useHours').value=String(state.useHours);updateView();save()})
-
-  on('copyBtn','click',copySummary);
-  on('resetBtn','click',resetAll);
-  on('printBtn','click',function(){window.print()});
-  on('toSalesBtn','click',jumpToSalesTool);
-
-  var errTimers={}; function showErr(id,msg){var e=el(id);if(!e)return;e.textContent=msg;e.style.display='block';clearTimeout(errTimers[id]);errTimers[id]=setTimeout(function(){e.style.display='none'},2600)}
-
-  function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
-  function load(){
-    try{
-      var s=JSON.parse(
-        localStorage.getItem(KEY) ||
-        localStorage.getItem('rate_tool_r39') ||
-        localStorage.getItem('rate_tool_r38') ||
-        localStorage.getItem('rate_tool_r37') ||
-        'null'
-      );
-      if(s)state=s;
-    }catch(e){}
-  }
-
-  function initFooter(){
-    var y=new Date().getFullYear();var cpy=document.getElementById('cpy-year');if(cpy)cpy.textContent=String(y);
-    var d;try{d=new Date(document.lastModified)}catch(_){d=new Date()}
-    if(!(d instanceof Date)||isNaN(d.getTime()))d=new Date();
-    var iso=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
-    var lu=document.getElementById('last-updated-date');if(lu)lu.textContent=iso;
-    var br=document.getElementById('build-rev');if(br)br.textContent=VERSION;
-  }
-
-  /* ===== Tutorial ===== */
-  var tour={
-    running:false, idx:0, overlay:null, tip:null, targetEl:null, snapshot:null,
-    steps:[
-      {sel:'.seg',title:'給与の単位を選ぶ',desc:'「時給・月給・年収」から計算の前提を選択します。'},
-      {sel:'#salary',title:'ベース金額の入力',desc:'金額はカンマ付きで入力できます。下のスライダーでも調整できます。'},
-      {sel:'#overheadSoc',title:'社保上乗せ',desc:'事業主負担の社会保険料を上乗せして、人件費の総額視点に切り替えます。'},
-      {ensure:function(){if(state.mode!=='yearly'){state.mode='yearly';setSegment();updateVisibility();updateView();}},sel:'#yearlyBlock',title:'稼働時間（年収ベース）',desc:'年間の稼働日数・1日の労働時間から年間稼働時間が自動計算されます。'},
-      {ensure:function(){if(state.mode!=='monthly'){state.mode='monthly';setSegment();updateVisibility();updateView();}},sel:'#monthlyBlock',title:'稼働時間（月給ベース）',desc:'月給の場合は月の稼働日数・1日の労働時間から月間稼働時間が算出されます。'},
-      {ensure:function(){if(state.mode!=='yearly'){state.mode='yearly';setSegment();updateVisibility();updateView();}},sel:'#useHoursRange',title:'所要時間の入力',desc:'想定する作業時間（h）をスライダーで指定します。（0.25h=15分）'},
-      {sel:'#hourly',title:'時間単価の確認',desc:'給与÷稼働時間に社保上乗せを反映した「時間単価」と、1分あたりの単価が表示されます。'},
-      {sel:'#tileCost',title:'所要時間のコスト',desc:'入力した所要時間に応じたコストです。そのコストが月間のコストの場合、右側の（×12）は年間コストに相当します。'},
-      {sel:'.btns',title:'共有・印刷・リセット・売上換算',desc:'コピー／印刷／リセットに加え、「売上換算」でこのコストを別ツールに引き継ぎ、売上ベースでの必要額を試算できます。'}
-    ]
+function mod(label,checked,n,tb,ta,w){
+  const cnt=Math.max(0,n);
+  const hB=(tb*cnt)/60, hA=(ta*cnt)/60;
+  return{
+    label,
+    checked,
+    cnt,
+    tb,
+    ta,
+    hBefore:hB,
+    hAfter:hA,
+    hChosen:checked?hA:hB,
+    hSaved:Math.max(0,hB-(checked?hA:hB)),
+    adopted:!!checked&&cnt>0,
+    cBefore:hB*w,
+    cChosen:(checked?hA:hB)*w
   };
+}
 
-  function qs(s){return document.querySelector(s)}
-  function closestOf(el,sel){if(!el)return null; if(el.closest)return el.closest(sel); var n=el;while(n){if(n.matches&&n.matches(sel))return n;n=n.parentElement}return null}
-  function resolveHighlightElement(base){
-    var el=base;if(!el)return null;
-    if(el.tagName==='INPUT' && el.type==='range'){var w=closestOf(el,'.slider-row');if(w)el=w}
-    if(el.id==='hourly'){var t=closestOf(el,'#tileHourly');if(t)el=t}
-    if(el.id==='cost'||el.id==='costTimes12'||el.id==='perMin'||el.id==='tileCost'){var t2=closestOf(el,'#tileCost');if(t2)el=t2}
-    if(el.classList && el.classList.contains('btns')){el=el;}
-    return el;
+function compute(){
+  const w=parseFloat($('wage').value)||0;
+  const m1=mod('証憑保存機能（スマホで経費）',$('cb_receipts').checked,num('n_receipts'),num('tb_receipts'),num('ta_receipts'),w);
+  const m2=mod('銀行信販データ受信機能',$('cb_bank').checked,num('n_bank'),num('tb_bank'),num('ta_bank'),w);
+  const m3=mod('給与計算機能（仕訳含む）',$('cb_payroll').checked,num('n_payroll'),num('tb_payroll'),num('ta_payroll'),w);
+  const m4=mod('販売管理機能（売上計上・請求）',$('cb_sales').checked,num('n_sales'),num('tb_sales'),num('ta_sales'),w);
+  const cbp=$('cb_pos').checked, np=num('n_pos'), tbp=num('tb_pos'), tap=num('ta_pos');
+  const m5obj=mod('レジからのデータ受信',cbp,np,tbp,tap,w);
+
+  const hOther=(num('tb_other')*Math.max(0,num('n_other')))/60;
+  const arr=[m1,m2,m3,m4,m5obj];
+
+  const hB=arr.reduce((s,m)=>s+m.hBefore,0)+hOther;
+  const hC=arr.reduce((s,m)=>s+m.hChosen,0)+hOther;
+  const saveH=Math.max(0,hB-hC);
+  const costB=hB*w, costC=hC*w, saveY=costB-costC;
+  const adopted=arr.reduce((s,m)=>s+(m.adopted?1:0),0);
+
+  const total=num('totalJournals');
+  const auto=arr.reduce((s,m)=>s+(m.checked?m.cnt:0),0);
+  const rate= total>0 ? auto/total*100:0;
+
+  return{w,arr,hB,hC,saveH,costB,costC,saveY,adopted,rate};
+}
+
+function updateUI(r){
+  const id=['sv_receipts','sv_bank','sv_payroll','sv_sales','sv_pos'];
+  r.arr.forEach((m,i)=>$(id[i]).textContent=safeFixed(m.hSaved));
+
+  $('kpiHBefore').textContent=safeFixed(r.hB)+' 時間';
+  $('kpiHAfter').textContent=safeFixed(r.hC)+' 時間';
+  $('kpiSaved').textContent=safeFixed(r.saveH)+' 時間';
+
+  $('kpiCostBefore').textContent=yen(r.costB);
+  $('kpiCostAfter').textContent=yen(r.costC);
+  $('kpiYen').textContent=yen(r.saveY);
+  $('kpiYenYear').textContent=yen(r.saveY*12);
+
+  $('kpiRate').textContent=(Number.isFinite(r.rate)?r.rate.toFixed(2):'0.00')+'%';
+  $('kpiAdopt').textContent=r.adopted+' / 5';
+
+  const txt=r.arr.map(m=>m.label+':'+safeFixed(m.hSaved)+'h').join(' / ')||'—';
+  $('kpiBreakdown').textContent=txt;
+  $('kpiBreakdown').title=txt;
+
+  drawChartsAnimated(r);
+  refreshBulk();
+  syncKPIHeights();
+}
+
+function toggleAll(ch){
+  document.querySelectorAll('.feat-cb').forEach(cb=>cb.checked=ch);
+  calc();
+}
+
+function refreshBulk(){
+  const boxes=[...document.querySelectorAll('.feat-cb')];
+  const all=$('cb_all');
+  const on=boxes.filter(b=>b.checked).length;
+  all.indeterminate=(on>0&&on<boxes.length);
+  all.checked=(on===boxes.length);
+}
+
+function syncKPIHeights(){
+  const a=$('kpiBefore'),b=$('kpiAfter');
+  if(!a||!b)return;
+  const h=Math.max(a.offsetHeight,b.offsetHeight);
+  document.documentElement.style.setProperty('--kpiRowH',h+'px');
+}
+
+function drawBarH(id, before, after, fmt, label){
+  const c=$(id);
+  const ctx=c.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const w=c.clientWidth,h=c.clientHeight;
+  c.width=w*dpr;c.height=h*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+
+  const padL=28,padR=28,padT=16,padB=6,barH=24,gap=22,plotW=w-padL-padR;
+  ctx.clearRect(0,0,w,h);
+  ctx.font='12px system-ui';
+  ctx.textBaseline='middle';
+
+  const max=Math.max(before,after,1);
+  const y2=h-padB-barH/2, y1=y2-(barH+gap);
+
+  ctx.strokeStyle='#e2e8f0';
+  for(let i=0;i<=4;i++){
+    const x=padL+plotW*(i/4);
+    ctx.beginPath();
+    ctx.moveTo(x,padT);
+    ctx.lineTo(x,h-padB);
+    ctx.stroke();
   }
 
-  function createOverlay(){
-    var o=document.createElement('div');o.className='tour-overlay';o.setAttribute('aria-hidden','false');
-    o.addEventListener('click',function(){ nextStep(); });
-    var t=document.createElement('div');t.className='tour-tip';t.setAttribute('role','dialog');t.setAttribute('aria-live','polite');
-    t.innerHTML=[
-      '<div class="tour-step" id="tourStepLbl"></div>',
-      '<h4 id="tourTitle"></h4>',
-      '<p id="tourDesc"></p>',
-      '<div class="tour-ctrl">',
-        '<div class="left"><button class="tour-btn" id="tourPrev">前へ</button></div>',
-        '<div class="right"><button class="tour-btn" id="tourSkip">スキップ</button><button class="tour-btn primary" id="tourNext">次へ</button></div>',
-      '</div>'
-    ].join('');
-    t.addEventListener('click',function(e){ e.stopPropagation(); });
-    document.body.appendChild(o);document.body.appendChild(t);
-    tour.overlay=o;tour.tip=t;
-    t.querySelector('#tourPrev').addEventListener('click',prevStep);
-    t.querySelector('#tourNext').addEventListener('click',nextStep);
-    t.querySelector('#tourSkip').addEventListener('click',endTour);
-    window.addEventListener('resize',positionTip,{passive:true});
-    window.addEventListener('scroll',positionTip,{passive:true});
-    document.addEventListener('keydown',onTourKeydown);
+  const w0=plotW*(before/max), w1=plotW*(after/max);
+
+  ctx.fillStyle='#cbd5e1';
+  ctx.fillRect(padL,y1-barH/2,w0,barH);
+
+  ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bar-after').trim()||'#4fb3c1';
+  ctx.fillRect(padL,y2-barH/2,w1,barH);
+
+  ctx.fillStyle='#334155';
+  ctx.textAlign='left';
+  ctx.fillText('導入なし',padL,y1-barH/2-6);
+  ctx.fillText('導入あり',padL,y2-barH/2-6);
+
+  ctx.fillStyle='#0f172a';
+  ctx.font='bold 13px system-ui';
+  ctx.textAlign='right';
+  ctx.fillText(fmt(before),padL+w0,y1);
+  ctx.fillText(fmt(after),padL+w1,y2);
+
+  ctx.textAlign='right';
+  ctx.font='bold 14px system-ui';
+  ctx.fillStyle='#166b8a';
+  ctx.fillText(label,w-padR,padT-2);
+}
+
+const chartState={init:false,time:{before:0,after:0},cost:{before:0,after:0},rate:0,animId:null};
+
+function drawChartsOnce(r){
+  const rate=r.hB>0?(r.hB-r.hC)/r.hB*100:0;
+  $('chartRate').textContent=(Number.isFinite(rate)?rate.toFixed(2):'0.00')+'%';
+  drawBarH('chartTime',r.hB,r.hC,v=>`${safeFixed(v,2)}h`,`時間短縮 ${safeFixed(r.saveH,2)}h`);
+  drawBarH('chartCost',r.costB,r.costC,v=>yen(v),`人件費削減 ${yen(r.saveY)}`);
+}
+
+function drawChartsAnimated(r){
+  const next={
+    time:{before:Math.max(0,r.hB),after:Math.max(0,r.hC)},
+    cost:{before:Math.max(0,r.costB),after:Math.max(0,r.costC)},
+    rate:(r.hB>0?(r.hB-r.hC)/r.hB*100:0)
+  };
+  if(!chartState.init){
+    chartState.time={...next.time};
+    chartState.cost={...next.cost};
+    chartState.rate=next.rate;
+    chartState.init=true;
+    drawChartsOnce(r);
+    return;
   }
-  function destroyOverlay(){if(tour.tip){tour.tip.remove();tour.tip=null}if(tour.overlay){tour.overlay.remove();tour.overlay=null}window.removeEventListener('resize',positionTip);window.removeEventListener('scroll',positionTip);document.removeEventListener('keydown',onTourKeydown)}
-  function onTourKeydown(e){
-    if(!tour.running) return;
-    if(e.key==='Enter' || e.key==='ArrowRight'){
-      if(tour.idx>=tour.steps.length-1){ endTour(); }
-      else { nextStep(); }
-    }else if(e.key==='ArrowLeft'){ prevStep(); }
-    else if(e.key==='Escape'){ endTour(); }
+  const prev={
+    time:{...chartState.time},
+    cost:{...chartState.cost},
+    rate:chartState.rate
+  };
+  if(chartState.animId)cancelAnimationFrame(chartState.animId);
+  const dur=500,t0=performance.now();
+  const stepAnim=(now)=>{
+    const t=Math.min(1,(now-t0)/dur);
+    const e=(t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2);
+
+    const tb=prev.time.before+(next.time.before-prev.time.before)*e;
+    const ta=prev.time.after+(next.time.after-prev.time.after)*e;
+    const cb=prev.cost.before+(next.cost.before-prev.cost.before)*e;
+    const ca=prev.cost.after+(next.cost.after-prev.cost.after)*e;
+    const rate=prev.rate+(next.rate-prev.rate)*e;
+
+    $('chartRate').textContent=(Number.isFinite(rate)?rate.toFixed(2):'0.00')+'%';
+    drawBarH('chartTime',tb,ta,()=>`${safeFixed(tb,2)}h`,`時間短縮 ${safeFixed(Math.max(0,tb-ta),2)}h`);
+    drawBarH('chartCost',cb,ca,()=>yen(cb),`人件費削減 ${yen(Math.max(0,cb-ca))}`);
+
+    if(t<1){
+      chartState.animId=requestAnimationFrame(stepAnim);
+    }else{
+      chartState.time={...next.time};
+      chartState.cost={...next.cost};
+      chartState.rate=next.rate;
+      chartState.animId=null;
+    }
+  };
+  chartState.animId=requestAnimationFrame(stepAnim);
+}
+
+async function copySummary(){
+  const r=compute();
+  const lines=[];
+  lines.push('【自動化効果試算ツール（5機能）サマリー】');
+  lines.push('時給(社保16%込み): '+Math.round(r.w)+' 円/時');
+  lines.push('仕訳自動化率: '+(Number.isFinite(r.rate)?r.rate.toFixed(2):'0.00')+'%（導入機能: '+r.adopted+' / 5）');
+  r.arr.forEach(m=>lines.push(`${m.label} [${m.adopted?'導入':'未導入'}] 件数=${m.cnt} 手作業=${m.tb}分 自動化=${m.ta}分 削減=${safeFixed(m.hSaved)}h`));
+  lines.push('— 合計');
+  lines.push(`導入なし 総時間: ${safeFixed(r.hB)}h（人件費相当額: ${Math.round(r.costB)}円）`);
+  lines.push(`導入あり 総時間: ${safeFixed(r.hC)}h（人件費相当額: ${Math.round(r.costC)}円）`);
+  lines.push(`時間短縮(月): ${safeFixed(r.saveH)}h`);
+  lines.push(`人件費削減(月): ${Math.round(r.saveY)} 円`);
+  lines.push(`人件費削減(年): ${Math.round(r.saveY*12)} 円`);
+  const text=lines.join('\n');
+  try{
+    await navigator.clipboard.writeText(text);
+  }catch(e){
+    const ta=document.createElement('textarea');
+    ta.value=text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
   }
-  function clearHighlight(){if(tour.targetEl){tour.targetEl.classList.remove('tour-target');tour.targetEl=null}}
-  function highlightTarget(sel){
-    clearHighlight();var base=qs(sel);var el=resolveHighlightElement(base);if(!el)return null;
-    el.classList.add('tour-target');tour.targetEl=el;el.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'});return el;
+}
+
+function exportCSV(){
+  const r=compute(), rows=[];
+  rows.push(['項目','導入','件数','手作業(分/件)','自動化(分/件)','導入あり時間(h)','導入なし時間(h)','削減時間(h)']);
+  r.arr.forEach(m=>rows.push([m.label,(m.adopted?'導入':'未導入'),m.cnt,m.tb,m.ta,safeFixed(m.hChosen),safeFixed(m.hBefore),safeFixed(m.hSaved)]));
+  rows.push([]);
+  rows.push(['時給(社保16%込み)',Math.round(r.w)]);
+  rows.push(['仕訳自動化率',(Number.isFinite(r.rate)?r.rate.toFixed(2):'0.00')+'%']);
+  rows.push(['導入なし 人件費相当額(円)',Math.round(r.costB)]);
+  rows.push(['導入あり 人件費相当額(円)',Math.round(r.costC)]);
+  rows.push(['時間短縮(h/月)',safeFixed(r.saveH)]);
+  rows.push(['人件費削減(円/月)',Math.round(r.saveY)]);
+  rows.push(['人件費削減(円/年)',Math.round(r.saveY*12)]);
+
+  const csv=rows.map(cols=>cols.map(v=>{
+    v=(v??'').toString().replace(/"/g,'""');
+    return /[",\n\r]/.test(v)?`"${v}"`:v;
+  }).join(',')).join('\r\n');
+
+  const bom=new Uint8Array([0xEF,0xBB,0xBF]);
+  const blob=new Blob([bom,csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  const n=new Date(),p=x=>String(x).padStart(2,'0');
+  a.download=`auto_effect_${n.getFullYear()}${p(n.getMonth()+1)}${p(n.getDate())}_${p(n.getHours())}${p(n.getMinutes())}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function printPage(){window.print()}
+
+function resetAll(){
+  setUnit('year');
+  $('totalJournals').value=320;
+  ['cb_receipts','cb_bank','cb_payroll','cb_sales','cb_pos'].forEach(id=>$(id).checked=true);
+
+  $('n_receipts').value=30; $('tb_receipts').value=3; $('ta_receipts').value=2;
+  $('n_bank').value=260; $('tb_bank').value=2; $('ta_bank').value=0.5;
+  $('n_payroll').value=10; $('tb_payroll').value=8; $('ta_payroll').value=3;
+  $('n_sales').value=12; $('tb_sales').value=10; $('ta_sales').value=5;
+  $('n_pos').value=0; $('tb_pos').value=3; $('ta_pos').value=0.5;
+
+  $('tb_other').value=3; $('ta_other').value=3;
+
+  ['sv_receipts','sv_bank','sv_payroll','sv_sales','sv_pos','sv_other'].forEach(id=>$(id).textContent='0.00');
+
+  const bc=$('baseComp');
+  bc.value='4,780,000';
+  formatLive(bc);
+  updateWage();
+
+  setTimeout(()=>{refreshBulk();syncKPIHeights();},0);
+}
+
+function calc(){
+  syncOther();
+  recalcOther();
+  const r=compute();
+  updateUI(r);
+}
+
+/* ---- 売上換算ツールへの連携 ---- */
+function jumpToSalesTool(){
+  const r=compute();
+  const amount = Math.max(0, r.saveY); // 月間人件費削減額を「今回検討する支出額」として連携
+
+  if(!Number.isFinite(amount) || amount<=0){
+    alert('「人件費削減（月）」が0円以下のため、売上換算する金額がありません。分数や件数を見直してください。');
+    return;
   }
 
-  function shouldDock(){
-    return (window.innerWidth<360) || (window.innerHeight<420);
+  try{
+    localStorage.setItem(MK_SALES_EFFECT_AMOUNT_KEY, String(Math.round(amount)));
+    localStorage.setItem(MK_SALES_EFFECT_SOURCE_KEY, 'autoEffect');
+  }catch(e){}
+
+  window.location.href = SALES_TOOL_URL;
+}
+
+/* ---- Tutorial（フローティング） ---- */
+const STEPS=[
+ {sel:'#hdrBrand', t:'ツールの狙い', b:'TKCの5つの自動化機能で、どれだけ<strong>時間</strong>と<strong>人件費</strong>が削減できるかを可視化します。'},
+ {sel:'#payUnitBlock', t:'① 人件費の前提', b:'<strong>時給／月給／年収</strong>から入力。<strong>事業主負担16%</strong>は自動加算し時給化します。'},
+ {sel:'#journalsBlock', t:'② 月間仕訳数', b:'総数を入力。機能合計との差分は<strong>その他</strong>に自動配分され、合計は常に一致します。'},
+ {sel:'#featuresCard', t:'③ 機能の導入と分数', b:'チェックで導入ON/OFF。件数・分/件を調整すると結果とグラフが即時更新。'},
+ {sel:'#chartArea', t:'④ Before→After', b:'横棒グラフで総時間・人件費のBefore/Afterと合計の「時間短縮」「人件費削減」を表示。'},
+ {sel:'#kpiSavings', t:'⑤ 人件費削減／自動化率', b:'月間・年間の<strong>人件費削減</strong>、<strong>仕訳自動化率</strong>、機能別の寄与を確認。'},
+ {sel:'#footerBtns', t:'⑥ 出力', b:'「コピー／CSV出力／印刷」で共有・資料化。CSVはUTF-8（BOM付）で文字化け対策済み。'}
+];
+let tourActive=false, step=0, rafId=null;
+
+function startTour(){
+  tourActive=true;
+  step=0;
+  renderDots();
+  showStep();
+  $('tour').classList.add('show');
+}
+function endTour(){
+  tourActive=false;
+  $('tour').classList.remove('show');
+  localStorage.setItem('mk_auto_tour_seen','1');
+  cancelAnimationFrame(rafId);
+  rafId=null;
+}
+function nextStep(){
+  if(step<STEPS.length-1){step++;showStep();}
+  else{endTour();}
+}
+function prevStep(){
+  if(step>0){step--;showStep();}
+}
+function renderDots(){
+  const d=$('tourDots');
+  d.innerHTML='';
+  STEPS.forEach((_,i)=>{
+    const n=document.createElement('div');
+    n.className='dot'+(i===step?' on':'');
+    d.appendChild(n);
+  });
+}
+function showStep(){
+  renderDots();
+  $('tourStep').textContent=`${step+1}/${STEPS.length}`;
+  $('tourTitle').innerHTML=STEPS[step].t;
+  $('tourBody').innerHTML=STEPS[step].b;
+  focusTo(STEPS[step].sel);
+  $('tourPrev').disabled=(step===0);
+  $('tourNext').textContent=(step===STEPS.length-1)?'終了':'次へ';
+}
+
+/* 吹き出しの配置：対象要素の下に置き、はみ出す場合は上に */
+function placeSheetForRect(r){
+  const sheet=$('tourSheet');
+  sheet.style.left='0px';
+  sheet.style.top='0px';
+  const sh=sheet.getBoundingClientRect();
+  const margin=12, vw=window.innerWidth, vh=window.innerHeight;
+
+  let top=r.bottom + margin, pos='bottom';
+  if(top + sh.height > vh - 8){
+    top = Math.max(8, r.top - sh.height - margin);
+    pos='top';
   }
-  function positionTip(){
-    if(!tour.tip||!tour.targetEl)return;
-    var tip=tour.tip; tip.classList.remove('docked');
-    if(shouldDock()){ tip.classList.add('docked'); return; }
+  let left = Math.min(Math.max(8, r.left), vw - sh.width - 8);
 
-    var r=tour.targetEl.getBoundingClientRect(); var pad=10;
-    var w=tip.offsetWidth, h=tip.offsetHeight;
-    var placed=false;
+  sheet.style.top = `${Math.round(top)}px`;
+  sheet.style.left = `${Math.round(left)}px`;
+  sheet.setAttribute('data-pos', pos);
+}
 
-    function place(x,y){ tip.style.left=Math.max(8,Math.min(window.innerWidth-w-8,x))+'px';
-                         tip.style.top=Math.max(8,Math.min(window.innerHeight-h-8,y))+'px'; }
-
-    if(r.bottom+pad+h<=window.innerHeight){ place(r.left, r.bottom+pad); placed=true; }
-    if(!placed && r.top-pad-h>=0){ place(r.left, r.top-h-pad); placed=true; }
-    if(!placed && r.right+pad+w<=window.innerWidth){ place(r.right+pad, Math.max(8,r.top)); placed=true; }
-    if(!placed && r.left-pad-w>=0){ place(r.left-w-pad, Math.max(8,r.top)); placed=true; }
-
-    if(!placed){ tip.classList.add('docked'); }
+function focusTo(sel){
+  const el=document.querySelector(sel);
+  if(!el){
+    $('tourSpot').style.width='0px';
+    $('tourSpot').style.height='0px';
+    return;
   }
-  function showStep(i){
-    tour.idx=i; var step=tour.steps[i];
-    if(step.ensure)step.ensure();
-    highlightTarget(step.sel);
-    tour.tip.querySelector('#tourStepLbl').textContent='STEP '+(i+1)+' / '+tour.steps.length;
-    tour.tip.querySelector('#tourTitle').textContent=step.title;
-    tour.tip.querySelector('#tourDesc').textContent=step.desc;
-    setTimeout(positionTip,50);
-  }
-  function nextStep(){ if(tour.idx<tour.steps.length-1){showStep(tour.idx+1)} else {endTour()} }
-  function prevStep(){ if(tour.idx>0){showStep(tour.idx-1)} }
-  function startTour(){
-    if(tour.running || justEnded) return;
-    tour.snapshot=JSON.parse(JSON.stringify(state)); tour.running=true;
-    if(!tour.overlay)createOverlay(); tour.overlay.style.display='block'; tour.tip.style.display='block';
-    showStep(0);
-  }
-  function endTour(){
-    if(!tour.running)return;
-    tour.running=false;
-    if(tour.snapshot){state=tour.snapshot;tour.snapshot=null;updateVisibility();setSegment();syncSalaryRange();syncUseHoursRange();updateView()}
-    clearHighlight(); destroyOverlay(); save();
-    try{localStorage.setItem(TUTORIAL_SEEN_KEY,'1')}catch(e){}
-    if(document.activeElement && document.activeElement.blur){document.activeElement.blur();}
-    justEnded=true; setTimeout(function(){justEnded=false;},600);
-  }
+  el.scrollIntoView({behavior:'smooth',block:'center'}); // 一旦スクロール
 
-  /* ------------ init ------------ */
-  function init(){
-    if(initialized)return; initialized=true;
-    load();
-    el('salary').value=(state.salary||0).toLocaleString('ja-JP');
-    el('overheadSoc').checked=!!state.overheadSoc;
-    el('mDays').value=state.mDays; el('mHoursPerDay').value=state.mHoursPerDay; el('mHours').value=state.mHours;
-    el('yDays').value=state.yDays; el('yHoursPerDay').value=state.yHoursPerDay; el('yHours').value=state.yHours;
-    el('useHours').value=state.useHours;
-    syncUseHoursRange(); syncSalaryRange(); updateVisibility(); updateView();
-    initFooter();
+  let last={x:0,y:0,w:0,h:0}, stable=0;
+  function follow(){
+    if(!tourActive) return;
+    const r=el.getBoundingClientRect(), pad=8;
+    const x=Math.max(8, r.left-pad), y=Math.max(8, r.top-pad);
+    const w=Math.min(window.innerWidth-x-8, r.width+pad*2);
+    const h=Math.min(window.innerHeight-y-8, r.height+pad*2);
+    const spot=$('tourSpot');
+    spot.style.left=x+'px';
+    spot.style.top=y+'px';
+    spot.style.width=w+'px';
+    spot.style.height=h+'px';
 
-    on('helpBtn','click',function(){startTour()});
-    var banner=el('tourBanner'); var seen=false; try{seen=!!localStorage.getItem(TUTORIAL_SEEN_KEY)}catch(e){}
-    if(!seen&&banner){banner.style.display='flex'}
-    on('startTourBtn','click',function(){if(banner)banner.style.display='none';startTour()});
-    on('skipTourBtn','click',function(){if(banner)banner.style.display='none';try{localStorage.setItem(TUTORIAL_SEEN_KEY,'1')}catch(e){}});
+    placeSheetForRect(r);
+
+    const dx=Math.abs(x-last.x)+Math.abs(y-last.y)+Math.abs(w-last.w)+Math.abs(h-last.h);
+    if(dx<0.5) stable++; else stable=0;
+    last={x,y,w,h};
+    if(stable<20){rafId=requestAnimationFrame(follow);} // 約300ms追従
   }
+  cancelAnimationFrame(rafId);
+  rafId=requestAnimationFrame(follow);
+}
 
-  if(document.readyState==='interactive'||document.readyState==='complete')init();
-  window.addEventListener('DOMContentLoaded',init,false);
-})();
+function spotTick(){
+  if(!tourActive) return;
+  const el=document.querySelector(STEPS[step].sel);
+  if(!el) return;
+  const r=el.getBoundingClientRect(), pad=8;
+  const x=Math.max(8, r.left-pad), y=Math.max(8, r.top-pad);
+  const w=Math.min(window.innerWidth-x-8, r.width+pad*2);
+  const h=Math.min(window.innerHeight-y-8, r.height+pad*2);
+  const spot=$('tourSpot');
+  spot.style.left=x+'px';
+  spot.style.top=y+'px';
+  spot.style.width=w+'px';
+  spot.style.height=h+'px';
+  placeSheetForRect(r);
+}
+
+$('helpBtn').addEventListener('click',startTour);
+$('tourEnd').addEventListener('click',endTour);
+$('tourNext').addEventListener('click',nextStep);
+$('tourPrev').addEventListener('click',prevStep);
+/* どこでもクリックで次へ（カード内は除外） */
+$('tour').addEventListener('click',(e)=>{
+  if(!e.target.closest('#tourSheet')) nextStep();
+});
+
+document.addEventListener('keydown',e=>{
+  if(!tourActive) return;
+  if(e.key==='Enter'||e.key===' '||e.key==='ArrowRight'){e.preventDefault();nextStep();}
+  else if(e.key==='ArrowLeft'){e.preventDefault();prevStep();}
+  else if(e.key==='Escape'){e.preventDefault();endTour();}
+});
+window.addEventListener('scroll',()=>{spotTick();},{passive:true});
+
+/* init */
+window.addEventListener('DOMContentLoaded',()=>{
+  resetAll();
+  calc();
+  if(localStorage.getItem('mk_auto_tour_seen')!=='1'){
+    startTour();
+  }
+});
+window.addEventListener('resize',()=>{
+  const r=compute();
+  drawChartsOnce(r);
+  if(tourActive) spotTick();
+  setTimeout(syncKPIHeights,0);
+});
 </script>
 </body>
 </html>
