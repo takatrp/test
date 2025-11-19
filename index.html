@@ -2,946 +2,593 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>自動化効果試算ツール（r67）</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>松本会計ツールポータル</title>
+<meta name="description" content="黒字経営を加速する、松本会計オリジナルツール集" />
 
 <!-- Favicon -->
-<link rel="icon" type="image/png" sizes="192x192" href="./favicon192192.png">
-<meta name="theme-color" content="#2084A8"/>
+<link rel="icon" type="image/png" sizes="192x192" href="favicon192192.png" />
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-91JF4BT2QT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-91JF4BT2QT');
+</script>
 
 <style>
 :root{
-  --bg:#eef5f9; --card:#fff; --ink:#0f172a; --muted:#64748b;
-  --accent:#2084A8; --accent-600:#1b7899; --accent-700:#166b8a;
-  --ring:rgba(32,132,168,.18);
-  --good:#059669; --warn:#b45309; --radius:14px;
-  --cols:.9fr 1fr 2.8fr 1.0fr 1.15fr .35fr 1.15fr .8fr;
-  --row-gap:6px; --col-gap:4px; --kpiRowH:auto;
-  --bar-after:#4fb3c1;
+  --bg:#f7fafc;
+  --header:#f1f5f9;
+  --card:#ffffff;
+  --ink:#0f172a;
+  --muted:#64748b;
+  --brand:#578899;
+  --brand-soft:#e3eff5;
+  --accent:#f97316;
+  --line:#e2e8f0;
+  --shadow:0 8px 24px rgba(15,23,42,.08);
+  --radius:18px;
 }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);
-  font-family:system-ui,-apple-system,"Segoe UI",Roboto,
-  "Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",sans-serif}
-.wrap{max-width:1000px;margin:24px auto 64px;padding:0 16px}
-header{display:flex;justify-content:space-between;gap:8px;margin-bottom:16px}
-header .brand{display:flex;align-items:center;gap:10px}
-header .brand img{height:48px;width:auto;display:block}
-h1{font-size:clamp(18px,2.4vw,24px);margin:0 0 6px}
-.sub{color:var(--muted);font-size:13px;line-height:1.5}
-@media (max-width:932px) and (orientation:landscape){
-  .sub{font-size:10.5px;line-height:1.45}
-}
-/* 「チュートリアル」ボタン（1行・小さめ） */
-.help-btn{
-  white-space:nowrap;
-  align-self:flex-start;background:#fff;color:var(--accent);
-  border:1px solid rgba(32,132,168,.45);border-radius:999px;
-  padding:6px 10px;font-size:12px;letter-spacing:.02em;cursor:pointer;
-  box-shadow:0 1px 6px rgba(2,6,23,.05)
-}
-.help-btn:hover{background:#f3f9fc;box-shadow:0 8px 18px rgba(32,132,168,.18);transform:translateY(-1px)}
-.help-btn:active{transform:translateY(0)}
 
-.card{background:var(--card);border-radius:var(--radius);
-  box-shadow:0 1px 2px rgba(15,23,42,.06),0 8px 24px rgba(2,6,23,.08);
-  padding:16px;margin:12px 0}
-.grid{display:grid;gap:12px;grid-template-columns:repeat(12,1fr)}
-label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
-input[type="number"],input[type="text"]{
-  width:100%;padding:10px 12px;border-radius:10px;border:1px solid #e5e7eb;
-  background:#fff;font-size:14px;outline:none;transition:border-color .15s,box-shadow .15s}
-input[type="number"]:focus,input[type="text"]:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--ring)}
-input[readonly]{background:#f8fafc;color:#334155}
-.thead{color:var(--muted);font-size:12px;font-weight:600;border-bottom:1px solid #e3edf4}
-.td.res{text-align:right;font-variant-numeric:tabular-nums}
-.note{font-size:12px;color:var(--muted)}
-.note-right{font-size:11px;color:var(--muted);text-align:right;margin-top:4px}
-.btns{display:flex;gap:10px;flex-wrap:wrap}
-button{cursor:pointer;border:none;border-radius:12px;padding:10px 14px;font-size:14px;transition:.15s}
-.outline{background:#fff;border:1px solid rgba(32,132,168,.45);color:var(--accent);box-shadow:0 1px 6px rgba(2,6,23,.05)}
-.outline:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(32,132,168,.18);background:#f3f9fc}
-.outline:active{transform:translateY(0);background:#eef7fb}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;
+  color:var(--ink);
+  background:var(--bg);
+}
 
-/* ========= Buttons (primary / soft / outline) ========= */
-.btn{
-  cursor:pointer;
-  border-radius:14px;
+/* ---------- header ---------- */
+
+.hero{
+  background:var(--header);
+  border-bottom:1px solid var(--line);
   padding:10px 16px;
+}
+.hero-inner{
+  max-width:1100px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.hero-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.hero-logo a{
+  display:inline-flex;
+  align-items:center;
+}
+.hero-logo img{
+  display:block;
+  height:60px;
+  width:auto;
+}
+.hero-texts{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.hero-title{
+  font-size:20px;
+  font-weight:800;
+}
+.hero-subtitle{
+  font-size:13px;
+  color:var(--muted);
+}
+
+.hero-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.hero-btn{
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:#fff;
+  padding:6px 14px;
+  font-size:12px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(15,23,42,.05);
+}
+.hero-btn span.icon{
+  font-size:13px;
+}
+.hero-btn span.label-short{display:none;}
+
+@media (max-width:640px){
+  .hero-inner{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .hero-actions{
+    align-self:stretch;
+    justify-content:flex-end;
+  }
+  .hero-btn{
+    padding:5px 10px;
+    font-size:11px;
+  }
+  .hero-btn span.label-full{display:none;}
+  .hero-btn span.label-short{display:inline;}
+}
+
+/* ---------- sections ---------- */
+
+.section{
+  max-width:1100px;
+  margin:20px auto 24px;
+  padding:0 16px;
+}
+.section h2{
+  margin:0 0 6px;
+  font-size:20px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.section h2 .emoji{
+  font-size:22px;
+}
+.section .desc{
+  margin:0 0 6px;
+  font-size:13px;
+  color:var(--muted);
+}
+.section .desc span.sub{
+  display:block;
+}
+
+/* ---------- 4WD wheel ---------- */
+
+.wheel{
+  position:relative;
+  margin:18px auto 14px;
+  width:min(420px,80vw);
+}
+.hub{
+  position:relative;
+  width:100%;
+  max-width:360px;
+  margin:0 auto;
+}
+.hub img{
+  width:100%;
+  height:auto;
+  display:block;
+}
+
+.wheel-chip{
+  position:absolute;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 13px;
+  border-radius:999px;
+  background:#fff;
+  border:1px solid var(--line);
+  box-shadow:var(--shadow);
+  font-size:13px;
+  color:var(--brand);
+  text-decoration:none;
+  font-weight:700;
+  white-space:nowrap;
+}
+.wheel-chip .round{
+  width:24px;
+  height:24px;
+  border-radius:999px;
+  background:var(--brand);
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-size:12px;
+}
+
+/* center */
+.wheel-chip.center{
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+}
+
+/* four wheels – PC 基準位置 */
+.wheel-chip.tl{top:10%;left:-10px;}
+.wheel-chip.tr{top:10%;right:-10px;}
+.wheel-chip.bl{bottom:10%;left:-10px;}
+.wheel-chip.br{bottom:10%;right:-10px;}
+
+/* ---------- tool lists ---------- */
+
+.tool-group{
+  margin-top:16px;
+}
+.tool-row{
+  list-style:none;
+  padding:0;
+  margin:0 -4px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:8px;
+}
+.tool-card{
+  padding:4px;
+}
+.tool-link{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:10px 14px;
+  border-radius:16px;
+  background:var(--card);
+  border:1px solid var(--line);
+  box-shadow:0 4px 14px rgba(15,23,42,.06);
+  text-decoration:none;
+  color:inherit;
+}
+.tool-ico{
+  width:32px;
+  height:32px;
+  border-radius:12px;
+  background:var(--brand);
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-size:15px;
+  flex-shrink:0;
+}
+.tool-body{
+  flex:1;
+}
+.tool-title{
   font-size:14px;
   font-weight:700;
-  letter-spacing:.02em;
-  transition:.15s;
-  border:1px solid transparent;
+  margin-bottom:3px;
+  line-height:1.4;
 }
-.btn:disabled{opacity:.65;cursor:not-allowed}
+.tool-desc{
+  font-size:12px;
+  color:var(--muted);
+}
 
-/* 主ボタン：やや強めのブルーグラデ */
-.btn-primary{
-  color:#fff;
-  background:linear-gradient(180deg,#2b97b8 0%, #1f7fa3 100%);
-  border-color:#1b7899;
-  box-shadow:0 6px 16px rgba(32,132,168,.25);
+/* 4WD 一列を PC で横並び */
+@media (min-width:900px){
+  #tools-main .tool-row{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
 }
-.btn-primary:hover{
-  transform:translateY(-1px);
-  box-shadow:0 10px 22px rgba(32,132,168,.32);
-}
-.btn-primary:active{transform:translateY(0)}
 
-/* 淡色ボタン：薄いブルーで控えめ */
-.btn-soft{
-  color:#1b7899;
-  background:#eef6fb;
-  border-color:#d7eaf3;
+/* その他便利ツール（4列まで） */
+@media (min-width:900px){
+  #tools-extra .tool-row{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
 }
-.btn-soft:hover{
-  background:#e7f2f9;
-  border-color:#cbe5f2;
-  transform:translateY(-1px);
-}
-.btn-soft:active{transform:translateY(0)}
 
-/* アウトラインボタン：白地＋アクセント枠 */
-.btn-outline{
-  color:#1b7899;
+/* タイトル幅調整：それ、売上に直すといくらですか？ を 1 行に */
+.tool-title.long{
+  font-size:13px;
+}
+
+/* ---------- modal（QR & ホーム追加） ---------- */
+
+.mk-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.55);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:40;
+}
+.mk-modal.open{display:flex;}
+.mk-modal-inner{
   background:#fff;
-  border-color:#1b7899;
+  padding:12px;
+  border-radius:16px;
+  max-width:90vw;
+  max-height:90vh;
+  box-shadow:var(--shadow);
 }
-.btn-outline:hover{
-  background:#f5fbfe;
-  transform:translateY(-1px);
+.mk-modal-inner img{
+  display:block;
+  max-width:76vw;
+  height:auto;
 }
-.btn-outline:active{transform:translateY(0)}
-
-/* KPI */
-.kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.kpi .item{background:#fff;border:1px dashed #e2e8f0;border-radius:12px;padding:8px;min-height:var(--kpiRowH);display:flex;flex-direction:column;justify-content:space-between}
-.kpi h3{margin:0 0 4px;font-size:11.5px;color:var(--muted)}
-.kpi .val{font-size:clamp(16px,2.4vw,20px)}
-.krow{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
-.aside{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
-.aside .label{font-size:10.5px;color:var(--muted)}
-.aside .yen{font-size:clamp(13px,2.0vw,17px);color:#0f5132}
-
-/* 人件費削減を枠で強調 */
-.item--emph{border:2px solid rgba(32,132,168,.9)!important;box-shadow:none}
-.savings .val-main{font-size:clamp(21px,3.2vw,29px);font-weight:800;color:#059669;line-height:1}
-
-/* 自動化率を大きく */
-.rate-hero{font-size:clamp(21px,3.2vw,29px);font-weight:800;color:var(--accent)}
-#kpiBreakdown{font-size:10.5px;line-height:1.35;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
-
-/* 機能別テーブル（詰め） */
-.compact-table{ --row-gap:2px }
-.headbar{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
-.headnote{font-size:12px;color:var(--muted);white-space:nowrap}
-.features-head,.features-rows{
-  display:grid;grid-template-columns:var(--cols);gap:var(--row-gap) var(--col-gap);align-items:center;font-size:12px}
-.features-rows .td,.features-head .th{padding:3px 4px}
-.features-rows .c-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.features-rows .td.arrow,.features-head .th.arrow{text-align:center;color:#64748b}
-.features-head .th:last-child,.features-rows .td.res{text-align:right}
-.features-head .th.kind,.features-rows .td.kind{padding-left:2px;margin-left:-2px}
-.feat-link{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
-.adopt-box{display:flex;justify-content:center;width:22px}
-.adopt-dash{display:inline-block;width:22px;text-align:center;color:#94a3b8}
-.bulk-label{display:flex;align-items:center;justify-content:center;gap:6px;color:var(--muted);font-size:12px}
-.comp-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.seg{display:flex;gap:6px}
-.seg.sm .segbtn{padding:6px 10px;font-size:12px;border-radius:10px}
-.segbtn{background:#fff;border:1px solid rgba(32,132,168,.45);color:var(--accent);padding:10px 14px;border-radius:12px;cursor:pointer}
-.segbtn.active{background:var(--accent);color:#fff}
-.comp-row input[type="text"]{flex:1 1 280px;min-width:180px}
-.calc-note{margin-top:6px;color:var(--muted);font-size:12px}
-.hourly-badge{margin-top:6px;font-weight:700}
-
-.sumline{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 12px;background:#eaf2f7;border-radius:10px;font-size:13px}
-.ok{color:var(--good)} .warn{color:var(--warn)}
-
-/* グラフ */
-.chart-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
-.chart-title{font-weight:800;color:var(--accent);font-size:clamp(16px,2.6vw,20px)}
-.chart-sub{color:var(--muted);font-size:12px}
-.chart-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.chartbox{background:#fff;border:1px dashed #e2e8f0;border-radius:12px;padding:8px}
-.chartbox h4{margin:0 0 6px;font-size:12px;color:var(--muted)}
-canvas{width:100%;height:120px;display:block}
-@media (max-width:720px){.chart-grid{grid-template-columns:1fr}canvas{height:110px}}
-
-/* ===== フローティング型チュートリアル（ハイライト＋吹き出し） ===== */
-.tour{position:fixed;inset:0;z-index:9998;display:none}
-.tour.show{display:block}
-/* ぼかしを完全無効化（対象UIをくっきり表示） */
-#tourShade{
-  position:absolute;inset:0;
-  background:transparent !important;
-  backdrop-filter:none !important;
-  pointer-events:none;
+.mk-modal-inner .caption{
+  margin-top:6px;
+  font-size:12px;
+  color:var(--muted);
+  text-align:center;
 }
-#tourSpot{
-  position:absolute;left:0;top:0;width:0;height:0;border:2px solid var(--accent);border-radius:12px;
-  /* 外側のみ暗転：内側は無加工でクッキリ */
-  box-shadow:0 0 0 9999px rgba(2,6,23,.55);
-  pointer-events:none;transition:all .18s ease
+.mk-modal-close{
+  position:absolute;
+  top:10px;
+  right:14px;
+  font-size:24px;
+  color:#fff;
+  cursor:pointer;
 }
-#tourSheet{
-  position:absolute;left:0;top:0;background:#fff;border-radius:12px;
-  box-shadow:0 12px 30px rgba(2,6,23,.35);padding:14px 16px;
-  width:min(92vw,420px);max-width:420px
-}
-#tourSheet::after{content:"";position:absolute;width:0;height:0;border:8px solid transparent}
-#tourSheet[data-pos="bottom"]::after{top:-16px;left:24px;border-bottom-color:#fff;filter:drop-shadow(0 -2px 2px rgba(2,6,23,.1))}
-#tourSheet[data-pos="top"]::after{bottom:-16px;left:24px;border-top-color:#fff;filter:drop-shadow(0 2px 2px rgba(2,6,23,.1))}
-#tourStep{color:#475569;font-size:12px}
-#tourTitle{margin:4px 0 4px;font-size:18px;color:var(--accent)}
-#tourBody{margin:0 0 8px;font-size:14px;color:#334155;line-height:1.7}
-.tnav{display:flex;gap:8px;align-items:center;justify-content:flex-end}
-.tbtn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px}
-.tbtn.outline{background:#fff;color:var(--accent);border:1px solid rgba(32,132,168,.45)}
-.dots{display:flex;gap:6px;margin-right:auto}
-.dot{width:8px;height:8px;border-radius:50%;background:#cbd5e1}
-.dot.on{background:var(--accent)}
-.tHint{font-size:12px;color:#64748b;margin-top:6px}
 
-/* print */
-@media print{.btns,#footerBtns,footer.mk-mini,.tour{display:none!important}.card{box-shadow:none;border:1px solid #e5e7eb}}
-footer.mk-mini{margin-top:18px;padding:10px 0;text-align:center;color:#475569;font-size:12px}
-footer.mk-mini a{color:inherit;text-decoration:underline}
+/* PC のときだけ少し大きく */
+@media (min-width:900px){
+  .mk-modal-inner img{
+    max-width:520px;
+  }
+}
+
+/* ---------- footer ---------- */
+
+footer.mk-mini{
+  border-top:1px solid var(--line);
+  padding:8px 12px 10px;
+  text-align:center;
+  font-size:12px;
+  color:#666;
+}
+footer.mk-mini a{
+  color:inherit;
+  text-decoration:underline;
+}
+
+/* ---------- 4WD スマホ最適化：5ツールを1画面に収める ---------- */
+
+@media (max-width:768px){
+  #shitenno.section{
+    margin-top:12px;
+    margin-bottom:14px;
+  }
+  #shitenno .desc{
+    margin-bottom:4px;
+  }
+  .wheel{
+    margin:8px auto 6px;
+  }
+  .hub{
+    width:60vw;
+    max-width:220px;
+  }
+}
+
+/* さらに小さなデバイスでの微調整 */
+@media (max-width:480px){
+  .wheel{
+    margin:6px auto 4px;
+  }
+  .hub{
+    width:62vw;
+    max-width:210px;
+  }
+}
 </style>
 </head>
 <body>
-<div class="wrap" id="app">
-  <header>
-    <div class="brand" id="hdrBrand">
-      <a href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener">
-        <img src="./ロゴ.jpg" alt="松本会計ロゴ">
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-logo">
+        <a href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener">
+          <img src="ロゴ.jpg" alt="税理士法人松本会計事務所ロゴ" />
+        </a>
+      </div>
+      <div class="hero-texts">
+        <div class="hero-title">松本会計ツールポータル</div>
+        <div class="hero-subtitle">黒字経営を加速する、松本会計オリジナルツール集</div>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <button class="hero-btn" type="button" id="btn-qr">
+        <span class="icon">🔗</span>
+        <span class="label-full">共有用QR</span>
+        <span class="label-short">QR</span>
+      </button>
+      <button class="hero-btn" type="button" id="btn-home">
+        <span class="icon">📱</span>
+        <span class="label-full">ホーム画面への追加方法</span>
+        <span class="label-short">追加</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- 黒字経営4WD -->
+  <section id="shitenno" class="section">
+    <h2><span class="emoji">🚗</span><span>黒字経営4WD</span></h2>
+    <p class="desc">
+      変動PL＋四つの実務ツールで、黒字経営を駆動する。<br />
+      <span class="sub">（㈱TKCのFXクラウドシリーズとの併用を想定しています）</span>
+    </p>
+
+    <div class="wheel" aria-label="黒字経営4WDツール配置">
+      <div class="hub">
+        <img src="四輪駆動.png" alt="4WDイメージ" />
+        <!-- center -->
+        <a href="https://takatrp.github.io/hendou_PL/" target="_blank" rel="noopener" class="wheel-chip center">
+          <span class="round">PL</span><span>変動損益</span>
+        </a>
+      </div>
+      <!-- four tools -->
+      <a href="https://takatrp.github.io/convert-to-sales/" target="_blank" rel="noopener" class="wheel-chip tl">
+        <span class="round">⇆</span><span>売上換算</span>
       </a>
-      <div>
-        <h1>自動化効果試算ツール</h1>
-        <div class="sub">5機能のチェックで<strong>導入（自動化後）/未導入（手作業）</strong>を切替。導入効果（時間・人件費）を算出します。月間仕訳総数との差分は<strong>「その他」</strong>として自動調整。</div>
-      </div>
-    </div>
-    <button id="helpBtn" class="help-btn" type="button" title="チュートリアル">チュートリアル</button>
-  </header>
-
-  <!-- 入力 -->
-  <section class="card" id="premiseCard">
-    <div class="grid">
-      <div class="td field" style="grid-column:span 6" id="payUnitBlock">
-        <label>給与の単位を選択して入力（社保等<strong>事業主負担16%</strong>は換算時に自動加算）</label>
-        <div class="comp-row">
-          <div class="seg sm" role="tablist" aria-label="給与単位">
-            <button type="button" class="segbtn" data-unit="hour"  onclick="setUnit('hour')">時給</button>
-            <button type="button" class="segbtn" data-unit="month" onclick="setUnit('month')">月給</button>
-            <button type="button" class="segbtn active" data-unit="year" onclick="setUnit('year')">年収</button>
-          </div>
-          <input id="baseComp" type="text" inputmode="numeric" value="4,780,000" oninput="formatLive(this);updateWage()">
-        </div>
-        <div class="calc-note">※初期値：令和6年民間給与実態統計調査の平均年収<strong>478万円</strong>をベースに算出。換算は<strong>月160時間×12ヶ月</strong>、<strong>事業主負担16％</strong>を自動加算して時給化。</div>
-        <div class="hourly-badge">換算結果：<span id="hourlyDisplay">¥2,888 / 時</span>（16％込み）</div>
-        <input type="hidden" id="wage" value="2888">
-      </div>
-
-      <div class="td field" style="grid-column:span 6" id="journalsBlock">
-        <label>月間仕訳数（<span class="note">総数</span>）</label>
-        <input id="totalJournals" type="number" value="320" min="0" oninput="calc()">
-      </div>
-    </div>
-  </section>
-
-  <!-- 機能別 -->
-  <section class="card compact-table" id="featuresCard">
-    <div class="headbar">
-      <div class="thead">機能別（チェックで導入状態を切替）</div>
-      <div class="headnote">※各数値は社内の実測値を入れてください。</div>
-    </div>
-    <div class="features-head">
-      <div class="th bulk">
-        <label class="bulk-label"><span>一括</span><input id="cb_all" type="checkbox" onclick="toggleAll(this.checked)"></label>
-      </div>
-      <div class="th kind">取引種類</div>
-      <div class="th c-name">機能</div>
-      <div class="th">件数/月</div>
-      <div class="th">手作業 分/件</div>
-      <div class="th arrow"></div>
-      <div class="th">自動化 分/件</div>
-      <div class="th">削減h</div>
+      <a href="https://takatrp.github.io/price-up-down/" target="_blank" rel="noopener" class="wheel-chip tr">
+        <span class="round">↕</span><span>価格改定</span>
+      </a>
+      <a href="https://takatrp.github.io/time-unit-cost/" target="_blank" rel="noopener" class="wheel-chip bl">
+        <span class="round">⏱</span><span>人件費</span>
+      </a>
+      <a href="https://takatrp.github.io/jidouka-kouka/" target="_blank" rel="noopener" class="wheel-chip br">
+        <span class="round">⚙︎</span><span>自動化効果</span>
+      </a>
     </div>
 
-    <div class="features-rows">
-      <!-- 証憑 -->
-      <div class="td"><div class="adopt-box"><input class="feat-cb" id="cb_receipts" type="checkbox" checked onchange="calc()"></div></div>
-      <div class="td kind">現金</div>
-      <div class="td c-name"><a class="feat-link" href="https://www.matsumoto-kaikei.or.jp/tkc-tds" target="_blank" rel="noopener">証憑保存機能（スマホで経費）</a></div>
-      <div class="td"><input id="n_receipts" type="number" value="30" min="0" oninput="calc()"></div>
-      <div class="td"><input id="tb_receipts" type="number" value="3" min="0" step="0.1" oninput="calc()"></div>
-      <div class="td arrow">▷</div>
-      <div class="td"><input id="ta_receipts" type="number" value="2" min="0" step="0.1" oninput="calc()"></div>
-      <div class="td res" id="sv_receipts">0.00</div>
-
-      <!-- 銀行信販 -->
-      <div class="td"><div class="adopt-box"><input class="feat-cb" id="cb_bank" type="checkbox" checked onchange="calc()"></div></div>
-      <div class="td kind">預金・カード</div>
-      <div class="td c-name"><a class="feat-link" href="https://www.matsumoto-kaikei.or.jp/tkc-FinTech" target="_blank" rel="noopener">銀行信販データ受信機能</a></div>
-      <div class="td"><input id="n_bank" type="number" value="260" min="0" oninput="calc()"></div>
-      <div class="td"><input id="tb_bank" type="number" value="2" min="0" step="0.1" oninput="calc()"></div>
-      <div class="td arrow">▷</div>
-      <div class="td"><input id="ta_bank" type="number" value="0.5" min="0" step="0.1" oninput="calc()"></div>
-      <div class="td res" id="sv_bank">0.00</div>
-
-      <!-- 給与 -->
-      <div class="td"><div class="adopt-box"><input class="feat-cb" id="cb_payroll" type="checkbox" checked onchange="calc()"></div></div>
-      <div class="td kind">給与</div>
-      <div class="td c-name"><a class="feat-link" href="https://www.matsumoto-kaikei.or.jp/tkc-system012" target="_blank" rel="noopener">給与計算機能（仕訳含む）</a></div>
-      <div class="td"><input id="n_payroll" type="number" value="10" min="0" oninput="calc()"></div>
-      <div class="td"><input id="tb_payroll" type="number" value="8" min="0" step="0.1" oninput="calc()"></div>
-      <div class="td arrow">▷</div>
-      <div class="td"><input id="ta_payroll" type="number" value="3" min="0" step="0.1" oninput="calc()"></div>
-      <div class="td res" id="sv_payroll">0.00</div>
-
-      <!-- 販売管理 -->
-      <div class="td"><div class="adopt-box"><input class="feat-cb" id="cb_sales" type="checkbox" checked onchange="calc()"></div></div>
-      <div class="td kind">売上</div>
-      <div class="td c-name"><a class="feat-link" href="https://www.tkc.jp/file.jsp?id=166750" target="_blank" rel="noopener">販売管理機能（売上計上・請求）</a></div>
-      <div class="td"><input id="n_sales" type="number" value="12" min="0" oninput="calc()"></div>
-      <div class="td"><input id="tb_sales" type="number" value="10" min="0" step="0.1" oninput="calc()"></div>
-      <div class="td arrow">▷</div>
-      <div class="td"><input id="ta_sales" type="number" value="5" min="0" step="0.1" oninput="calc()"></div>
-      <div class="td res" id="sv_sales">0.00</div>
-
-      <!-- レジ -->
-      <div class="td"><div class="adopt-box"><input class="feat-cb" id="cb_pos" type="checkbox" checked onchange="calc()"></div></div>
-      <div class="td kind">レジ</div>
-      <div class="td c-name"><a class="feat-link" href="https://www.tkc.jp/fx/#:~:text=%E3%81%97%E3%81%8F%E3%81%AF%E3%81%93%E3%81%A1%E3%82%89-,%E5%A3%B2%E4%B8%8A%E4%BB%95%E8%A8%B3%E3%81%AE%E5%85%A5%E5%8A%9B%E6%A5%AD%E5%8B%99%E3%82%92%E5%A4%A7%E5%B9%85%E3%81%AB%E7%9C%81%E5%8A%9B%E5%8C%96,-%E3%82%BF%E3%83%96%E3%83%AC%E3%83%83%E3%83%88POS%E3%83%AC%E3%82%B8" target="_blank" rel="noopener">レジからのデータ受信</a></div>
-      <div class="td"><input id="n_pos" type="number" value="0" min="0" oninput="calc()"></div>
-      <div class="td"><input id="tb_pos" type="number" value="3" min="0" step="0.1" oninput="calc()"></div>
-      <div class="td arrow">▷</div>
-      <div class="td"><input id="ta_pos" type="number" value="0.5" min="0" step="0.1" oninput="calc()"></div>
-      <div class="td res" id="sv_pos">0.00</div>
-
-      <!-- その他 -->
-      <div class="td"><div class="adopt-box"><span class="adopt-dash">—</span></div></div>
-      <div class="td kind">その他</div>
-      <div class="td c-name">その他（自動調整・対象外）</div>
-      <div class="td"><input id="n_other" type="number" value="0" readonly></div>
-      <div class="td"><input id="tb_other" type="number" value="3" min="0" step="0.1" oninput="syncOther();calc()"></div>
-      <div class="td arrow">▷</div>
-      <div class="td"><input id="ta_other" type="number" value="3" readonly></div>
-      <div class="td res" id="sv_other">0.00</div>
-    </div>
-
-    <div class="sumline">
-      <div>入力合計（5機能）＝ <strong id="sumFeat">312</strong> 件 ／ その他＝ <strong id="sumOther">8</strong> 件 ／ 総合計＝ <strong id="sumTotal">320</strong> 件</div>
-      <div id="deltaMsg" class="ok">その他は自動調整されます。合計は常に総数と一致します。</div>
-    </div>
-
-    <div class="btns" style="margin-top:8px">
-      <button class="outline" onclick="resetAll();calc()">リセット</button>
+    <!-- tool list -->
+    <div id="tools-main" class="tool-group">
+      <ul class="tool-row">
+        <li class="tool-card">
+          <a class="tool-link" href="https://takatrp.github.io/hendou_PL/" target="_blank" rel="noopener">
+            <div class="tool-ico">PL</div>
+            <div class="tool-body">
+              <div class="tool-title">ボールで学ぶ変動損益計算書</div>
+              <div class="tool-desc">売上高と限界利益、固定費の関係を直感的に理解</div>
+            </div>
+          </a>
+        </li>
+        <li class="tool-card">
+          <a class="tool-link" href="https://takatrp.github.io/convert-to-sales/" target="_blank" rel="noopener">
+            <div class="tool-ico">⇆</div>
+            <div class="tool-body">
+              <div class="tool-title long">それ、売上に直すといくらですか？</div>
+              <div class="tool-desc">支出額を必要売上金額に即換算</div>
+            </div>
+          </a>
+        </li>
+        <li class="tool-card">
+          <a class="tool-link" href="https://takatrp.github.io/price-up-down/" target="_blank" rel="noopener">
+            <div class="tool-ico">↕</div>
+            <div class="tool-body">
+              <div class="tool-title">価格改定検討ツール</div>
+              <div class="tool-desc">価格改定の影響を試算</div>
+            </div>
+          </a>
+        </li>
+        <li class="tool-card">
+          <a class="tool-link" href="https://takatrp.github.io/time-unit-cost/" target="_blank" rel="noopener">
+            <div class="tool-ico">¥</div>
+            <div class="tool-body">
+              <div class="tool-title">人件費見える化ツール</div>
+              <div class="tool-desc">時間単価で人件費を可視化</div>
+            </div>
+          </a>
+        </li>
+        <li class="tool-card">
+          <a class="tool-link" href="https://takatrp.github.io/jidouka-kouka/" target="_blank" rel="noopener">
+            <div class="tool-ico">⚙︎</div>
+            <div class="tool-body">
+              <div class="tool-title">自動化効果試算ツール</div>
+              <div class="tool-desc">自動化の投資対効果を試算</div>
+            </div>
+          </a>
+        </li>
+      </ul>
     </div>
   </section>
 
-  <!-- グラフ -->
-  <section class="card" id="chartArea">
-    <div class="chart-head">
-      <div class="chart-title">削減率 <span id="chartRate">0.00%</span></div>
-      <div class="chart-sub">Before → After 可視化</div>
-    </div>
-    <div class="chart-grid">
-      <div class="chartbox">
-        <h4>総時間（時間）</h4>
-        <canvas id="chartTime" width="600" height="240"></canvas>
-      </div>
-      <div class="chartbox">
-        <h4>人件費（円）</h4>
-        <canvas id="chartCost" width="600" height="240"></canvas>
-      </div>
+  <!-- その他便利ツール -->
+  <section id="others" class="section">
+    <h2><span class="emoji">🧰</span><span>その他便利ツール</span></h2>
+
+    <div id="tools-extra" class="tool-group">
+      <ul class="tool-row">
+        <li class="tool-card">
+          <a class="tool-link" href="https://takatrp.github.io/withholding/" target="_blank" rel="noopener">
+            <div class="tool-ico">%</div>
+            <div class="tool-body">
+              <div class="tool-title">受取利息・配当金 仕訳補助</div>
+              <div class="tool-desc">手取額から源泉徴収税額を逆算・仕訳を表示</div>
+            </div>
+          </a>
+        </li>
+        <li class="tool-card">
+          <a class="tool-link" href="https://takatrp.github.io/genkasyoukyaku/" target="_blank" rel="noopener">
+            <div class="tool-ico">Σ</div>
+            <div class="tool-body">
+              <div class="tool-title">減価償却費計算ツール</div>
+              <div class="tool-desc">定額法・定率法の償却費を即時計算</div>
+            </div>
+          </a>
+        </li>
+        <li class="tool-card">
+          <a class="tool-link" href="https://takatrp.github.io/kigyoubouei/" target="_blank" rel="noopener">
+            <div class="tool-ico">保</div>
+            <div class="tool-body">
+              <div class="tool-title">標準保障額・保険料換算ツール</div>
+              <div class="tool-desc">標準保障額と保険料を売上高に換算</div>
+            </div>
+          </a>
+        </li>
+        <li class="tool-card">
+          <a class="tool-link" href="https://takatrp.github.io/CCC/" target="_blank" rel="noopener">
+            <div class="tool-ico">C</div>
+            <div class="tool-body">
+              <div class="tool-title">CCC計算ツール</div>
+              <div class="tool-desc">キャッシュ・コンバージョン・サイクルを可視化</div>
+            </div>
+          </a>
+        </li>
+      </ul>
     </div>
   </section>
+</main>
 
-  <!-- 結果 -->
-  <section class="card" id="kpiArea">
-    <div class="kpi">
-      <div class="item">
-        <h3>仕訳自動化率</h3>
-        <div class="krow">
-          <div class="rate-hero" id="kpiRate">0.00%</div>
-          <div class="aside">
-            <div class="label">導入機能数</div>
-            <div class="val" id="kpiAdopt">0 / 5</div>
-            <div class="note-right">チェックあり＆件数>0を採用としてカウント</div>
-          </div>
-        </div>
-      </div>
-      <div class="item" id="kpiBefore"><h3>導入なし 総時間（月）</h3><div class="krow"><div class="val" id="kpiHBefore">0.00 時間</div><div class="aside"><div class="label">人件費相当額</div><div class="yen" id="kpiCostBefore">¥0</div></div></div></div>
-      <div class="item" id="kpiAfter"><h3>導入あり 総時間（月）</h3><div class="krow"><div class="val" id="kpiHAfter">0.00 時間</div><div class="aside"><div class="label">人件費相当額</div><div class="yen" id="kpiCostAfter">¥0</div></div></div></div>
-
-      <!-- 入替：時間短縮 → 左、人件費削減（強調） → 右 -->
-      <div class="item"><h3>時間短縮（合計・月間）</h3><div class="val" id="kpiSaved">0.00 時間</div><div class="note">（導入なし − 導入あり）</div></div>
-      <div class="item item--emph savings" id="kpiSavings"><h3>人件費削減</h3><div class="krow"><div class="val-main" id="kpiYen">¥0</div><div class="aside"><div class="label">年間（12ヶ月換算）</div><div class="yen" id="kpiYenYear">¥0</div></div></div></div>
-
-      <div class="item"><h3>機能別 削減時間（h）</h3><div class="note">チェック時のみ削減 > 0</div><div class="val" id="kpiBreakdown">—</div></div>
-    </div>
-  </section>
-
-  <div class="btns" id="footerBtns" style="justify-content:center;margin-top:8px">
-    <button class="btn btn-primary" id="salesBtn" onclick="jumpToSalesTool()">売上換算</button>
-    <button class="btn btn-soft"    id="copyBtn"  onclick="copySummary()">コピー</button>
-    <button class="btn btn-soft"                onclick="resetAll();calc()">リセット</button>
-    <button class="btn btn-outline" id="printBtn" onclick="printPage()">印刷</button>
-  </div>
-
-  <footer class="mk-mini">
-    © <span id="cpy-year">2025</span>
-    <a href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener">税理士法人松本会計事務所</a> ｜ 
-    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener">CC BY-NC-SA 4.0</a> ｜ 
-    <a href="/tool-portal/terms.html" target="_blank" rel="noopener">利用条件</a> ｜ 
-    <span id="build-rev">r67</span>（<span id="last-updated-date"></span>）
-  </footer>
-</div>
-
-<!-- ===== Tutorial (floating + focus) ===== -->
-<div class="tour" id="tour" aria-hidden="true">
-  <div id="tourShade"></div>
-  <div id="tourSpot" aria-hidden="true"></div>
-  <div id="tourSheet" role="dialog" aria-modal="true" aria-live="polite" data-pos="bottom">
-    <div style="display:flex;align-items:center;gap:8px;justify-content:space-between">
-      <span id="tourStep">1/7</span>
-      <div class="dots" id="tourDots"></div>
-      <button class="tbtn outline" id="tourEnd" type="button">終了</button>
-    </div>
-    <h3 id="tourTitle">ようこそ</h3>
-    <p id="tourBody"></p>
-    <div class="tnav">
-      <button class="tbtn outline" id="tourPrev" type="button">戻る</button>
-      <button class="tbtn" id="tourNext" type="button">次へ</button>
-    </div>
-    <div class="tHint">Enter / クリックで<strong>次へ</strong>　←で<strong>戻る</strong>　Escで<strong>終了</strong></div>
+<!-- modal -->
+<div class="mk-modal" id="mk-modal" aria-hidden="true">
+  <div class="mk-modal-close" id="mk-modal-close">×</div>
+  <div class="mk-modal-inner">
+    <img src="" alt="" id="mk-modal-img" />
+    <div class="caption" id="mk-modal-caption"></div>
   </div>
 </div>
+
+<footer class="mk-mini">
+  © 2025 <a href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener">税理士法人松本会計事務所</a> ｜ 
+  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license">CC BY-NC-SA 4.0</a> ｜ 
+  <a href="https://takatrp.github.io/tool-portal/terms.html" target="_blank">利用条件</a> ｜ 
+  r52（2025-10-05）
+</footer>
 
 <script>
-/* ---- utilities ---- */
-const $=id=>document.getElementById(id);
-const safeFixed=(n,d=2)=>Number.isFinite(n)?n.toFixed(d):(0).toFixed(d);
-const yen=n=>Number.isFinite(n)?n.toLocaleString('ja-JP',{style:'currency',currency:'JPY',maximumFractionDigits:0}):'¥0';
-const num=id=>parseFloat(String($(id).value||'').replace(/[,\s]/g,''))||0;
-function formatLive(el){const raw=(el.value||'').replace(/[^\d]/g,'');el.value=raw?Number(raw).toLocaleString('ja-JP'):'';}
-(function(){const y=new Date().getFullYear();$('cpy-year').textContent=y;
- const d=new Date(document.lastModified),p=x=>String(x).padStart(2,'0');
- $('last-updated-date').textContent=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;})();
+(function(){
+  const modal = document.getElementById('mk-modal');
+  const img   = document.getElementById('mk-modal-img');
+  const cap   = document.getElementById('mk-modal-caption');
+  const btnQr   = document.getElementById('btn-qr');
+  const btnHome = document.getElementById('btn-home');
+  const closeBtn = document.getElementById('mk-modal-close');
 
-/* ---- inputs / calc ---- */
-function syncOther(){ $('ta_other').value=$('tb_other').value; }
-function recalcOther(){
-  const total=num('totalJournals');
-  const sumFeat=num('n_receipts')+num('n_bank')+num('n_payroll')+num('n_sales')+num('n_pos');
-  const other=total-sumFeat;
-  $('n_other').value=other;
-  $('sumFeat').textContent=sumFeat;
-  $('sumOther').textContent=other;
-  $('sumTotal').textContent=sumFeat+other;
-  const m=$('deltaMsg');
-  if(other<0){
-    m.textContent='合計が総数を超過しています（その他が負値）。件数配分を見直してください。';
-    m.className='warn';
-  }else{
-    m.textContent='その他は自動調整されます。合計は常に総数と一致します。';
-    m.className='ok';
+  function openModal(src, text){
+    img.src = src;
+    img.alt = text;
+    cap.textContent = text;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
   }
-}
+  function closeModal(){
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+  }
 
-const HOURS_PER_MONTH=160;
-const MK_SALES_EFFECT_AMOUNT_KEY='mk_salesEffectAmount';
-const MK_SALES_EFFECT_SOURCE_KEY='mk_salesEffectSource';
-const SALES_TOOL_URL='https://takatrp.github.io/convert-to-sales/';
-let payUnit='year';
-
-function setUnit(u){
-  payUnit=u;
-  document.querySelectorAll('.segbtn').forEach(b=>{
-    const on=b.dataset.unit===u;
-    b.classList.toggle('active',on);
+  if(btnQr){
+    btnQr.addEventListener('click',function(){
+      openModal('共有用QR.png','共有用QRコード');
+    });
+  }
+  if(btnHome){
+    btnHome.addEventListener('click',function(){
+      openModal('ホーム画面に追加.png','ホーム画面への追加方法');
+    });
+  }
+  if(closeBtn){
+    closeBtn.addEventListener('click',closeModal);
+  }
+  modal.addEventListener('click',function(e){
+    if(e.target === modal){ closeModal(); }
   });
-  const base=$('baseComp');
-  if(u==='hour') base.value='2,500';
-  if(u==='month') base.value='300,000';
-  if(u==='year') base.value='4,780,000';
-  formatLive(base);
-  updateWage();
-}
-
-function updateWage(){
-  const v=num('baseComp');
-  let hourly = (payUnit==='hour')?v:(payUnit==='month')?v/HOURS_PER_MONTH:v/12/HOURS_PER_MONTH;
-  hourly*=1.16;
-  $('hourlyDisplay').textContent=yen(Math.round(hourly))+' / 時';
-  $('wage').value=Math.round(hourly);
-  calc();
-}
-
-function mod(label,checked,n,tb,ta,w){
-  const cnt=Math.max(0,n);
-  const hB=(tb*cnt)/60, hA=(ta*cnt)/60;
-  return{
-    label,
-    checked,
-    cnt,
-    tb,
-    ta,
-    hBefore:hB,
-    hAfter:hA,
-    hChosen:checked?hA:hB,
-    hSaved:Math.max(0,hB-(checked?hA:hB)),
-    adopted:!!checked&&cnt>0,
-    cBefore:hB*w,
-    cChosen:(checked?hA:hB)*w
-  };
-}
-
-function compute(){
-  const w=parseFloat($('wage').value)||0;
-  const m1=mod('証憑保存機能（スマホで経費）',$('cb_receipts').checked,num('n_receipts'),num('tb_receipts'),num('ta_receipts'),w);
-  const m2=mod('銀行信販データ受信機能',$('cb_bank').checked,num('n_bank'),num('tb_bank'),num('ta_bank'),w);
-  const m3=mod('給与計算機能（仕訳含む）',$('cb_payroll').checked,num('n_payroll'),num('tb_payroll'),num('ta_payroll'),w);
-  const m4=mod('販売管理機能（売上計上・請求）',$('cb_sales').checked,num('n_sales'),num('tb_sales'),num('ta_sales'),w);
-  const cbp=$('cb_pos').checked, np=num('n_pos'), tbp=num('tb_pos'), tap=num('ta_pos');
-  const m5obj=mod('レジからのデータ受信',cbp,np,tbp,tap,w);
-
-  const hOther=(num('tb_other')*Math.max(0,num('n_other')))/60;
-  const arr=[m1,m2,m3,m4,m5obj];
-
-  const hB=arr.reduce((s,m)=>s+m.hBefore,0)+hOther;
-  const hC=arr.reduce((s,m)=>s+m.hChosen,0)+hOther;
-  const saveH=Math.max(0,hB-hC);
-  const costB=hB*w, costC=hC*w, saveY=costB-costC;
-  const adopted=arr.reduce((s,m)=>s+(m.adopted?1:0),0);
-
-  const total=num('totalJournals');
-  const auto=arr.reduce((s,m)=>s+(m.checked?m.cnt:0),0);
-  const rate= total>0 ? auto/total*100:0;
-
-  return{w,arr,hB,hC,saveH,costB,costC,saveY,adopted,rate};
-}
-
-function updateUI(r){
-  const id=['sv_receipts','sv_bank','sv_payroll','sv_sales','sv_pos'];
-  r.arr.forEach((m,i)=>$(id[i]).textContent=safeFixed(m.hSaved));
-
-  $('kpiHBefore').textContent=safeFixed(r.hB)+' 時間';
-  $('kpiHAfter').textContent=safeFixed(r.hC)+' 時間';
-  $('kpiSaved').textContent=safeFixed(r.saveH)+' 時間';
-
-  $('kpiCostBefore').textContent=yen(r.costB);
-  $('kpiCostAfter').textContent=yen(r.costC);
-  $('kpiYen').textContent=yen(r.saveY);
-  $('kpiYenYear').textContent=yen(r.saveY*12);
-
-  $('kpiRate').textContent=(Number.isFinite(r.rate)?r.rate.toFixed(2):'0.00')+'%';
-  $('kpiAdopt').textContent=r.adopted+' / 5';
-
-  const txt=r.arr.map(m=>m.label+':'+safeFixed(m.hSaved)+'h').join(' / ')||'—';
-  $('kpiBreakdown').textContent=txt;
-  $('kpiBreakdown').title=txt;
-
-  // 売上換算ボタンの有効／無効
-  const sb=$('salesBtn');
-  if(sb){
-    const enable=r.saveY>0;
-    sb.disabled=!enable;
-    sb.title=enable
-      ? '売上換算ツールへ（削減「月額」をプリセット）'
-      : '人件費削減（月）が0円以下のため、売上換算できる金額がありません。';
-  }
-
-  drawChartsAnimated(r);
-  refreshBulk();
-  syncKPIHeights();
-}
-
-function toggleAll(ch){
-  document.querySelectorAll('.feat-cb').forEach(cb=>cb.checked=ch);
-  calc();
-}
-
-function refreshBulk(){
-  const boxes=[...document.querySelectorAll('.feat-cb')];
-  const all=$('cb_all');
-  const on=boxes.filter(b=>b.checked).length;
-  all.indeterminate=(on>0&&on<boxes.length);
-  all.checked=(on===boxes.length);
-}
-
-function syncKPIHeights(){
-  const a=$('kpiBefore'),b=$('kpiAfter');
-  if(!a||!b)return;
-  const h=Math.max(a.offsetHeight,b.offsetHeight);
-  document.documentElement.style.setProperty('--kpiRowH',h+'px');
-}
-
-function drawBarH(id, before, after, fmt, label){
-  const c=$(id);
-  const ctx=c.getContext('2d');
-  const dpr=window.devicePixelRatio||1;
-  const w=c.clientWidth,h=c.clientHeight;
-  c.width=w*dpr;c.height=h*dpr;
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-
-  const padL=28,padR=28,padT=16,padB=6,barH=24,gap=22,plotW=w-padL-padR;
-  ctx.clearRect(0,0,w,h);
-  ctx.font='12px system-ui';
-  ctx.textBaseline='middle';
-
-  const max=Math.max(before,after,1);
-  const y2=h-padB-barH/2, y1=y2-(barH+gap);
-
-  ctx.strokeStyle='#e2e8f0';
-  for(let i=0;i<=4;i++){
-    const x=padL+plotW*(i/4);
-    ctx.beginPath();
-    ctx.moveTo(x,padT);
-    ctx.lineTo(x,h-padB);
-    ctx.stroke();
-  }
-
-  const w0=plotW*(before/max), w1=plotW*(after/max);
-
-  ctx.fillStyle='#cbd5e1';
-  ctx.fillRect(padL,y1-barH/2,w0,barH);
-
-  ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bar-after').trim()||'#4fb3c1';
-  ctx.fillRect(padL,y2-barH/2,w1,barH);
-
-  ctx.fillStyle='#334155';
-  ctx.textAlign='left';
-  ctx.fillText('導入なし',padL,y1-barH/2-6);
-  ctx.fillText('導入あり',padL,y2-barH/2-6);
-
-  ctx.fillStyle='#0f172a';
-  ctx.font='bold 13px system-ui';
-  ctx.textAlign='right';
-  ctx.fillText(fmt(before),padL+w0,y1);
-  ctx.fillText(fmt(after),padL+w1,y2);
-
-  ctx.textAlign='right';
-  ctx.font='bold 14px system-ui';
-  ctx.fillStyle='#166b8a';
-  ctx.fillText(label,w-padR,padT-2);
-}
-
-const chartState={init:false,time:{before:0,after:0},cost:{before:0,after:0},rate:0,animId:null};
-
-function drawChartsOnce(r){
-  const rate=r.hB>0?(r.hB-r.hC)/r.hB*100:0;
-  $('chartRate').textContent=(Number.isFinite(rate)?rate.toFixed(2):'0.00')+'%';
-  drawBarH('chartTime',r.hB,r.hC,v=>`${safeFixed(v,2)}h`,`時間短縮 ${safeFixed(r.saveH,2)}h`);
-  drawBarH('chartCost',r.costB,r.costC,v=>yen(v),`人件費削減 ${yen(r.saveY)}`);
-}
-
-function drawChartsAnimated(r){
-  const next={
-    time:{before:Math.max(0,r.hB),after:Math.max(0,r.hC)},
-    cost:{before:Math.max(0,r.costB),after:Math.max(0,r.costC)},
-    rate:(r.hB>0?(r.hB-r.hC)/r.hB*100:0)
-  };
-  if(!chartState.init){
-    chartState.time={...next.time};
-    chartState.cost={...next.cost};
-    chartState.rate=next.rate;
-    chartState.init=true;
-    drawChartsOnce(r);
-    return;
-  }
-  const prev={
-    time:{...chartState.time},
-    cost:{...chartState.cost},
-    rate:chartState.rate
-  };
-  if(chartState.animId)cancelAnimationFrame(chartState.animId);
-  const dur=500,t0=performance.now();
-  const stepAnim=(now)=>{
-    const t=Math.min(1,(now-t0)/dur);
-    const e=(t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2);
-
-    const tb=prev.time.before+(next.time.before-prev.time.before)*e;
-    const ta=prev.time.after+(next.time.after-prev.time.after)*e;
-    const cb=prev.cost.before+(next.cost.before-prev.cost.before)*e;
-    const ca=prev.cost.after+(next.cost.after-prev.cost.after)*e;
-    const rate=prev.rate+(next.rate-prev.rate)*e;
-
-    $('chartRate').textContent=(Number.isFinite(rate)?rate.toFixed(2):'0.00')+'%';
-    drawBarH('chartTime',tb,ta,v=>`${safeFixed(v,2)}h`,`時間短縮 ${safeFixed(Math.max(0,tb-ta),2)}h`);
-    drawBarH('chartCost',cb,ca,v=>yen(v),`人件費削減 ${yen(Math.max(0,cb-ca))}`);
-
-    if(t<1){
-      chartState.animId=requestAnimationFrame(stepAnim);
-    }else{
-      chartState.time={...next.time};
-      chartState.cost={...next.cost};
-      chartState.rate=next.rate;
-      chartState.animId=null;
-    }
-  };
-  chartState.animId=requestAnimationFrame(stepAnim);
-}
-
-async function copySummary(){
-  const r=compute();
-  const lines=[];
-  lines.push('【自動化効果試算ツール（5機能）サマリー】');
-  lines.push('時給(社保16%込み): '+Math.round(r.w)+' 円/時');
-  lines.push('仕訳自動化率: '+(Number.isFinite(r.rate)?r.rate.toFixed(2):'0.00')+'%（導入機能: '+r.adopted+' / 5）');
-  r.arr.forEach(m=>lines.push(`${m.label} [${m.adopted?'導入':'未導入'}] 件数=${m.cnt} 手作業=${m.tb}分 自動化=${m.ta}分 削減=${safeFixed(m.hSaved)}h`));
-  lines.push('— 合計');
-  lines.push(`導入なし 総時間: ${safeFixed(r.hB)}h（人件費相当額: ${Math.round(r.costB)}円）`);
-  lines.push(`導入あり 総時間: ${safeFixed(r.hC)}h（人件費相当額: ${Math.round(r.costC)}円）`);
-  lines.push(`時間短縮(月): ${safeFixed(r.saveH)}h`);
-  lines.push(`人件費削減(月): ${Math.round(r.saveY)} 円`);
-  lines.push(`人件費削減(年): ${Math.round(r.saveY*12)} 円`);
-  const text=lines.join('\n');
-  try{
-    await navigator.clipboard.writeText(text);
-  }catch(e){
-    const ta=document.createElement('textarea');
-    ta.value=text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    ta.remove();
-  }
-}
-
-function exportCSV(){
-  const r=compute(), rows=[];
-  rows.push(['項目','導入','件数','手作業(分/件)','自動化(分/件)','導入あり時間(h)','導入なし時間(h)','削減時間(h)']);
-  r.arr.forEach(m=>rows.push([m.label,(m.adopted?'導入':'未導入'),m.cnt,m.tb,m.ta,safeFixed(m.hChosen),safeFixed(m.hBefore),safeFixed(m.hSaved)]));
-  rows.push([]);
-  rows.push(['時給(社保16%込み)',Math.round(r.w)]);
-  rows.push(['仕訳自動化率',(Number.isFinite(r.rate)?r.rate.toFixed(2):'0.00')+'%']);
-  rows.push(['導入なし 人件費相当額(円)',Math.round(r.costB)]);
-  rows.push(['導入あり 人件費相当額(円)',Math.round(r.costC)]);
-  rows.push(['時間短縮(h/月)',safeFixed(r.saveH)]);
-  rows.push(['人件費削減(円/月)',Math.round(r.saveY)]);
-  rows.push(['人件費削減(円/年)',Math.round(r.saveY*12)]);
-
-  const csv=rows.map(cols=>cols.map(v=>{
-    v=(v??'').toString().replace(/"/g,'""');
-    return /[",\n\r]/.test(v)?`"${v}"`:v;
-  }).join(',')).join('\r\n');
-
-  const bom=new Uint8Array([0xEF,0xBB,0xBF]);
-  const blob=new Blob([bom,csv],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  const n=new Date(),p=x=>String(x).padStart(2,'0');
-  a.download=`auto_effect_${n.getFullYear()}${p(n.getMonth()+1)}${p(n.getDate())}_${p(n.getHours())}${p(n.getMinutes())}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-}
-
-function printPage(){window.print()}
-
-function resetAll(){
-  setUnit('year');
-  $('totalJournals').value=320;
-  ['cb_receipts','cb_bank','cb_payroll','cb_sales','cb_pos'].forEach(id=>$(id).checked=true);
-
-  $('n_receipts').value=30; $('tb_receipts').value=3; $('ta_receipts').value=2;
-  $('n_bank').value=260; $('tb_bank').value=2; $('ta_bank').value=0.5;
-  $('n_payroll').value=10; $('tb_payroll').value=8; $('ta_payroll').value=3;
-  $('n_sales').value=12; $('tb_sales').value=10; $('ta_sales').value=5;
-  $('n_pos').value=0; $('tb_pos').value=3; $('ta_pos').value=0.5;
-
-  $('tb_other').value=3; $('ta_other').value=3;
-
-  ['sv_receipts','sv_bank','sv_payroll','sv_sales','sv_pos','sv_other'].forEach(id=>$(id).textContent='0.00');
-
-  const bc=$('baseComp');
-  bc.value='4,780,000';
-  formatLive(bc);
-  updateWage();
-
-  setTimeout(()=>{refreshBulk();syncKPIHeights();},0);
-}
-
-function calc(){
-  syncOther();
-  recalcOther();
-  const r=compute();
-  updateUI(r);
-}
-
-/* ---- 売上換算ツールへの連携 ---- */
-function jumpToSalesTool(){
-  const r=compute();
-  const amount = Math.max(0, r.saveY); // 月間人件費削減額を「今回検討する支出額」として連携
-
-  if(!Number.isFinite(amount) || amount<=0){
-    alert('「人件費削減（月）」が0円以下のため、売上換算する金額がありません。分数や件数を見直してください。');
-    return;
-  }
-
-  try{
-    localStorage.setItem(MK_SALES_EFFECT_AMOUNT_KEY, String(Math.round(amount)));
-    localStorage.setItem(MK_SALES_EFFECT_SOURCE_KEY, 'autoEffect');
-  }catch(e){}
-
-  window.location.href = SALES_TOOL_URL;
-}
-
-/* ---- Tutorial（フローティング） ---- */
-const STEPS=[
- {sel:'#hdrBrand', t:'ツールの狙い', b:'TKCの5つの自動化機能で、どれだけ<strong>時間</strong>と<strong>人件費</strong>が削減できるかを可視化します。'},
- {sel:'#payUnitBlock', t:'① 人件費の前提', b:'<strong>時給／月給／年収</strong>から入力。<strong>事業主負担16%</strong>は自動加算し時給化します。'},
- {sel:'#journalsBlock', t:'② 月間仕訳数', b:'総数を入力。機能合計との差分は<strong>その他</strong>に自動配分され、合計は常に一致します。'},
- {sel:'#featuresCard', t:'③ 機能の導入と分数', b:'チェックで導入ON/OFF。件数・分/件を調整すると結果とグラフが即時更新。'},
- {sel:'#chartArea', t:'④ Before→After', b:'横棒グラフで総時間・人件費のBefore/Afterと合計の「時間短縮」「人件費削減」を表示。'},
- {sel:'#kpiSavings', t:'⑤ 人件費削減／自動化率', b:'月間・年間の<strong>人件費削減</strong>、<strong>仕訳自動化率</strong>、機能別の寄与を確認。'},
- {sel:'#footerBtns', t:'⑥ 出力・売上換算', b:'「売上換算／コピー／CSV出力／印刷」で共有・資料化。CSVはUTF-8（BOM付）で文字化け対策済み。'}
-];
-let tourActive=false, step=0, rafId=null;
-
-function startTour(){
-  tourActive=true;
-  step=0;
-  renderDots();
-  showStep();
-  $('tour').classList.add('show');
-}
-function endTour(){
-  tourActive=false;
-  $('tour').classList.remove('show');
-  localStorage.setItem('mk_auto_tour_seen','1');
-  cancelAnimationFrame(rafId);
-  rafId=null;
-}
-function nextStep(){
-  if(step<STEPS.length-1){step++;showStep();}
-  else{endTour();}
-}
-function prevStep(){
-  if(step>0){step--;showStep();}
-}
-function renderDots(){
-  const d=$('tourDots');
-  d.innerHTML='';
-  STEPS.forEach((_,i)=>{
-    const n=document.createElement('div');
-    n.className='dot'+(i===step?' on':'');
-    d.appendChild(n);
-  });
-}
-function showStep(){
-  renderDots();
-  $('tourStep').textContent=`${step+1}/${STEPS.length}`;
-  $('tourTitle').innerHTML=STEPS[step].t;
-  $('tourBody').innerHTML=STEPS[step].b;
-  focusTo(STEPS[step].sel);
-  $('tourPrev').disabled=(step===0);
-  $('tourNext').textContent=(step===STEPS.length-1)?'終了':'次へ';
-}
-
-/* 吹き出しの配置：対象要素の下に置き、はみ出す場合は上に */
-function placeSheetForRect(r){
-  const sheet=$('tourSheet');
-  sheet.style.left='0px';
-  sheet.style.top='0px';
-  const sh=sheet.getBoundingClientRect();
-  const margin=12, vw=window.innerWidth, vh=window.innerHeight;
-
-  let top=r.bottom + margin, pos='bottom';
-  if(top + sh.height > vh - 8){
-    top = Math.max(8, r.top - sh.height - margin);
-    pos='top';
-  }
-  let left = Math.min(Math.max(8, r.left), vw - sh.width - 8);
-
-  sheet.style.top = `${Math.round(top)}px`;
-  sheet.style.left = `${Math.round(left)}px`;
-  sheet.setAttribute('data-pos', pos);
-}
-
-function focusTo(sel){
-  const el=document.querySelector(sel);
-  if(!el){
-    $('tourSpot').style.width='0px';
-    $('tourSpot').style.height='0px';
-    return;
-  }
-  el.scrollIntoView({behavior:'smooth',block:'center'}); // 一旦スクロール
-
-  let last={x:0,y:0,w:0,h:0}, stable=0;
-  function follow(){
-    if(!tourActive) return;
-    const r=el.getBoundingClientRect(), pad=8;
-    const x=Math.max(8, r.left-pad), y=Math.max(8, r.top-pad);
-    const w=Math.min(window.innerWidth-x-8, r.width+pad*2);
-    const h=Math.min(window.innerHeight-y-8, r.height+pad*2);
-    const spot=$('tourSpot');
-    spot.style.left=x+'px';
-    spot.style.top=y+'px';
-    spot.style.width=w+'px';
-    spot.style.height=h+'px';
-
-    placeSheetForRect(r);
-
-    const dx=Math.abs(x-last.x)+Math.abs(y-last.y)+Math.abs(w-last.w)+Math.abs(h-last.h);
-    if(dx<0.5) stable++; else stable=0;
-    last={x,y,w,h};
-    if(stable<20){rafId=requestAnimationFrame(follow);} // 約300ms追従
-  }
-  cancelAnimationFrame(rafId);
-  rafId=requestAnimationFrame(follow);
-}
-
-function spotTick(){
-  if(!tourActive) return;
-  const el=document.querySelector(STEPS[step].sel);
-  if(!el) return;
-  const r=el.getBoundingClientRect(), pad=8;
-  const x=Math.max(8, r.left-pad), y=Math.max(8, r.top-pad);
-  const w=Math.min(window.innerWidth-x-8, r.width+pad*2);
-  const h=Math.min(window.innerHeight-y-8, r.height+pad*2);
-  const spot=$('tourSpot');
-  spot.style.left=x+'px';
-  spot.style.top=y+'px';
-  spot.style.width=w+'px';
-  spot.style.height=h+'px';
-  placeSheetForRect(r);
-}
-
-$('helpBtn').addEventListener('click',startTour);
-$('tourEnd').addEventListener('click',endTour);
-$('tourNext').addEventListener('click',nextStep);
-$('tourPrev').addEventListener('click',prevStep);
-/* どこでもクリックで次へ（カード内は除外） */
-$('tour').addEventListener('click',(e)=>{
-  if(!e.target.closest('#tourSheet')) nextStep();
-});
-
-document.addEventListener('keydown',e=>{
-  if(!tourActive) return;
-  if(e.key==='Enter'||e.key===' '||e.key==='ArrowRight'){e.preventDefault();nextStep();}
-  else if(e.key==='ArrowLeft'){e.preventDefault();prevStep();}
-  else if(e.key==='Escape'){e.preventDefault();endTour();}
-});
-window.addEventListener('scroll',()=>{spotTick();},{passive:true});
-
-/* init */
-window.addEventListener('DOMContentLoaded',()=>{
-  resetAll();
-  calc();
-  if(localStorage.getItem('mk_auto_tour_seen')!=='1'){
-    startTour();
-  }
-});
-window.addEventListener('resize',()=>{
-  const r=compute();
-  drawChartsOnce(r);
-  if(tourActive) spotTick();
-  setTimeout(syncKPIHeights,0);
-});
+})();
 </script>
+
 </body>
 </html>
