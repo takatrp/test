@@ -2,593 +2,423 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>松本会計ツールポータル</title>
-<meta name="description" content="黒字経営を加速する、松本会計オリジナルツール集" />
-
-<!-- Favicon -->
-<link rel="icon" type="image/png" sizes="192x192" href="favicon192192.png" />
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-91JF4BT2QT"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-91JF4BT2QT');
-</script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>三光ビル FXクラウド仕訳作成ツール（HTML版）</title>
 
 <style>
-:root{
-  --bg:#f7fafc;
-  --header:#f1f5f9;
-  --card:#ffffff;
-  --ink:#0f172a;
-  --muted:#64748b;
-  --brand:#578899;
-  --brand-soft:#e3eff5;
-  --accent:#f97316;
-  --line:#e2e8f0;
-  --shadow:0 8px 24px rgba(15,23,42,.08);
-  --radius:18px;
-}
-
-html,body{height:100%;}
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;
-  color:var(--ink);
-  background:var(--bg);
-}
-
-/* ---------- header ---------- */
-
-.hero{
-  background:var(--header);
-  border-bottom:1px solid var(--line);
-  padding:10px 16px;
-}
-.hero-inner{
-  max-width:1100px;
-  margin:0 auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-}
-.hero-left{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-.hero-logo a{
-  display:inline-flex;
-  align-items:center;
-}
-.hero-logo img{
-  display:block;
-  height:60px;
-  width:auto;
-}
-.hero-texts{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-}
-.hero-title{
-  font-size:20px;
-  font-weight:800;
-}
-.hero-subtitle{
-  font-size:13px;
-  color:var(--muted);
-}
-
-.hero-actions{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.hero-btn{
-  border-radius:999px;
-  border:1px solid var(--line);
-  background:#fff;
-  padding:6px 14px;
-  font-size:12px;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  cursor:pointer;
-  box-shadow:0 4px 12px rgba(15,23,42,.05);
-}
-.hero-btn span.icon{
-  font-size:13px;
-}
-.hero-btn span.label-short{display:none;}
-
-@media (max-width:640px){
-  .hero-inner{
-    flex-direction:column;
-    align-items:flex-start;
-    gap:10px;
+  :root{
+    --bg:#f4f9fb;
+    --card:#ffffff;
+    --ink:#1e2a2d;
+    --muted:#5a6a6d;
+    --accent:#578899;
+    --accent-dark:#416b74;
+    --border:#d1dde2;
   }
-  .hero-actions{
-    align-self:stretch;
-    justify-content:flex-end;
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",Segoe UI,Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
   }
-  .hero-btn{
-    padding:5px 10px;
-    font-size:11px;
+  .container{
+    max-width:900px;
+    margin:24px auto 40px;
+    padding:0 16px;
   }
-  .hero-btn span.label-full{display:none;}
-  .hero-btn span.label-short{display:inline;}
-}
-
-/* ---------- sections ---------- */
-
-.section{
-  max-width:1100px;
-  margin:20px auto 24px;
-  padding:0 16px;
-}
-.section h2{
-  margin:0 0 6px;
-  font-size:20px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.section h2 .emoji{
-  font-size:22px;
-}
-.section .desc{
-  margin:0 0 6px;
-  font-size:13px;
-  color:var(--muted);
-}
-.section .desc span.sub{
-  display:block;
-}
-
-/* ---------- 4WD wheel ---------- */
-
-.wheel{
-  position:relative;
-  margin:18px auto 14px;
-  width:min(420px,80vw);
-}
-.hub{
-  position:relative;
-  width:100%;
-  max-width:360px;
-  margin:0 auto;
-}
-.hub img{
-  width:100%;
-  height:auto;
-  display:block;
-}
-
-.wheel-chip{
-  position:absolute;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:8px 13px;
-  border-radius:999px;
-  background:#fff;
-  border:1px solid var(--line);
-  box-shadow:var(--shadow);
-  font-size:13px;
-  color:var(--brand);
-  text-decoration:none;
-  font-weight:700;
-  white-space:nowrap;
-}
-.wheel-chip .round{
-  width:24px;
-  height:24px;
-  border-radius:999px;
-  background:var(--brand);
-  color:#fff;
-  display:grid;
-  place-items:center;
-  font-size:12px;
-}
-
-/* center */
-.wheel-chip.center{
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-}
-
-/* four wheels – PC 基準位置 */
-.wheel-chip.tl{top:10%;left:-10px;}
-.wheel-chip.tr{top:10%;right:-10px;}
-.wheel-chip.bl{bottom:10%;left:-10px;}
-.wheel-chip.br{bottom:10%;right:-10px;}
-
-/* ---------- tool lists ---------- */
-
-.tool-group{
-  margin-top:16px;
-}
-.tool-row{
-  list-style:none;
-  padding:0;
-  margin:0 -4px;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-  gap:8px;
-}
-.tool-card{
-  padding:4px;
-}
-.tool-link{
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-  padding:10px 14px;
-  border-radius:16px;
-  background:var(--card);
-  border:1px solid var(--line);
-  box-shadow:0 4px 14px rgba(15,23,42,.06);
-  text-decoration:none;
-  color:inherit;
-}
-.tool-ico{
-  width:32px;
-  height:32px;
-  border-radius:12px;
-  background:var(--brand);
-  color:#fff;
-  display:grid;
-  place-items:center;
-  font-size:15px;
-  flex-shrink:0;
-}
-.tool-body{
-  flex:1;
-}
-.tool-title{
-  font-size:14px;
-  font-weight:700;
-  margin-bottom:3px;
-  line-height:1.4;
-}
-.tool-desc{
-  font-size:12px;
-  color:var(--muted);
-}
-
-/* 4WD 一列を PC で横並び */
-@media (min-width:900px){
-  #tools-main .tool-row{
-    grid-template-columns:repeat(4,minmax(0,1fr));
+  h1{
+    font-size:1.4rem;
+    margin:0 0 4px;
   }
-}
-
-/* その他便利ツール（4列まで） */
-@media (min-width:900px){
-  #tools-extra .tool-row{
-    grid-template-columns:repeat(4,minmax(0,1fr));
+  .subtitle{
+    margin:0 0 16px;
+    color:var(--muted);
+    font-size:.9rem;
   }
-}
-
-/* タイトル幅調整：それ、売上に直すといくらですか？ を 1 行に */
-.tool-title.long{
-  font-size:13px;
-}
-
-/* ---------- modal（QR & ホーム追加） ---------- */
-
-.mk-modal{
-  position:fixed;
-  inset:0;
-  background:rgba(15,23,42,.55);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:40;
-}
-.mk-modal.open{display:flex;}
-.mk-modal-inner{
-  background:#fff;
-  padding:12px;
-  border-radius:16px;
-  max-width:90vw;
-  max-height:90vh;
-  box-shadow:var(--shadow);
-}
-.mk-modal-inner img{
-  display:block;
-  max-width:76vw;
-  height:auto;
-}
-.mk-modal-inner .caption{
-  margin-top:6px;
-  font-size:12px;
-  color:var(--muted);
-  text-align:center;
-}
-.mk-modal-close{
-  position:absolute;
-  top:10px;
-  right:14px;
-  font-size:24px;
-  color:#fff;
-  cursor:pointer;
-}
-
-/* PC のときだけ少し大きく */
-@media (min-width:900px){
-  .mk-modal-inner img{
-    max-width:520px;
+  .card{
+    background:var(--card);
+    border-radius:12px;
+    box-shadow:0 8px 22px rgba(0,0,0,.06);
+    padding:16px 18px 18px;
+    margin-top:16px;
+    border:1px solid var(--border);
   }
-}
-
-/* ---------- footer ---------- */
-
-footer.mk-mini{
-  border-top:1px solid var(--line);
-  padding:8px 12px 10px;
-  text-align:center;
-  font-size:12px;
-  color:#666;
-}
-footer.mk-mini a{
-  color:inherit;
-  text-decoration:underline;
-}
-
-/* ---------- 4WD スマホ最適化：5ツールを1画面に収める ---------- */
-
-@media (max-width:768px){
-  #shitenno.section{
+  .card h2{
+    font-size:1rem;
+    margin:0 0 8px;
+  }
+  .card p{
+    margin:4px 0 10px;
+    font-size:.9rem;
+    color:var(--muted);
+  }
+  label{
+    display:block;
+    margin:8px 0;
+    font-size:.9rem;
+  }
+  input[type="file"]{
+    display:block;
+    margin-top:4px;
+    font-size:.85rem;
+  }
+  button{
+    appearance:none;
+    border:none;
+    border-radius:999px;
+    padding:10px 20px;
+    font-size:.9rem;
+    cursor:pointer;
+    background:var(--accent);
+    color:#fff;
+    font-weight:600;
+    margin-right:8px;
+    transition:background .15s, transform .05s, box-shadow .15s;
+    box-shadow:0 4px 12px rgba(87,136,153,.35);
+  }
+  button:hover:enabled{
+    background:var(--accent-dark);
+  }
+  button:active:enabled{
+    transform:translateY(1px);
+    box-shadow:0 2px 8px rgba(87,136,153,.35);
+  }
+  button:disabled{
+    opacity:.5;
+    cursor:default;
+    box-shadow:none;
+  }
+  .buttons{
+    margin-top:8px;
+  }
+  #log{
+    margin-top:8px;
+    padding:10px 12px;
+    background:#0b1220;
+    color:#e5e7eb;
+    font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New", monospace;
+    font-size:.8rem;
+    border-radius:8px;
+    max-height:260px;
+    overflow:auto;
+    white-space:pre-wrap;
+  }
+  .note{
     margin-top:12px;
-    margin-bottom:14px;
+    font-size:.8rem;
+    color:var(--muted);
   }
-  #shitenno .desc{
-    margin-bottom:4px;
-  }
-  .wheel{
-    margin:8px auto 6px;
-  }
-  .hub{
-    width:60vw;
-    max-width:220px;
-  }
-}
-
-/* さらに小さなデバイスでの微調整 */
-@media (max-width:480px){
-  .wheel{
-    margin:6px auto 4px;
-  }
-  .hub{
-    width:62vw;
-    max-width:210px;
-  }
-}
 </style>
+
+<!-- SheetJS (xlsx) CDN -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
+<div class="container">
+  <h1>三光ビル FXクラウド仕訳作成ツール（HTML版）</h1>
+  <p class="subtitle">
+    ①の「三光ビル賃貸料」シートから請求金額と請求日を読み取り、②のFXクラウド取込レイアウトに自動転記します。
+  </p>
 
-<header class="hero">
-  <div class="hero-inner">
-    <div class="hero-left">
-      <div class="hero-logo">
-        <a href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener">
-          <img src="ロゴ.jpg" alt="税理士法人松本会計事務所ロゴ" />
-        </a>
-      </div>
-      <div class="hero-texts">
-        <div class="hero-title">松本会計ツールポータル</div>
-        <div class="hero-subtitle">黒字経営を加速する、松本会計オリジナルツール集</div>
-      </div>
-    </div>
-    <div class="hero-actions">
-      <button class="hero-btn" type="button" id="btn-qr">
-        <span class="icon">🔗</span>
-        <span class="label-full">共有用QR</span>
-        <span class="label-short">QR</span>
-      </button>
-      <button class="hero-btn" type="button" id="btn-home">
-        <span class="icon">📱</span>
-        <span class="label-full">ホーム画面への追加方法</span>
-        <span class="label-short">追加</span>
-      </button>
-    </div>
+  <div class="card">
+    <h2>1. ファイルを選択</h2>
+    <p>同じ月の①・②のExcelファイルを指定してください。</p>
+    <label>
+      ① 請求書（入金管理表）ファイル（.xlsx）
+      <input type="file" id="file1" accept=".xlsx" />
+    </label>
+    <label>
+      ② FXクラウド取込テンプレート（.xlsx）
+      <input type="file" id="file2" accept=".xlsx" />
+    </label>
   </div>
-</header>
 
-<main>
-  <!-- 黒字経営4WD -->
-  <section id="shitenno" class="section">
-    <h2><span class="emoji">🚗</span><span>黒字経営4WD</span></h2>
-    <p class="desc">
-      変動PL＋四つの実務ツールで、黒字経営を駆動する。<br />
-      <span class="sub">（㈱TKCのFXクラウドシリーズとの併用を想定しています）</span>
-    </p>
-
-    <div class="wheel" aria-label="黒字経営4WDツール配置">
-      <div class="hub">
-        <img src="四輪駆動.png" alt="4WDイメージ" />
-        <!-- center -->
-        <a href="https://takatrp.github.io/hendou_PL/" target="_blank" rel="noopener" class="wheel-chip center">
-          <span class="round">PL</span><span>変動損益</span>
-        </a>
-      </div>
-      <!-- four tools -->
-      <a href="https://takatrp.github.io/convert-to-sales/" target="_blank" rel="noopener" class="wheel-chip tl">
-        <span class="round">⇆</span><span>売上換算</span>
-      </a>
-      <a href="https://takatrp.github.io/price-up-down/" target="_blank" rel="noopener" class="wheel-chip tr">
-        <span class="round">↕</span><span>価格改定</span>
-      </a>
-      <a href="https://takatrp.github.io/time-unit-cost/" target="_blank" rel="noopener" class="wheel-chip bl">
-        <span class="round">⏱</span><span>人件費</span>
-      </a>
-      <a href="https://takatrp.github.io/jidouka-kouka/" target="_blank" rel="noopener" class="wheel-chip br">
-        <span class="round">⚙︎</span><span>自動化効果</span>
-      </a>
+  <div class="card">
+    <h2>2. 変換の実行・ダウンロード</h2>
+    <p>「変換を実行」→問題がなければ「結果をダウンロード」で更新済み②ファイルを保存できます。</p>
+    <div class="buttons">
+      <button id="runBtn">変換を実行</button>
+      <button id="downloadBtn" disabled>結果をダウンロード（更新済み②）</button>
     </div>
-
-    <!-- tool list -->
-    <div id="tools-main" class="tool-group">
-      <ul class="tool-row">
-        <li class="tool-card">
-          <a class="tool-link" href="https://takatrp.github.io/hendou_PL/" target="_blank" rel="noopener">
-            <div class="tool-ico">PL</div>
-            <div class="tool-body">
-              <div class="tool-title">ボールで学ぶ変動損益計算書</div>
-              <div class="tool-desc">売上高と限界利益、固定費の関係を直感的に理解</div>
-            </div>
-          </a>
-        </li>
-        <li class="tool-card">
-          <a class="tool-link" href="https://takatrp.github.io/convert-to-sales/" target="_blank" rel="noopener">
-            <div class="tool-ico">⇆</div>
-            <div class="tool-body">
-              <div class="tool-title long">それ、売上に直すといくらですか？</div>
-              <div class="tool-desc">支出額を必要売上金額に即換算</div>
-            </div>
-          </a>
-        </li>
-        <li class="tool-card">
-          <a class="tool-link" href="https://takatrp.github.io/price-up-down/" target="_blank" rel="noopener">
-            <div class="tool-ico">↕</div>
-            <div class="tool-body">
-              <div class="tool-title">価格改定検討ツール</div>
-              <div class="tool-desc">価格改定の影響を試算</div>
-            </div>
-          </a>
-        </li>
-        <li class="tool-card">
-          <a class="tool-link" href="https://takatrp.github.io/time-unit-cost/" target="_blank" rel="noopener">
-            <div class="tool-ico">¥</div>
-            <div class="tool-body">
-              <div class="tool-title">人件費見える化ツール</div>
-              <div class="tool-desc">時間単価で人件費を可視化</div>
-            </div>
-          </a>
-        </li>
-        <li class="tool-card">
-          <a class="tool-link" href="https://takatrp.github.io/jidouka-kouka/" target="_blank" rel="noopener">
-            <div class="tool-ico">⚙︎</div>
-            <div class="tool-body">
-              <div class="tool-title">自動化効果試算ツール</div>
-              <div class="tool-desc">自動化の投資対効果を試算</div>
-            </div>
-          </a>
-        </li>
-      </ul>
+    <pre id="log"></pre>
+    <div class="note">
+      前提：①のレイアウトは「号室＋請求金額（税込）」「≪請求日≫」が今回のサンプルと同じ位置、②はFXクラウドの標準取込レイアウトを想定しています。
+      レイアウトを変更した場合は調整が必要です。
     </div>
-  </section>
-
-  <!-- その他便利ツール -->
-  <section id="others" class="section">
-    <h2><span class="emoji">🧰</span><span>その他便利ツール</span></h2>
-
-    <div id="tools-extra" class="tool-group">
-      <ul class="tool-row">
-        <li class="tool-card">
-          <a class="tool-link" href="https://takatrp.github.io/withholding/" target="_blank" rel="noopener">
-            <div class="tool-ico">%</div>
-            <div class="tool-body">
-              <div class="tool-title">受取利息・配当金 仕訳補助</div>
-              <div class="tool-desc">手取額から源泉徴収税額を逆算・仕訳を表示</div>
-            </div>
-          </a>
-        </li>
-        <li class="tool-card">
-          <a class="tool-link" href="https://takatrp.github.io/genkasyoukyaku/" target="_blank" rel="noopener">
-            <div class="tool-ico">Σ</div>
-            <div class="tool-body">
-              <div class="tool-title">減価償却費計算ツール</div>
-              <div class="tool-desc">定額法・定率法の償却費を即時計算</div>
-            </div>
-          </a>
-        </li>
-        <li class="tool-card">
-          <a class="tool-link" href="https://takatrp.github.io/kigyoubouei/" target="_blank" rel="noopener">
-            <div class="tool-ico">保</div>
-            <div class="tool-body">
-              <div class="tool-title">標準保障額・保険料換算ツール</div>
-              <div class="tool-desc">標準保障額と保険料を売上高に換算</div>
-            </div>
-          </a>
-        </li>
-        <li class="tool-card">
-          <a class="tool-link" href="https://takatrp.github.io/CCC/" target="_blank" rel="noopener">
-            <div class="tool-ico">C</div>
-            <div class="tool-body">
-              <div class="tool-title">CCC計算ツール</div>
-              <div class="tool-desc">キャッシュ・コンバージョン・サイクルを可視化</div>
-            </div>
-          </a>
-        </li>
-      </ul>
-    </div>
-  </section>
-</main>
-
-<!-- modal -->
-<div class="mk-modal" id="mk-modal" aria-hidden="true">
-  <div class="mk-modal-close" id="mk-modal-close">×</div>
-  <div class="mk-modal-inner">
-    <img src="" alt="" id="mk-modal-img" />
-    <div class="caption" id="mk-modal-caption"></div>
   </div>
 </div>
 
-<footer class="mk-mini">
-  © 2025 <a href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener">税理士法人松本会計事務所</a> ｜ 
-  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license">CC BY-NC-SA 4.0</a> ｜ 
-  <a href="https://takatrp.github.io/tool-portal/terms.html" target="_blank">利用条件</a> ｜ 
-  r52（2025-10-05）
-</footer>
-
 <script>
 (function(){
-  const modal = document.getElementById('mk-modal');
-  const img   = document.getElementById('mk-modal-img');
-  const cap   = document.getElementById('mk-modal-caption');
-  const btnQr   = document.getElementById('btn-qr');
-  const btnHome = document.getElementById('btn-home');
-  const closeBtn = document.getElementById('mk-modal-close');
+  const file1Input = document.getElementById('file1');
+  const file2Input = document.getElementById('file2');
+  const runBtn = document.getElementById('runBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const logEl = document.getElementById('log');
 
-  function openModal(src, text){
-    img.src = src;
-    img.alt = text;
-    cap.textContent = text;
-    modal.classList.add('open');
-    modal.setAttribute('aria-hidden','false');
+  let resultWorkbook = null;
+
+  function log(msg){
+    const now = new Date().toISOString().replace('T',' ').slice(0,19);
+    logEl.textContent += `[${now}] ${msg}\n`;
+    logEl.scrollTop = logEl.scrollHeight;
   }
-  function closeModal(){
-    modal.classList.remove('open');
-    modal.setAttribute('aria-hidden','true');
+  function clearLog(){
+    logEl.textContent = '';
   }
 
-  if(btnQr){
-    btnQr.addEventListener('click',function(){
-      openModal('共有用QR.png','共有用QRコード');
+  function loadWorkbook(file){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        try{
+          const data = new Uint8Array(e.target.result);
+          const wb = XLSX.read(data, {type:'array', cellDates:true});
+          resolve(wb);
+        }catch(err){
+          reject(err);
+        }
+      };
+      reader.onerror = err => reject(err);
+      reader.readAsArrayBuffer(file);
     });
   }
-  if(btnHome){
-    btnHome.addEventListener('click',function(){
-      openModal('ホーム画面に追加.png','ホーム画面への追加方法');
-    });
+
+  // ①側：号室を正規化（1F, 201, 202203, 301302303, 701702 など）
+  function normalizeRoomFromBill(value){
+    if(value === null || value === undefined) return null;
+    let s = String(value).trim();
+    if(!s) return null;
+    s = s.replace(/\s+/g,'');          // 改行などを削除
+    s = s.replace(/[^0-9F]/g,'');      // 数字とFだけ残す
+    if(!s) return null;
+    return s;
   }
-  if(closeBtn){
-    closeBtn.addEventListener('click',closeModal);
+
+  // ②側：「三光ﾋﾞﾙ1F」→1F、「三光ﾋﾞﾙ202・203」→202203、「三光ﾋﾞﾙ3F」→301302303 など
+  function normalizeRoomFromFX(name){
+    if(name === null || name === undefined) return null;
+    let s = String(name).trim();
+    s = s.replace(/^三光ﾋﾞﾙ/,'');
+    s = s.replace(/^三光ビル/,'');
+    s = s.replace(/\s+/g,'');
+    s = s.replace(/[^0-9F]/g,'');
+    if(s === '3F' || s === '3'){
+      // 301・302・303 の合算行
+      return '301302303';
+    }
+    if(!s) return null;
+    return s;
   }
-  modal.addEventListener('click',function(e){
-    if(e.target === modal){ closeModal(); }
+
+  // Excelシリアル値→Date（念のためフォロー）
+  function excelSerialToDate(serial){
+    const excelEpoch = new Date(Date.UTC(1899, 11, 30)); // 1899-12-30
+    const ms = serial * 24 * 60 * 60 * 1000;
+    return new Date(excelEpoch.getTime() + ms);
+  }
+
+  // ①のブックから「請求日」と「号室別請求金額マップ」を取得
+  function parseInvoiceWorkbook(wb){
+    const sheetName = wb.SheetNames.find(n => n.indexOf('三光ビル賃貸料') !== -1) || wb.SheetNames[0];
+    const ws = wb.Sheets[sheetName];
+    const aoa = XLSX.utils.sheet_to_json(ws, {header:1, raw:true});
+    if(!aoa.length){
+      throw new Error('①のシートが空です。');
+    }
+
+    // 「請求金額」ヘッダーの位置を検出
+    let amountCol = null;
+    let headerRowIndex = null;
+    for(let r=0; r<aoa.length; r++){
+      const row = aoa[r] || [];
+      for(let c=0; c<row.length; c++){
+        if(row[c] === '請求金額'){
+          amountCol = c;
+          headerRowIndex = r;
+          break;
+        }
+      }
+      if(amountCol !== null) break;
+    }
+    if(amountCol === null){
+      throw new Error('①側で「請求金額」ヘッダーが見つかりません。テンプレートの行・列を確認してください。');
+    }
+
+    // 「≪請求日≫」の右隣を請求日として取得
+    let invoiceDate = null;
+    for(let r=0; r<aoa.length; r++){
+      const row = aoa[r] || [];
+      for(let c=0; c<row.length; c++){
+        if(row[c] === '≪請求日≫'){
+          const v = row[c+1];
+          if(v instanceof Date){
+            invoiceDate = v;
+          }else if(typeof v === 'number'){
+            invoiceDate = excelSerialToDate(v);
+          }else if(v){
+            // 文字列など
+            invoiceDate = new Date(v);
+          }
+          break;
+        }
+      }
+      if(invoiceDate) break;
+    }
+    if(!invoiceDate){
+      log('注意：①側で請求日が見つかりませんでした。②側の「月日」は上書きしません。');
+    }
+
+    // 号室→請求金額（税込）マップを作成
+    const roomAmounts = {};
+    for(let r = headerRowIndex + 1; r < aoa.length; r++){
+      const row = aoa[r] || [];
+      const room = row[0];
+      const amount = row[amountCol];
+      if(room === null || room === undefined || room === '') continue;
+      if(typeof amount !== 'number') continue;
+      const key = normalizeRoomFromBill(room);
+      if(!key) continue;
+      roomAmounts[key] = amount;
+    }
+
+    return { sheetName, invoiceDate, roomAmounts };
+  }
+
+  // ②側を更新
+  function updateFXWorkbook(wb, roomAmounts, invoiceDate){
+    const sheetName = wb.SheetNames[0];
+    const ws = wb.Sheets[sheetName];
+    const aoa = XLSX.utils.sheet_to_json(ws, {header:1, raw:true});
+    if(!aoa.length){
+      throw new Error('②のシートが空です。');
+    }
+    const header = aoa[0] || [];
+
+    function findCol(title){
+      const idx = header.indexOf(title);
+      if(idx === -1){
+        throw new Error('②側でヘッダー「' + title + '」が見つかりません。');
+      }
+      return idx;
+    }
+
+    const colDate      = findCol('月日');
+    const colAcctName  = findCol('借方口座名');
+    const colDrAmount  = findCol('借方取引金額');
+    const colCrAmount  = findCol('貸方取引金額');
+    const colCrTax     = findCol('貸方消費税等');
+    const colCrNet     = findCol('貸方税抜き金額');
+
+    let updatedCount = 0;
+    const missing = [];
+
+    for(let r=1; r<aoa.length; r++){
+      const row = aoa[r] || [];
+      const name = row[colAcctName];
+      const key = normalizeRoomFromFX(name);
+      if(!key) continue;
+
+      const amount = roomAmounts[key];
+      if(amount === undefined){
+        missing.push({ row: r+1, name: name, key: key });
+        continue;
+      }
+
+      // 日付を上書き（見つかった場合のみ）
+      if(invoiceDate){
+        row[colDate] = invoiceDate;
+      }
+
+      // 金額
+      row[colDrAmount] = amount;
+      row[colCrAmount] = amount;
+      const net = Math.round(amount / 1.1);
+      const tax = amount - net;
+      row[colCrNet] = net;
+      row[colCrTax] = tax;
+
+      updatedCount++;
+      aoa[r] = row;
+    }
+
+    const newWs = XLSX.utils.aoa_to_sheet(aoa);
+    const outWb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(outWb, newWs, sheetName);
+
+    return { workbook: outWb, updatedCount, missing };
+  }
+
+  runBtn.addEventListener('click', async () => {
+    clearLog();
+    resultWorkbook = null;
+    downloadBtn.disabled = true;
+
+    const file1 = file1Input.files[0];
+    const file2 = file2Input.files[0];
+
+    if(!file1 || !file2){
+      log('①と②の両方のファイルを選択してください。');
+      return;
+    }
+
+    try{
+      log('①ファイルを読み込み中…');
+      const wb1 = await loadWorkbook(file1);
+      log('②ファイルを読み込み中…');
+      const wb2 = await loadWorkbook(file2);
+
+      log('①から請求日と号室別請求金額を抽出します…');
+      const invoiceInfo = parseInvoiceWorkbook(wb1);
+      const roomKeys = Object.keys(invoiceInfo.roomAmounts);
+      log(`抽出したテナント数：${roomKeys.length}件`);
+
+      if(invoiceInfo.invoiceDate){
+        const d = invoiceInfo.invoiceDate;
+        const dStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        log(`請求日：${dStr}`);
+      }
+
+      log('②へ転記処理を実行します…');
+      const result = updateFXWorkbook(wb2, invoiceInfo.roomAmounts, invoiceInfo.invoiceDate);
+
+      log(`更新した仕訳行数：${result.updatedCount}行`);
+
+      if(result.missing.length){
+        log('①に対応する金額が見つからなかった行（要確認）：');
+        result.missing.forEach(m => {
+          log(`  行${m.row} 借方口座名=${m.name} （キー=${m.key}）`);
+        });
+      }else{
+        log('全ての「借方口座名」について①側の金額が見つかりました。');
+      }
+
+      resultWorkbook = result.workbook;
+      downloadBtn.disabled = false;
+      log('処理が完了しました。「結果をダウンロード」ボタンから保存できます。');
+
+    }catch(err){
+      console.error(err);
+      log('エラーが発生しました：' + err.message);
+    }
   });
+
+  downloadBtn.addEventListener('click', () => {
+    if(!resultWorkbook) return;
+    const wbout = XLSX.write(resultWorkbook, {bookType:'xlsx', type:'array'});
+    const blob = new Blob([wbout], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'FX連携用_三光ビル_更新済み.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
 })();
 </script>
-
 </body>
 </html>
