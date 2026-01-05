@@ -1,422 +1,607 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>三光ビル FXクラウド仕訳作成ツール（HTML版）</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>写経（南無妙法蓮華経）手書き</title>
 <style>
   :root{
-    --bg:#f4f9fb;
-    --card:#ffffff;
-    --ink:#1e2a2d;
-    --muted:#5a6a6d;
-    --accent:#578899;
-    --accent-dark:#416b74;
-    --border:#d1dde2;
+    --bg:#0f1417;
+    --panel:#151c20;
+    --text:#e8eef2;
+    --muted:#a8b3bb;
+    --accent:#4aa3a3;
+    --border:rgba(255,255,255,.12);
+    --shadow: 0 10px 26px rgba(0,0,0,.28);
+    --radius:14px;
+    --serif: ui-serif, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+    --sans: ui-sans-serif, -apple-system, system-ui, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif;
   }
   *{box-sizing:border-box;}
   body{
     margin:0;
-    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",Segoe UI,Roboto,Arial,sans-serif;
-    background:var(--bg);
-    color:var(--ink);
+    font-family: var(--sans);
+    background: radial-gradient(900px 700px at 20% 0%, rgba(74,163,163,.16), transparent 50%),
+                radial-gradient(900px 700px at 80% 20%, rgba(74,163,163,.10), transparent 55%),
+                var(--bg);
+    color:var(--text);
   }
-  .container{
-    max-width:900px;
-    margin:24px auto 40px;
-    padding:0 16px;
+  header{
+    position: sticky;
+    top:0;
+    z-index:10;
+    background: rgba(15,20,23,.86);
+    backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--border);
+    padding:12px 14px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:space-between;
   }
-  h1{
-    font-size:1.4rem;
-    margin:0 0 4px;
-  }
-  .subtitle{
-    margin:0 0 16px;
-    color:var(--muted);
-    font-size:.9rem;
-  }
-  .card{
-    background:var(--card);
-    border-radius:12px;
-    box-shadow:0 8px 22px rgba(0,0,0,.06);
-    padding:16px 18px 18px;
-    margin-top:16px;
-    border:1px solid var(--border);
-  }
-  .card h2{
-    font-size:1rem;
-    margin:0 0 8px;
-  }
-  .card p{
-    margin:4px 0 10px;
-    font-size:.9rem;
-    color:var(--muted);
-  }
-  label{
-    display:block;
-    margin:8px 0;
-    font-size:.9rem;
-  }
-  input[type="file"]{
-    display:block;
-    margin-top:4px;
-    font-size:.85rem;
+  .titleArea{display:flex;flex-direction:column;gap:4px;}
+  .title{font-size:16px;font-weight:800;letter-spacing:.02em;}
+  .subtitle{font-size:12px;color:var(--muted);}
+  .toolbar{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:flex-end;
   }
   button{
     appearance:none;
-    border:none;
-    border-radius:999px;
-    padding:10px 20px;
-    font-size:.9rem;
-    cursor:pointer;
-    background:var(--accent);
-    color:#fff;
-    font-weight:600;
-    margin-right:8px;
-    transition:background .15s, transform .05s, box-shadow .15s;
-    box-shadow:0 4px 12px rgba(87,136,153,.35);
-  }
-  button:hover:enabled{
-    background:var(--accent-dark);
-  }
-  button:active:enabled{
-    transform:translateY(1px);
-    box-shadow:0 2px 8px rgba(87,136,153,.35);
-  }
-  button:disabled{
-    opacity:.5;
-    cursor:default;
-    box-shadow:none;
-  }
-  .buttons{
-    margin-top:8px;
-  }
-  #log{
-    margin-top:8px;
+    border:1px solid var(--border);
+    background: linear-gradient(180deg, rgba(74,163,163,.28), rgba(74,163,163,.12));
+    color:var(--text);
     padding:10px 12px;
-    background:#0b1220;
-    color:#e5e7eb;
-    font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New", monospace;
-    font-size:.8rem;
-    border-radius:8px;
-    max-height:260px;
-    overflow:auto;
-    white-space:pre-wrap;
+    border-radius:12px;
+    font-size:13px;
+    font-weight:650;
+    cursor:pointer;
   }
+  button.ghost{ background: transparent; }
+  button:active{ transform: translateY(1px); }
+  .wrap{
+    padding:14px;
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:14px;
+  }
+  @media (min-width: 980px){
+    .wrap{ grid-template-columns: 1.2fr .8fr; }
+  }
+  .card{
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow:hidden;
+    background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  }
+  .cardHeader{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 14px;
+    border-bottom:1px solid var(--border);
+  }
+  .cardTitle{ font-size:14px; font-weight:800; }
+  .meta{ font-size:12px; color:var(--muted); display:flex; gap:12px; align-items:center; }
+  .canvasBox{
+    position:relative;
+    height: 68vh;
+    background: rgba(0,0,0,.12);
+  }
+  canvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    /* 重要：タッチ操作の既定挙動（スクロール/ピンチ等）を抑制し、描画を優先 */
+    touch-action: none; /* MDN: touch-action  [oai_citation:2‡MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/touch-action?utm_source=chatgpt.com) */
+  }
+  .side{
+    padding:12px 14px 14px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  label{ font-size:12px; color:var(--muted); display:flex; gap:8px; align-items:center; user-select:none; }
+  input[type="range"]{ width: 220px; }
   .note{
-    margin-top:12px;
-    font-size:.8rem;
-    color:var(--muted);
+    font-size:12px;
+    color: var(--muted);
+    line-height:1.7;
+  }
+  .bigText{
+    font-family: var(--serif);
+    font-size: 20px;
+    line-height: 1.8;
+    padding:10px 12px;
+    border:1px solid var(--border);
+    border-radius:12px;
+    background: rgba(0,0,0,.12);
+  }
+  .pill{
+    display:inline-flex;
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:6px 10px;
+    font-size:12px;
+    color: var(--muted);
   }
 </style>
-
-<!-- SheetJS (xlsx) CDN -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-<div class="container">
-  <h1>三光ビル FXクラウド仕訳作成ツール（HTML版）</h1>
-  <p class="subtitle">
-    ①の「三光ビル賃貸料」シートから請求金額と請求日を読み取り、②のFXクラウド取込レイアウトに自動転記します。
-  </p>
-
-  <div class="card">
-    <h2>1. ファイルを選択</h2>
-    <p>同じ月の①・②のExcelファイルを指定してください。</p>
-    <label>
-      ① 請求書（入金管理表）ファイル（.xlsx）
-      <input type="file" id="file1" accept=".xlsx" />
-    </label>
-    <label>
-      ② FXクラウド取込テンプレート（.xlsx）
-      <input type="file" id="file2" accept=".xlsx" />
-    </label>
+<header>
+  <div class="titleArea">
+    <div class="title">写経（手書き）</div>
+    <div class="subtitle" id="status">未描画</div>
   </div>
-
-  <div class="card">
-    <h2>2. 変換の実行・ダウンロード</h2>
-    <p>「変換を実行」→問題がなければ「結果をダウンロード」で更新済み②ファイルを保存できます。</p>
-    <div class="buttons">
-      <button id="runBtn">変換を実行</button>
-      <button id="downloadBtn" disabled>結果をダウンロード（更新済み②）</button>
-    </div>
-    <pre id="log"></pre>
-    <div class="note">
-      前提：①のレイアウトは「号室＋請求金額（税込）」「≪請求日≫」が今回のサンプルと同じ位置、②はFXクラウドの標準取込レイアウトを想定しています。
-      レイアウトを変更した場合は調整が必要です。
-    </div>
+  <div class="toolbar">
+    <button id="btnUndo" class="ghost">1手戻す</button>
+    <button id="btnClear" class="ghost">全消去</button>
+    <button id="btnSave">PNG保存</button>
   </div>
+</header>
+
+<div class="wrap">
+  <section class="card">
+    <div class="cardHeader">
+      <div class="cardTitle">書く欄（ガイド付き）</div>
+      <div class="meta">
+        <span class="pill" id="elapsed">00:00</span>
+        <span class="pill" id="strokes">0 strokes</span>
+      </div>
+    </div>
+    <div class="canvasBox" id="canvasBox">
+      <!-- ガイド（薄いお手本/罫線） -->
+      <canvas id="guide"></canvas>
+      <!-- 実際の筆跡 -->
+      <canvas id="ink"></canvas>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="cardHeader">
+      <div class="cardTitle">設定</div>
+      <div class="meta">Apple Pencil / 指 / マウス対応</div>
+    </div>
+    <div class="side">
+      <div class="bigText" id="targetTextView">南無妙法蓮華経</div>
+
+      <div class="row">
+        <label><input type="checkbox" id="vertical" checked> 縦書きガイド</label>
+        <label><input type="checkbox" id="showModel" checked> お手本表示</label>
+      </div>
+
+      <div class="row">
+        <label>筆の太さ
+          <input type="range" id="baseWidth" min="2" max="22" value="9" />
+          <span id="baseWidthVal">9</span>
+        </label>
+      </div>
+
+      <div class="row">
+        <label>筆圧反映
+          <input type="range" id="pressureGain" min="0" max="30" value="16" />
+          <span id="pressureGainVal">16</span>
+        </label>
+      </div>
+
+      <div class="row">
+        <label>ガイド濃さ
+          <input type="range" id="guideAlpha" min="0" max="100" value="20" />
+          <span id="guideAlphaVal">20%</span>
+        </label>
+      </div>
+
+      <div class="note">
+        ・筆圧は <code>PointerEvent.pressure</code> を使用します（端末/ブラウザにより未対応の場合あり）。 [oai_citation:3‡MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/pressure?utm_source=chatgpt.com)<br/>
+        ・キャンバス描画は 2D Canvas の線設定（lineCap/lineJoin/lineWidth）で自然な筆跡に寄せています。 [oai_citation:4‡MDN Web Docs](https://developer.mozilla.org/ja/docs/Web/API/CanvasRenderingContext2D/lineWidth?utm_source=chatgpt.com)
+      </div>
+    </div>
+  </aside>
 </div>
 
 <script>
-(function(){
-  const file1Input = document.getElementById('file1');
-  const file2Input = document.getElementById('file2');
-  const runBtn = document.getElementById('runBtn');
-  const downloadBtn = document.getElementById('downloadBtn');
-  const logEl = document.getElementById('log');
+(() => {
+  "use strict";
 
-  let resultWorkbook = null;
+  const TARGET = "南無妙法蓮華経";
+  const chars = [...TARGET]; // 7文字想定
 
-  function log(msg){
-    const now = new Date().toISOString().replace('T',' ').slice(0,19);
-    logEl.textContent += `[${now}] ${msg}\n`;
-    logEl.scrollTop = logEl.scrollHeight;
+  const el = {
+    status: document.getElementById("status"),
+    elapsed: document.getElementById("elapsed"),
+    strokes: document.getElementById("strokes"),
+
+    canvasBox: document.getElementById("canvasBox"),
+    guide: document.getElementById("guide"),
+    ink: document.getElementById("ink"),
+
+    vertical: document.getElementById("vertical"),
+    showModel: document.getElementById("showModel"),
+
+    baseWidth: document.getElementById("baseWidth"),
+    baseWidthVal: document.getElementById("baseWidthVal"),
+    pressureGain: document.getElementById("pressureGain"),
+    pressureGainVal: document.getElementById("pressureGainVal"),
+    guideAlpha: document.getElementById("guideAlpha"),
+    guideAlphaVal: document.getElementById("guideAlphaVal"),
+
+    btnUndo: document.getElementById("btnUndo"),
+    btnClear: document.getElementById("btnClear"),
+    btnSave: document.getElementById("btnSave"),
+  };
+
+  const gctx = el.guide.getContext("2d");
+  const ctx  = el.ink.getContext("2d");
+
+  // 2D canvasの線設定（lineCap/lineJoin/lineWidth） [oai_citation:5‡MDN Web Docs](https://developer.mozilla.org/ja/docs/Web/API/CanvasRenderingContext2D/lineCap?utm_source=chatgpt.com)
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  let dpr = Math.max(1, window.devicePixelRatio || 1);
+
+  // stroke: { points: [{x,y,p,t}], color, baseWidth, gain }
+  let strokeStack = [];
+  let currentStroke = null;
+
+  // timer
+  let startedAt = null;
+  function now(){ return performance.now(); }
+
+  function mmss(ms){
+    const sec = Math.floor(ms / 1000);
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
   }
-  function clearLog(){
-    logEl.textContent = '';
+
+  function updateTimer(){
+    if (!startedAt) { el.elapsed.textContent = "00:00"; return; }
+    el.elapsed.textContent = mmss(now() - startedAt);
+  }
+  setInterval(updateTimer, 250);
+
+  function resizeCanvases(){
+    const r = el.canvasBox.getBoundingClientRect();
+    dpr = Math.max(1, window.devicePixelRatio || 1);
+
+    for (const c of [el.guide, el.ink]){
+      c.width  = Math.floor(r.width * dpr);
+      c.height = Math.floor(r.height * dpr);
+      c.style.width  = r.width + "px";
+      c.style.height = r.height + "px";
+    }
+
+    // 再設定
+    ctx.setTransform(1,0,0,1,0,0);
+    gctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(dpr, dpr);
+    gctx.scale(dpr, dpr);
+
+    redrawGuide();
+    redrawInkAll();
   }
 
-  function loadWorkbook(file){
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = e => {
-        try{
-          const data = new Uint8Array(e.target.result);
-          const wb = XLSX.read(data, {type:'array', cellDates:true});
-          resolve(wb);
-        }catch(err){
-          reject(err);
-        }
-      };
-      reader.onerror = err => reject(err);
-      reader.readAsArrayBuffer(file);
+  const ro = new ResizeObserver(resizeCanvases);
+  ro.observe(el.canvasBox);
+  window.addEventListener("orientationchange", () => setTimeout(resizeCanvases, 150));
+
+  function getSettings(){
+    return {
+      vertical: el.vertical.checked,
+      showModel: el.showModel.checked,
+      baseWidth: Number(el.baseWidth.value),
+      gain: Number(el.pressureGain.value),
+      guideAlpha: Number(el.guideAlpha.value) / 100,
+    };
+  }
+
+  function redrawGuide(){
+    const r = el.canvasBox.getBoundingClientRect();
+    const W = r.width, H = r.height;
+
+    gctx.clearRect(0,0,W,H);
+
+    const { vertical, showModel, guideAlpha } = getSettings();
+
+    // 背景（用紙っぽい）
+    gctx.save();
+    gctx.fillStyle = "rgba(244,241,232,0.06)";
+    gctx.fillRect(0,0,W,H);
+    gctx.restore();
+
+    // 枠線とマス目（7文字分）
+    const pad = 18;
+    const innerW = W - pad*2;
+    const innerH = H - pad*2;
+
+    const cells = chars.length;
+    let cellSize;
+    let x0 = pad, y0 = pad;
+
+    // 縦書き：縦に7マス／横は1マス幅を基準（余白は左右に）
+    // 横書き：横に7マス／縦は1マス高さを基準（余白は上下に）
+    if (vertical){
+      cellSize = Math.min(innerW, innerH / cells);
+      const totalH = cellSize * cells;
+      y0 = pad + (innerH - totalH) / 2;
+      x0 = pad + (innerW - cellSize) / 2;
+    } else {
+      cellSize = Math.min(innerH, innerW / cells);
+      const totalW = cellSize * cells;
+      x0 = pad + (innerW - totalW) / 2;
+      y0 = pad + (innerH - cellSize) / 2;
+    }
+
+    // 外枠
+    gctx.save();
+    gctx.strokeStyle = `rgba(232,238,242,${0.22 + guideAlpha * 0.35})`;
+    gctx.lineWidth = 1;
+    gctx.strokeRect(x0, y0, vertical ? cellSize : cellSize*cells, vertical ? cellSize*cells : cellSize);
+
+    // マス線 + 中心ガイド
+    gctx.strokeStyle = `rgba(232,238,242,${0.14 + guideAlpha * 0.25})`;
+    for (let i=1;i<cells;i++){
+      if (vertical){
+        gctx.beginPath();
+        gctx.moveTo(x0, y0 + cellSize*i);
+        gctx.lineTo(x0 + cellSize, y0 + cellSize*i);
+        gctx.stroke();
+      } else {
+        gctx.beginPath();
+        gctx.moveTo(x0 + cellSize*i, y0);
+        gctx.lineTo(x0 + cellSize*i, y0 + cellSize);
+        gctx.stroke();
+      }
+    }
+
+    // 各マスに「十字」薄線（字の中心目安）
+    gctx.strokeStyle = `rgba(232,238,242,${0.10 + guideAlpha * 0.20})`;
+    for (let i=0;i<cells;i++){
+      const cx = vertical ? (x0 + cellSize/2) : (x0 + cellSize*i + cellSize/2);
+      const cy = vertical ? (y0 + cellSize*i + cellSize/2) : (y0 + cellSize/2);
+
+      gctx.beginPath();
+      gctx.moveTo(cx, cy - cellSize*0.42);
+      gctx.lineTo(cx, cy + cellSize*0.42);
+      gctx.stroke();
+
+      gctx.beginPath();
+      gctx.moveTo(cx - cellSize*0.42, cy);
+      gctx.lineTo(cx + cellSize*0.42, cy);
+      gctx.stroke();
+    }
+
+    // お手本（薄文字）
+    if (showModel){
+      gctx.save();
+      gctx.fillStyle = `rgba(232,238,242,${0.14 + guideAlpha * 0.55})`;
+      gctx.textAlign = "center";
+      gctx.textBaseline = "middle";
+      gctx.font = `700 ${Math.floor(cellSize*0.60)}px ${getComputedStyle(document.documentElement).getPropertyValue('--serif')}`;
+
+      for (let i=0;i<cells;i++){
+        const ch = chars[i];
+        const cx = vertical ? (x0 + cellSize/2) : (x0 + cellSize*i + cellSize/2);
+        const cy = vertical ? (y0 + cellSize*i + cellSize/2) : (y0 + cellSize/2);
+        gctx.fillText(ch, cx, cy);
+      }
+      gctx.restore();
+    }
+
+    gctx.restore();
+  }
+
+  function clearInk(){
+    const r = el.canvasBox.getBoundingClientRect();
+    ctx.clearRect(0,0,r.width,r.height);
+  }
+
+  function redrawInkAll(){
+    clearInk();
+    for (const s of strokeStack){
+      drawStroke(s, false);
+    }
+  }
+
+  function pressureToWidth(base, gain, p){
+    // p: 0..1 (PointerEvent.pressure)  [oai_citation:6‡MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/pressure?utm_source=chatgpt.com)
+    const pp = (typeof p === "number" && isFinite(p)) ? p : 0.5;
+    return Math.max(0.8, base + gain * pp);
+  }
+
+  function drawStroke(stroke, incremental=true){
+    const r = el.canvasBox.getBoundingClientRect();
+    const W = r.width, H = r.height;
+
+    if (!stroke.points || stroke.points.length < 2) return;
+
+    const { baseWidth, gain } = stroke;
+
+    ctx.save();
+    ctx.strokeStyle = "rgba(16,16,16,0.92)";
+    ctx.globalCompositeOperation = "source-over";
+
+    // スムージング：簡易の二次ベジェ（点列から中点を作る）
+    const pts = stroke.points;
+
+    // 1点目
+    let p0 = pts[0];
+    let p1 = pts[1];
+
+    ctx.beginPath();
+    ctx.moveTo(p0.x, p0.y);
+
+    for (let i = 1; i < pts.length - 1; i++){
+      const p = pts[i];
+      const n = pts[i+1];
+      const midX = (p.x + n.x) / 2;
+      const midY = (p.y + n.y) / 2;
+
+      // 点ごとの筆圧で太さを変える
+      ctx.lineWidth = pressureToWidth(baseWidth, gain, p.p);
+      ctx.quadraticCurveTo(p.x, p.y, midX, midY);
+    }
+
+    // 最後
+    const last = pts[pts.length - 1];
+    ctx.lineWidth = pressureToWidth(baseWidth, gain, last.p);
+    ctx.lineTo(last.x, last.y);
+
+    ctx.stroke();
+    ctx.restore();
+
+    el.strokes.textContent = `${strokeStack.length} strokes`;
+  }
+
+  function canvasPointFromEvent(e){
+    const rect = el.ink.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+      p: (typeof e.pressure === "number" ? e.pressure : 0.5), // pressure  [oai_citation:7‡MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/pressure?utm_source=chatgpt.com)
+      t: now()
+    };
+  }
+
+  function startStroke(e){
+    if (!startedAt) startedAt = now();
+
+    currentStroke = {
+      points: [],
+      baseWidth: Number(el.baseWidth.value),
+      gain: Number(el.pressureGain.value)
+    };
+
+    currentStroke.points.push(canvasPointFromEvent(e));
+    el.status.textContent = "描画中…";
+  }
+
+  function moveStroke(e){
+    if (!currentStroke) return;
+
+    // iOS等でのスクロール抑止（touch-action none を補強）
+    // Pointer Events の利用はMDN参照  [oai_citation:8‡MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events/Using_Pointer_Events?utm_source=chatgpt.com)
+    e.preventDefault();
+
+    const pt = canvasPointFromEvent(e);
+    currentStroke.points.push(pt);
+
+    // インクリメンタル描画：軽量化のため最新ストロークだけ再描画でも良いが、
+    // ここは簡潔さ優先で全体ではなく「現ストロークのみ」描く
+    // ただし線のつながりの都合でstroke単位で描く方が自然
+    // 一旦、全体+現ストロークで描画
+    redrawInkAll();
+    drawStroke(currentStroke, true);
+  }
+
+  function endStroke(){
+    if (!currentStroke) return;
+
+    // 点が少なすぎる場合は破棄
+    if (currentStroke.points.length >= 2){
+      strokeStack.push(currentStroke);
+      redrawInkAll();
+      el.status.textContent = "描画しました";
+    } else {
+      el.status.textContent = "未描画";
+    }
+
+    currentStroke = null;
+    el.strokes.textContent = `${strokeStack.length} strokes`;
+  }
+
+  function bindPointer(){
+    const c = el.ink;
+
+    c.addEventListener("pointerdown", (e) => {
+      // 右クリック等は無視
+      if (e.button !== undefined && e.button !== 0) return;
+
+      c.setPointerCapture?.(e.pointerId);
+      startStroke(e);
     });
+
+    c.addEventListener("pointermove", (e) => {
+      if (!currentStroke) return;
+      moveStroke(e);
+    });
+
+    c.addEventListener("pointerup", () => endStroke());
+    c.addEventListener("pointercancel", () => endStroke());
+    c.addEventListener("pointerleave", () => { /* leaveはcapture中にも起き得るため何もしない */ });
   }
 
-  // ①側：号室を正規化（1F, 201, 202203, 301302303, 701702 など）
-  function normalizeRoomFromBill(value){
-    if(value === null || value === undefined) return null;
-    let s = String(value).trim();
-    if(!s) return null;
-    s = s.replace(/\s+/g,'');          // 改行などを削除
-    s = s.replace(/[^0-9F]/g,'');      // 数字とFだけ残す
-    if(!s) return null;
-    return s;
-  }
+  function savePNG(){
+    // guide + ink を合成して保存
+    const r = el.canvasBox.getBoundingClientRect();
+    const W = r.width, H = r.height;
 
-  // ②側：「三光ﾋﾞﾙ1F」→1F、「三光ﾋﾞﾙ202・203」→202203、「三光ﾋﾞﾙ3F」→301302303 など
-  function normalizeRoomFromFX(name){
-    if(name === null || name === undefined) return null;
-    let s = String(name).trim();
-    s = s.replace(/^三光ﾋﾞﾙ/,'');
-    s = s.replace(/^三光ビル/,'');
-    s = s.replace(/\s+/g,'');
-    s = s.replace(/[^0-9F]/g,'');
-    if(s === '3F' || s === '3'){
-      // 301・302・303 の合算行
-      return '301302303';
-    }
-    if(!s) return null;
-    return s;
-  }
+    const out = document.createElement("canvas");
+    out.width = Math.floor(W * dpr);
+    out.height = Math.floor(H * dpr);
 
-  // Excelシリアル値→Date（念のためフォロー）
-  function excelSerialToDate(serial){
-    const excelEpoch = new Date(Date.UTC(1899, 11, 30)); // 1899-12-30
-    const ms = serial * 24 * 60 * 60 * 1000;
-    return new Date(excelEpoch.getTime() + ms);
-  }
+    const octx = out.getContext("2d");
+    octx.scale(dpr, dpr);
 
-  // ①のブックから「請求日」と「号室別請求金額マップ」を取得
-  function parseInvoiceWorkbook(wb){
-    const sheetName = wb.SheetNames.find(n => n.indexOf('三光ビル賃貸料') !== -1) || wb.SheetNames[0];
-    const ws = wb.Sheets[sheetName];
-    const aoa = XLSX.utils.sheet_to_json(ws, {header:1, raw:true});
-    if(!aoa.length){
-      throw new Error('①のシートが空です。');
-    }
+    // 背景（白に近い紙）
+    octx.fillStyle = "#f4f1e8";
+    octx.fillRect(0,0,W,H);
 
-    // 「請求金額」ヘッダーの位置を検出
-    let amountCol = null;
-    let headerRowIndex = null;
-    for(let r=0; r<aoa.length; r++){
-      const row = aoa[r] || [];
-      for(let c=0; c<row.length; c++){
-        if(row[c] === '請求金額'){
-          amountCol = c;
-          headerRowIndex = r;
-          break;
-        }
-      }
-      if(amountCol !== null) break;
-    }
-    if(amountCol === null){
-      throw new Error('①側で「請求金額」ヘッダーが見つかりません。テンプレートの行・列を確認してください。');
-    }
+    // ガイド（薄いまま）
+    octx.drawImage(el.guide, 0, 0, out.width, out.height);
 
-    // 「≪請求日≫」の右隣を請求日として取得
-    let invoiceDate = null;
-    for(let r=0; r<aoa.length; r++){
-      const row = aoa[r] || [];
-      for(let c=0; c<row.length; c++){
-        if(row[c] === '≪請求日≫'){
-          const v = row[c+1];
-          if(v instanceof Date){
-            invoiceDate = v;
-          }else if(typeof v === 'number'){
-            invoiceDate = excelSerialToDate(v);
-          }else if(v){
-            // 文字列など
-            invoiceDate = new Date(v);
-          }
-          break;
-        }
-      }
-      if(invoiceDate) break;
-    }
-    if(!invoiceDate){
-      log('注意：①側で請求日が見つかりませんでした。②側の「月日」は上書きしません。');
-    }
+    // 筆跡（濃い）
+    octx.drawImage(el.ink, 0, 0, out.width, out.height);
 
-    // 号室→請求金額（税込）マップを作成
-    const roomAmounts = {};
-    for(let r = headerRowIndex + 1; r < aoa.length; r++){
-      const row = aoa[r] || [];
-      const room = row[0];
-      const amount = row[amountCol];
-      if(room === null || room === undefined || room === '') continue;
-      if(typeof amount !== 'number') continue;
-      const key = normalizeRoomFromBill(room);
-      if(!key) continue;
-      roomAmounts[key] = amount;
-    }
-
-    return { sheetName, invoiceDate, roomAmounts };
-  }
-
-  // ②側を更新
-  function updateFXWorkbook(wb, roomAmounts, invoiceDate){
-    const sheetName = wb.SheetNames[0];
-    const ws = wb.Sheets[sheetName];
-    const aoa = XLSX.utils.sheet_to_json(ws, {header:1, raw:true});
-    if(!aoa.length){
-      throw new Error('②のシートが空です。');
-    }
-    const header = aoa[0] || [];
-
-    function findCol(title){
-      const idx = header.indexOf(title);
-      if(idx === -1){
-        throw new Error('②側でヘッダー「' + title + '」が見つかりません。');
-      }
-      return idx;
-    }
-
-    const colDate      = findCol('月日');
-    const colAcctName  = findCol('借方口座名');
-    const colDrAmount  = findCol('借方取引金額');
-    const colCrAmount  = findCol('貸方取引金額');
-    const colCrTax     = findCol('貸方消費税等');
-    const colCrNet     = findCol('貸方税抜き金額');
-
-    let updatedCount = 0;
-    const missing = [];
-
-    for(let r=1; r<aoa.length; r++){
-      const row = aoa[r] || [];
-      const name = row[colAcctName];
-      const key = normalizeRoomFromFX(name);
-      if(!key) continue;
-
-      const amount = roomAmounts[key];
-      if(amount === undefined){
-        missing.push({ row: r+1, name: name, key: key });
-        continue;
-      }
-
-      // 日付を上書き（見つかった場合のみ）
-      if(invoiceDate){
-        row[colDate] = invoiceDate;
-      }
-
-      // 金額
-      row[colDrAmount] = amount;
-      row[colCrAmount] = amount;
-      const net = Math.round(amount / 1.1);
-      const tax = amount - net;
-      row[colCrNet] = net;
-      row[colCrTax] = tax;
-
-      updatedCount++;
-      aoa[r] = row;
-    }
-
-    const newWs = XLSX.utils.aoa_to_sheet(aoa);
-    const outWb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(outWb, newWs, sheetName);
-
-    return { workbook: outWb, updatedCount, missing };
-  }
-
-  runBtn.addEventListener('click', async () => {
-    clearLog();
-    resultWorkbook = null;
-    downloadBtn.disabled = true;
-
-    const file1 = file1Input.files[0];
-    const file2 = file2Input.files[0];
-
-    if(!file1 || !file2){
-      log('①と②の両方のファイルを選択してください。');
-      return;
-    }
-
-    try{
-      log('①ファイルを読み込み中…');
-      const wb1 = await loadWorkbook(file1);
-      log('②ファイルを読み込み中…');
-      const wb2 = await loadWorkbook(file2);
-
-      log('①から請求日と号室別請求金額を抽出します…');
-      const invoiceInfo = parseInvoiceWorkbook(wb1);
-      const roomKeys = Object.keys(invoiceInfo.roomAmounts);
-      log(`抽出したテナント数：${roomKeys.length}件`);
-
-      if(invoiceInfo.invoiceDate){
-        const d = invoiceInfo.invoiceDate;
-        const dStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-        log(`請求日：${dStr}`);
-      }
-
-      log('②へ転記処理を実行します…');
-      const result = updateFXWorkbook(wb2, invoiceInfo.roomAmounts, invoiceInfo.invoiceDate);
-
-      log(`更新した仕訳行数：${result.updatedCount}行`);
-
-      if(result.missing.length){
-        log('①に対応する金額が見つからなかった行（要確認）：');
-        result.missing.forEach(m => {
-          log(`  行${m.row} 借方口座名=${m.name} （キー=${m.key}）`);
-        });
-      }else{
-        log('全ての「借方口座名」について①側の金額が見つかりました。');
-      }
-
-      resultWorkbook = result.workbook;
-      downloadBtn.disabled = false;
-      log('処理が完了しました。「結果をダウンロード」ボタンから保存できます。');
-
-    }catch(err){
-      console.error(err);
-      log('エラーが発生しました：' + err.message);
-    }
-  });
-
-  downloadBtn.addEventListener('click', () => {
-    if(!resultWorkbook) return;
-    const wbout = XLSX.write(resultWorkbook, {bookType:'xlsx', type:'array'});
-    const blob = new Blob([wbout], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const url = out.toDataURL("image/png");
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'FX連携用_三光ビル_更新済み.xlsx';
+    a.download = `shakyo_namumyoho_${new Date().toISOString().slice(0,10)}.png`;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    a.remove();
+  }
+
+  // UI
+  function syncLabels(){
+    el.baseWidthVal.textContent = el.baseWidth.value;
+    el.pressureGainVal.textContent = el.pressureGain.value;
+    el.guideAlphaVal.textContent = `${el.guideAlpha.value}%`;
+  }
+
+  el.baseWidth.addEventListener("input", syncLabels);
+  el.pressureGain.addEventListener("input", syncLabels);
+  el.guideAlpha.addEventListener("input", () => { syncLabels(); redrawGuide(); });
+
+  el.vertical.addEventListener("change", redrawGuide);
+  el.showModel.addEventListener("change", redrawGuide);
+
+  el.btnUndo.addEventListener("click", () => {
+    if (strokeStack.length === 0) return;
+    strokeStack.pop();
+    redrawInkAll();
+    el.strokes.textContent = `${strokeStack.length} strokes`;
+    el.status.textContent = strokeStack.length ? "1手戻しました" : "未描画";
   });
+
+  el.btnClear.addEventListener("click", () => {
+    strokeStack = [];
+    currentStroke = null;
+    clearInk();
+    el.strokes.textContent = "0 strokes";
+    el.status.textContent = "未描画";
+    startedAt = null;
+    updateTimer();
+  });
+
+  el.btnSave.addEventListener("click", savePNG);
+
+  // init
+  syncLabels();
+  bindPointer();
+  resizeCanvases();
 
 })();
 </script>
