@@ -1,609 +1,282 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>写経（南無妙法蓮華経）手書き</title>
-<style>
-  :root{
-    --bg:#0f1417;
-    --panel:#151c20;
-    --text:#e8eef2;
-    --muted:#a8b3bb;
-    --accent:#4aa3a3;
-    --border:rgba(255,255,255,.12);
-    --shadow: 0 10px 26px rgba(0,0,0,.28);
-    --radius:14px;
-    --serif: ui-serif, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
-    --sans: ui-sans-serif, -apple-system, system-ui, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    font-family: var(--sans);
-    background: radial-gradient(900px 700px at 20% 0%, rgba(74,163,163,.16), transparent 50%),
-                radial-gradient(900px 700px at 80% 20%, rgba(74,163,163,.10), transparent 55%),
-                var(--bg);
-    color:var(--text);
-  }
-  header{
-    position: sticky;
-    top:0;
-    z-index:10;
-    background: rgba(15,20,23,.86);
-    backdrop-filter: blur(10px);
-    border-bottom:1px solid var(--border);
-    padding:12px 14px;
-    display:flex;
-    gap:12px;
-    align-items:center;
-    justify-content:space-between;
-  }
-  .titleArea{display:flex;flex-direction:column;gap:4px;}
-  .title{font-size:16px;font-weight:800;letter-spacing:.02em;}
-  .subtitle{font-size:12px;color:var(--muted);}
-  .toolbar{
-    display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:flex-end;
-  }
-  button{
-    appearance:none;
-    border:1px solid var(--border);
-    background: linear-gradient(180deg, rgba(74,163,163,.28), rgba(74,163,163,.12));
-    color:var(--text);
-    padding:10px 12px;
-    border-radius:12px;
-    font-size:13px;
-    font-weight:650;
-    cursor:pointer;
-  }
-  button.ghost{ background: transparent; }
-  button:active{ transform: translateY(1px); }
-  .wrap{
-    padding:14px;
-    display:grid;
-    grid-template-columns: 1fr;
-    gap:14px;
-  }
-  @media (min-width: 980px){
-    .wrap{ grid-template-columns: 1.2fr .8fr; }
-  }
-  .card{
-    border:1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow:hidden;
-    background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-  }
-  .cardHeader{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:12px 14px;
-    border-bottom:1px solid var(--border);
-  }
-  .cardTitle{ font-size:14px; font-weight:800; }
-  .meta{ font-size:12px; color:var(--muted); display:flex; gap:12px; align-items:center; }
-  .canvasBox{
-    position:relative;
-    height: 68vh;
-    background: rgba(0,0,0,.12);
-  }
-  canvas{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    /* 重要：タッチ操作の既定挙動（スクロール/ピンチ等）を抑制し、描画を優先 */
-    touch-action: none; /* MDN: touch-action  [oai_citation:2‡MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/touch-action?utm_source=chatgpt.com) */
-  }
-  .side{
-    padding:12px 14px 14px 14px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
-  .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-  label{ font-size:12px; color:var(--muted); display:flex; gap:8px; align-items:center; user-select:none; }
-  input[type="range"]{ width: 220px; }
-  .note{
-    font-size:12px;
-    color: var(--muted);
-    line-height:1.7;
-  }
-  .bigText{
-    font-family: var(--serif);
-    font-size: 20px;
-    line-height: 1.8;
-    padding:10px 12px;
-    border:1px solid var(--border);
-    border-radius:12px;
-    background: rgba(0,0,0,.12);
-  }
-  .pill{
-    display:inline-flex;
-    border:1px solid var(--border);
-    border-radius:999px;
-    padding:6px 10px;
-    font-size:12px;
-    color: var(--muted);
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Respectful Dating Coach (MVP)</title>
+  <style>
+    :root { --bg:#0b0f14; --card:#111826; --text:#e8eef7; --muted:#9fb0c5; --line:#263246; --accent:#5aa7ff; --warn:#ffcc66; --bad:#ff6b6b; }
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;background:var(--bg);color:var(--text);}
+    .wrap{max-width:980px;margin:0 auto;padding:20px;}
+    h1{font-size:20px;margin:0 0 6px;}
+    .sub{color:var(--muted);font-size:13px;line-height:1.5;margin-bottom:16px;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0;}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .pill{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:8px 10px;color:var(--muted);font-size:13px;}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+    button{background:#162238;border:1px solid var(--line);color:var(--text);border-radius:12px;padding:10px 12px;cursor:pointer;}
+    button.primary{background:var(--accent);border-color:transparent;color:#08111f;font-weight:700;}
+    button:disabled{opacity:.55;cursor:not-allowed;}
+    textarea,input,select{width:100%;box-sizing:border-box;background:#0c1422;border:1px solid var(--line);border-radius:12px;color:var(--text);padding:10px;font-size:14px;}
+    textarea{min-height:140px;resize:vertical;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    @media (max-width:860px){.grid{grid-template-columns:1fr;}}
+    .hint{color:var(--muted);font-size:12px;line-height:1.5;margin-top:6px;}
+    .warn{color:var(--warn);font-size:12px;line-height:1.5;}
+    .bad{color:var(--bad);font-size:12px;line-height:1.5;}
+    pre{white-space:pre-wrap;background:#0a1220;border:1px solid var(--line);border-radius:12px;padding:10px;margin:0;font-size:13px;line-height:1.55;}
+    .small{font-size:12px;color:var(--muted);}
+    .hr{height:1px;background:var(--line);margin:10px 0;}
+    .hidden{display:none;}
+  </style>
 </head>
 <body>
-<header>
-  <div class="titleArea">
-    <div class="title">写経（手書き）</div>
-    <div class="subtitle" id="status">未描画</div>
-  </div>
-  <div class="toolbar">
-    <button id="btnUndo" class="ghost">1手戻す</button>
-    <button id="btnClear" class="ghost">全消去</button>
-    <button id="btnSave">PNG保存</button>
-  </div>
-</header>
-
 <div class="wrap">
-  <section class="card">
-    <div class="cardHeader">
-      <div class="cardTitle">書く欄（ガイド付き）</div>
-      <div class="meta">
-        <span class="pill" id="elapsed">00:00</span>
-        <span class="pill" id="strokes">0 strokes</span>
+  <h1>Respectful Dating Coach (MVP)</h1>
+  <div class="sub">
+    目的：自己整理・丁寧なコミュニケーション・関係構築の練習。<br>
+    注意：相手の氏名/住所/電話/メール/勤務先など個人特定情報は入力しないでください。入力文はAIに送信されます（保存しない設計ですが、AI提供者側の保持が発生し得ます）。:contentReference[oaicite:4]{index=4}
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <label class="pill"><input id="age" type="checkbox"> 18歳以上です（推奨）</label>
+      <label class="pill"><input id="consent" type="checkbox"> 入力文をAIに送信することに同意</label>
+      <label class="pill"><input id="mask" type="checkbox" checked> 簡易マスキング（推奨）</label>
+      <span class="pill">モード:
+        <select id="tone" style="width:auto;padding:6px 10px;border-radius:999px;">
+          <option value="polite">丁寧</option>
+          <option value="casual">カジュアル</option>
+          <option value="short">短め</option>
+        </select>
+      </span>
+    </div>
+    <div class="hint">
+      同意は「目的を具体的に示して得る」必要があります（抽象的説明は避ける）。:contentReference[oaicite:5]{index=5}
+    </div>
+    <div id="gateMsg" class="warn"></div>
+  </div>
+
+  <div class="tabs">
+    <button id="tabMsg" class="primary" onclick="setTab('msg')">メッセージ添削</button>
+    <button id="tabProf" onclick="setTab('prof')">プロフィール作成</button>
+    <button id="tabRole" onclick="setTab('role')">会話練習</button>
+  </div>
+
+  <!-- Message Coach -->
+  <div id="panelMsg" class="card">
+    <h2 style="font-size:16px;margin:0 0 10px;">メッセージ添削（返信案 + リスク注意）</h2>
+    <div class="grid">
+      <div>
+        <label>相手からのメッセージ（個人特定情報は入力しない）</label>
+        <textarea id="inFrom" placeholder="例：今日はありがとう！また会えたら嬉しいです。"></textarea>
+        <div class="hint">固有名詞は「Aさん」「B店」等に置換してください。</div>
+      </div>
+      <div>
+        <label>あなたが返したい内容（要旨）</label>
+        <textarea id="inTo" placeholder="例：こちらこそ。来週のどこかでお茶できると嬉しい。"></textarea>
+        <div class="hint">目的：誠実さ、安心感、次につながる提案。</div>
       </div>
     </div>
-    <div class="canvasBox" id="canvasBox">
-      <!-- ガイド（薄いお手本/罫線） -->
-      <canvas id="guide"></canvas>
-      <!-- 実際の筆跡 -->
-      <canvas id="ink"></canvas>
+    <div class="row" style="margin-top:10px;">
+      <button onclick="run('msg')" id="btnMsg" class="primary">生成</button>
+      <button onclick="copyOut('outMsg')">コピー</button>
+      <button onclick="clearAll()">全消去</button>
     </div>
-  </section>
-
-  <aside class="card">
-    <div class="cardHeader">
-      <div class="cardTitle">設定</div>
-      <div class="meta">Apple Pencil / 指 / マウス対応</div>
+    <div class="hr"></div>
+    <pre id="outMsg" aria-live="polite"></pre>
+    <div class="small" style="margin-top:8px;">
+      ※相手を騙す/操る/威圧する/性的に迫る等の依頼は拒否します。
     </div>
-    <div class="side">
-      <div class="bigText" id="targetTextView">南無妙法蓮華経</div>
+  </div>
 
-      <div class="row">
-        <label><input type="checkbox" id="vertical" checked> 縦書きガイド</label>
-        <label><input type="checkbox" id="showModel" checked> お手本表示</label>
+  <!-- Profile Builder -->
+  <div id="panelProf" class="card hidden">
+    <h2 style="font-size:16px;margin:0 0 10px;">プロフィール作成（誠実・具体・過度な盛りなし）</h2>
+    <div class="grid">
+      <div>
+        <label>あなたの要素（箇条書き）</label>
+        <textarea id="profFacts" placeholder="例：休日はランニング/読書。仕事は営業。お酒は少なめ。相手の話を聞くのが好き。"></textarea>
+        <div class="hint">「盛る」より「検証可能な具体」を優先。</div>
       </div>
-
-      <div class="row">
-        <label>筆の太さ
-          <input type="range" id="baseWidth" min="2" max="22" value="9" />
-          <span id="baseWidthVal">9</span>
-        </label>
-      </div>
-
-      <div class="row">
-        <label>筆圧反映
-          <input type="range" id="pressureGain" min="0" max="30" value="16" />
-          <span id="pressureGainVal">16</span>
-        </label>
-      </div>
-
-      <div class="row">
-        <label>ガイド濃さ
-          <input type="range" id="guideAlpha" min="0" max="100" value="20" />
-          <span id="guideAlphaVal">20%</span>
-        </label>
-      </div>
-
-      <div class="note">
-        ・筆圧は <code>PointerEvent.pressure</code> を使用します（端末/ブラウザにより未対応の場合あり）。 [oai_citation:3‡MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/pressure?utm_source=chatgpt.com)<br/>
-        ・キャンバス描画は 2D Canvas の線設定（lineCap/lineJoin/lineWidth）で自然な筆跡に寄せています。 [oai_citation:4‡MDN Web Docs](https://developer.mozilla.org/ja/docs/Web/API/CanvasRenderingContext2D/lineWidth?utm_source=chatgpt.com)
+      <div>
+        <label>求める関係性/価値観（箇条書き）</label>
+        <textarea id="profValues" placeholder="例：お互いの仕事を尊重。連絡頻度は無理しない。会う時は会話を大事にしたい。"></textarea>
       </div>
     </div>
-  </aside>
+    <div class="row" style="margin-top:10px;">
+      <button onclick="run('prof')" id="btnProf" class="primary">生成</button>
+      <button onclick="copyOut('outProf')">コピー</button>
+    </div>
+    <div class="hr"></div>
+    <pre id="outProf" aria-live="polite"></pre>
+  </div>
+
+  <!-- Roleplay -->
+  <div id="panelRole" class="card hidden">
+    <h2 style="font-size:16px;margin:0 0 10px;">会話練習（ロールプレイ）</h2>
+    <div class="grid">
+      <div>
+        <label>シーン</label>
+        <select id="scene">
+          <option value="first_chat">マッチング後の初回チャット</option>
+          <option value="first_date">初回デート（カフェ）</option>
+          <option value="second_date">2回目の提案</option>
+          <option value="boundary">境界線（断り方/配慮）</option>
+        </select>
+        <div class="hint">“相手の同意・安心感”を最優先に設計します。</div>
+      </div>
+      <div>
+        <label>あなたの目標（1行）</label>
+        <input id="goal" placeholder="例：相手の興味を聞き、次に会う提案を自然にする" />
+        <div class="hint">拒否されたら引く、を前提に。</div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <button onclick="run('role')" id="btnRole" class="primary">開始</button>
+      <button onclick="copyOut('outRole')">コピー</button>
+    </div>
+    <div class="hr"></div>
+    <pre id="outRole" aria-live="polite"></pre>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:14px;margin:0 0 8px;">実装メモ（公開配信する場合の注意）</h2>
+    <div class="hint">
+      ・アプリ配信で「Social/Dating」に該当する場合、子ども安全基準や申告が必要になり得ます。:contentReference[oaicite:6]{index=6}<br>
+      ・App Store配信ではプライバシーやUGCモデレーション等のガイドライン遵守が前提です。:contentReference[oaicite:7]{index=7}
+    </div>
+  </div>
 </div>
 
 <script>
-(() => {
-  "use strict";
+  const API_URL = "/api/coach"; // same-origin backend
 
-  const TARGET = "南無妙法蓮華経";
-  const chars = [...TARGET]; // 7文字想定
-
-  const el = {
-    status: document.getElementById("status"),
-    elapsed: document.getElementById("elapsed"),
-    strokes: document.getElementById("strokes"),
-
-    canvasBox: document.getElementById("canvasBox"),
-    guide: document.getElementById("guide"),
-    ink: document.getElementById("ink"),
-
-    vertical: document.getElementById("vertical"),
-    showModel: document.getElementById("showModel"),
-
-    baseWidth: document.getElementById("baseWidth"),
-    baseWidthVal: document.getElementById("baseWidthVal"),
-    pressureGain: document.getElementById("pressureGain"),
-    pressureGainVal: document.getElementById("pressureGainVal"),
-    guideAlpha: document.getElementById("guideAlpha"),
-    guideAlphaVal: document.getElementById("guideAlphaVal"),
-
-    btnUndo: document.getElementById("btnUndo"),
-    btnClear: document.getElementById("btnClear"),
-    btnSave: document.getElementById("btnSave"),
-  };
-
-  const gctx = el.guide.getContext("2d");
-  const ctx  = el.ink.getContext("2d");
-
-  // 2D canvasの線設定（lineCap/lineJoin/lineWidth） [oai_citation:5‡MDN Web Docs](https://developer.mozilla.org/ja/docs/Web/API/CanvasRenderingContext2D/lineCap?utm_source=chatgpt.com)
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-
-  let dpr = Math.max(1, window.devicePixelRatio || 1);
-
-  // stroke: { points: [{x,y,p,t}], color, baseWidth, gain }
-  let strokeStack = [];
-  let currentStroke = null;
-
-  // timer
-  let startedAt = null;
-  function now(){ return performance.now(); }
-
-  function mmss(ms){
-    const sec = Math.floor(ms / 1000);
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
-  }
-
-  function updateTimer(){
-    if (!startedAt) { el.elapsed.textContent = "00:00"; return; }
-    el.elapsed.textContent = mmss(now() - startedAt);
-  }
-  setInterval(updateTimer, 250);
-
-  function resizeCanvases(){
-    const r = el.canvasBox.getBoundingClientRect();
-    dpr = Math.max(1, window.devicePixelRatio || 1);
-
-    for (const c of [el.guide, el.ink]){
-      c.width  = Math.floor(r.width * dpr);
-      c.height = Math.floor(r.height * dpr);
-      c.style.width  = r.width + "px";
-      c.style.height = r.height + "px";
+  function setTab(tab){
+    const map = {msg:["panelMsg","tabMsg"], prof:["panelProf","tabProf"], role:["panelRole","tabRole"]};
+    for(const k of Object.keys(map)){
+      document.getElementById(map[k][0]).classList.toggle("hidden", k!==tab);
+      document.getElementById(map[k][1]).classList.toggle("primary", k===tab);
     }
-
-    // 再設定
-    ctx.setTransform(1,0,0,1,0,0);
-    gctx.setTransform(1,0,0,1,0,0);
-    ctx.scale(dpr, dpr);
-    gctx.scale(dpr, dpr);
-
-    redrawGuide();
-    redrawInkAll();
   }
 
-  const ro = new ResizeObserver(resizeCanvases);
-  ro.observe(el.canvasBox);
-  window.addEventListener("orientationchange", () => setTimeout(resizeCanvases, 150));
-
-  function getSettings(){
-    return {
-      vertical: el.vertical.checked,
-      showModel: el.showModel.checked,
-      baseWidth: Number(el.baseWidth.value),
-      gain: Number(el.pressureGain.value),
-      guideAlpha: Number(el.guideAlpha.value) / 100,
-    };
+  function maskPII(text){
+    // NOTE: 完全な匿名化ではありません（補助）。ユーザーには「入力しない」運用を推奨。
+    return text
+      .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "[EMAIL]")
+      .replace(/(\+?\d[\d -]{8,}\d)/g, "[PHONE]")
+      .replace(/(〒?\s*\d{3}-\d{4}|\d{1,3}-\d{1,4}-\d{4})/g, "[ID]");
   }
 
-  function redrawGuide(){
-    const r = el.canvasBox.getBoundingClientRect();
-    const W = r.width, H = r.height;
+  function looksDisallowed(text){
+    const t = (text||"").toLowerCase();
+    const patterns = [
+      /未成年|中学生|高校生|小学生|児童|18歳未満/,
+      /レイプ|強姦|睡眠薬|媚薬|薬で/,
+      /脅す|脅迫|恐喝|ストーカー|尾行|住所を突き止め/,
+      /騙す|だます|嘘をつく|なりすます|成りすまし/,
+      /エロ|性行為|セックス|裸|ハメる|風俗/
+    ];
+    return patterns.some(rx => rx.test(t));
+  }
 
-    gctx.clearRect(0,0,W,H);
-
-    const { vertical, showModel, guideAlpha } = getSettings();
-
-    // 背景（用紙っぽい）
-    gctx.save();
-    gctx.fillStyle = "rgba(244,241,232,0.06)";
-    gctx.fillRect(0,0,W,H);
-    gctx.restore();
-
-    // 枠線とマス目（7文字分）
-    const pad = 18;
-    const innerW = W - pad*2;
-    const innerH = H - pad*2;
-
-    const cells = chars.length;
-    let cellSize;
-    let x0 = pad, y0 = pad;
-
-    // 縦書き：縦に7マス／横は1マス幅を基準（余白は左右に）
-    // 横書き：横に7マス／縦は1マス高さを基準（余白は上下に）
-    if (vertical){
-      cellSize = Math.min(innerW, innerH / cells);
-      const totalH = cellSize * cells;
-      y0 = pad + (innerH - totalH) / 2;
-      x0 = pad + (innerW - cellSize) / 2;
-    } else {
-      cellSize = Math.min(innerH, innerW / cells);
-      const totalW = cellSize * cells;
-      x0 = pad + (innerW - totalW) / 2;
-      y0 = pad + (innerH - cellSize) / 2;
+  function gateCheck(){
+    const age = document.getElementById("age").checked;
+    const consent = document.getElementById("consent").checked;
+    const msg = document.getElementById("gateMsg");
+    msg.textContent = "";
+    if(!consent){
+      msg.textContent = "AI送信の同意が必要です。";
+      return false;
     }
+    // 18+は必須にせず“推奨”にしておく（運用で必須にする場合は要件を確認）
+    if(!age){
+      msg.textContent = "18歳以上の利用を推奨します（公開配信する場合は年齢設計を検討）。";
+    }
+    return true;
+  }
 
-    // 外枠
-    gctx.save();
-    gctx.strokeStyle = `rgba(232,238,242,${0.22 + guideAlpha * 0.35})`;
-    gctx.lineWidth = 1;
-    gctx.strokeRect(x0, y0, vertical ? cellSize : cellSize*cells, vertical ? cellSize*cells : cellSize);
+  async function run(mode){
+    if(!gateCheck()) return;
 
-    // マス線 + 中心ガイド
-    gctx.strokeStyle = `rgba(232,238,242,${0.14 + guideAlpha * 0.25})`;
-    for (let i=1;i<cells;i++){
-      if (vertical){
-        gctx.beginPath();
-        gctx.moveTo(x0, y0 + cellSize*i);
-        gctx.lineTo(x0 + cellSize, y0 + cellSize*i);
-        gctx.stroke();
-      } else {
-        gctx.beginPath();
-        gctx.moveTo(x0 + cellSize*i, y0);
-        gctx.lineTo(x0 + cellSize*i, y0 + cellSize);
-        gctx.stroke();
+    let payload = { mode, tone: document.getElementById("tone").value, mask: document.getElementById("mask").checked };
+
+    if(mode==="msg"){
+      payload.from = document.getElementById("inFrom").value.trim();
+      payload.to = document.getElementById("inTo").value.trim();
+      if(looksDisallowed(payload.from + "\n" + payload.to)){
+        document.getElementById("outMsg").textContent = "この依頼は不適切な可能性があるため処理できません（欺罔・嫌がらせ・未成年・性的強要等）。";
+        return;
       }
+      if(payload.mask){ payload.from = maskPII(payload.from); payload.to = maskPII(payload.to); }
+      setBusy("btnMsg", true);
+      document.getElementById("outMsg").textContent = "生成中…";
     }
 
-    // 各マスに「十字」薄線（字の中心目安）
-    gctx.strokeStyle = `rgba(232,238,242,${0.10 + guideAlpha * 0.20})`;
-    for (let i=0;i<cells;i++){
-      const cx = vertical ? (x0 + cellSize/2) : (x0 + cellSize*i + cellSize/2);
-      const cy = vertical ? (y0 + cellSize*i + cellSize/2) : (y0 + cellSize/2);
-
-      gctx.beginPath();
-      gctx.moveTo(cx, cy - cellSize*0.42);
-      gctx.lineTo(cx, cy + cellSize*0.42);
-      gctx.stroke();
-
-      gctx.beginPath();
-      gctx.moveTo(cx - cellSize*0.42, cy);
-      gctx.lineTo(cx + cellSize*0.42, cy);
-      gctx.stroke();
-    }
-
-    // お手本（薄文字）
-    if (showModel){
-      gctx.save();
-      gctx.fillStyle = `rgba(232,238,242,${0.14 + guideAlpha * 0.55})`;
-      gctx.textAlign = "center";
-      gctx.textBaseline = "middle";
-      gctx.font = `700 ${Math.floor(cellSize*0.60)}px ${getComputedStyle(document.documentElement).getPropertyValue('--serif')}`;
-
-      for (let i=0;i<cells;i++){
-        const ch = chars[i];
-        const cx = vertical ? (x0 + cellSize/2) : (x0 + cellSize*i + cellSize/2);
-        const cy = vertical ? (y0 + cellSize*i + cellSize/2) : (y0 + cellSize/2);
-        gctx.fillText(ch, cx, cy);
+    if(mode==="prof"){
+      payload.facts = document.getElementById("profFacts").value.trim();
+      payload.values = document.getElementById("profValues").value.trim();
+      if(looksDisallowed(payload.facts + "\n" + payload.values)){
+        document.getElementById("outProf").textContent = "この依頼は不適切な可能性があるため処理できません。";
+        return;
       }
-      gctx.restore();
+      if(payload.mask){ payload.facts = maskPII(payload.facts); payload.values = maskPII(payload.values); }
+      setBusy("btnProf", true);
+      document.getElementById("outProf").textContent = "生成中…";
     }
 
-    gctx.restore();
-  }
+    if(mode==="role"){
+      payload.scene = document.getElementById("scene").value;
+      payload.goal = document.getElementById("goal").value.trim();
+      if(looksDisallowed(payload.goal)){
+        document.getElementById("outRole").textContent = "この依頼は不適切な可能性があるため処理できません。";
+        return;
+      }
+      if(payload.mask){ payload.goal = maskPII(payload.goal); }
+      setBusy("btnRole", true);
+      document.getElementById("outRole").textContent = "生成中…";
+    }
 
-  function clearInk(){
-    const r = el.canvasBox.getBoundingClientRect();
-    ctx.clearRect(0,0,r.width,r.height);
-  }
+    try{
+      const res = await fetch(API_URL, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload),
+        cache: "no-store"
+      });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.error || "Request failed");
 
-  function redrawInkAll(){
-    clearInk();
-    for (const s of strokeStack){
-      drawStroke(s, false);
+      if(mode==="msg") document.getElementById("outMsg").textContent = data.text || "";
+      if(mode==="prof") document.getElementById("outProf").textContent = data.text || "";
+      if(mode==="role") document.getElementById("outRole").textContent = data.text || "";
+    }catch(e){
+      const outId = mode==="msg" ? "outMsg" : mode==="prof" ? "outProf" : "outRole";
+      document.getElementById(outId).textContent = "エラー: " + e.message;
+    }finally{
+      setBusy(mode==="msg"?"btnMsg":mode==="prof"?"btnProf":"btnRole", false);
     }
   }
 
-  function pressureToWidth(base, gain, p){
-    // p: 0..1 (PointerEvent.pressure)  [oai_citation:6‡MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/pressure?utm_source=chatgpt.com)
-    const pp = (typeof p === "number" && isFinite(p)) ? p : 0.5;
-    return Math.max(0.8, base + gain * pp);
+  function setBusy(btnId, busy){
+    const b = document.getElementById(btnId);
+    b.disabled = busy;
+    b.textContent = busy ? "処理中…" : (btnId==="btnMsg"?"生成":btnId==="btnProf"?"生成":"開始");
   }
 
-  function drawStroke(stroke, incremental=true){
-    const r = el.canvasBox.getBoundingClientRect();
-    const W = r.width, H = r.height;
-
-    if (!stroke.points || stroke.points.length < 2) return;
-
-    const { baseWidth, gain } = stroke;
-
-    ctx.save();
-    ctx.strokeStyle = "rgba(16,16,16,0.92)";
-    ctx.globalCompositeOperation = "source-over";
-
-    // スムージング：簡易の二次ベジェ（点列から中点を作る）
-    const pts = stroke.points;
-
-    // 1点目
-    let p0 = pts[0];
-    let p1 = pts[1];
-
-    ctx.beginPath();
-    ctx.moveTo(p0.x, p0.y);
-
-    for (let i = 1; i < pts.length - 1; i++){
-      const p = pts[i];
-      const n = pts[i+1];
-      const midX = (p.x + n.x) / 2;
-      const midY = (p.y + n.y) / 2;
-
-      // 点ごとの筆圧で太さを変える
-      ctx.lineWidth = pressureToWidth(baseWidth, gain, p.p);
-      ctx.quadraticCurveTo(p.x, p.y, midX, midY);
-    }
-
-    // 最後
-    const last = pts[pts.length - 1];
-    ctx.lineWidth = pressureToWidth(baseWidth, gain, last.p);
-    ctx.lineTo(last.x, last.y);
-
-    ctx.stroke();
-    ctx.restore();
-
-    el.strokes.textContent = `${strokeStack.length} strokes`;
+  function copyOut(id){
+    const text = document.getElementById(id).textContent || "";
+    navigator.clipboard.writeText(text);
   }
 
-  function canvasPointFromEvent(e){
-    const rect = el.ink.getBoundingClientRect();
-    return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-      p: (typeof e.pressure === "number" ? e.pressure : 0.5), // pressure  [oai_citation:7‡MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent/pressure?utm_source=chatgpt.com)
-      t: now()
-    };
-  }
-
-  function startStroke(e){
-    if (!startedAt) startedAt = now();
-
-    currentStroke = {
-      points: [],
-      baseWidth: Number(el.baseWidth.value),
-      gain: Number(el.pressureGain.value)
-    };
-
-    currentStroke.points.push(canvasPointFromEvent(e));
-    el.status.textContent = "描画中…";
-  }
-
-  function moveStroke(e){
-    if (!currentStroke) return;
-
-    // iOS等でのスクロール抑止（touch-action none を補強）
-    // Pointer Events の利用はMDN参照  [oai_citation:8‡MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events/Using_Pointer_Events?utm_source=chatgpt.com)
-    e.preventDefault();
-
-    const pt = canvasPointFromEvent(e);
-    currentStroke.points.push(pt);
-
-    // インクリメンタル描画：軽量化のため最新ストロークだけ再描画でも良いが、
-    // ここは簡潔さ優先で全体ではなく「現ストロークのみ」描く
-    // ただし線のつながりの都合でstroke単位で描く方が自然
-    // 一旦、全体+現ストロークで描画
-    redrawInkAll();
-    drawStroke(currentStroke, true);
-  }
-
-  function endStroke(){
-    if (!currentStroke) return;
-
-    // 点が少なすぎる場合は破棄
-    if (currentStroke.points.length >= 2){
-      strokeStack.push(currentStroke);
-      redrawInkAll();
-      el.status.textContent = "描画しました";
-    } else {
-      el.status.textContent = "未描画";
-    }
-
-    currentStroke = null;
-    el.strokes.textContent = `${strokeStack.length} strokes`;
-  }
-
-  function bindPointer(){
-    const c = el.ink;
-
-    c.addEventListener("pointerdown", (e) => {
-      // 右クリック等は無視
-      if (e.button !== undefined && e.button !== 0) return;
-
-      c.setPointerCapture?.(e.pointerId);
-      startStroke(e);
+  function clearAll(){
+    ["inFrom","inTo","outMsg","profFacts","profValues","outProf","goal","outRole"].forEach(id=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      if(el.tagName==="TEXTAREA" || el.tagName==="INPUT") el.value="";
+      else el.textContent="";
     });
-
-    c.addEventListener("pointermove", (e) => {
-      if (!currentStroke) return;
-      moveStroke(e);
-    });
-
-    c.addEventListener("pointerup", () => endStroke());
-    c.addEventListener("pointercancel", () => endStroke());
-    c.addEventListener("pointerleave", () => { /* leaveはcapture中にも起き得るため何もしない */ });
   }
-
-  function savePNG(){
-    // guide + ink を合成して保存
-    const r = el.canvasBox.getBoundingClientRect();
-    const W = r.width, H = r.height;
-
-    const out = document.createElement("canvas");
-    out.width = Math.floor(W * dpr);
-    out.height = Math.floor(H * dpr);
-
-    const octx = out.getContext("2d");
-    octx.scale(dpr, dpr);
-
-    // 背景（白に近い紙）
-    octx.fillStyle = "#f4f1e8";
-    octx.fillRect(0,0,W,H);
-
-    // ガイド（薄いまま）
-    octx.drawImage(el.guide, 0, 0, out.width, out.height);
-
-    // 筆跡（濃い）
-    octx.drawImage(el.ink, 0, 0, out.width, out.height);
-
-    const url = out.toDataURL("image/png");
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `shakyo_namumyoho_${new Date().toISOString().slice(0,10)}.png`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  }
-
-  // UI
-  function syncLabels(){
-    el.baseWidthVal.textContent = el.baseWidth.value;
-    el.pressureGainVal.textContent = el.pressureGain.value;
-    el.guideAlphaVal.textContent = `${el.guideAlpha.value}%`;
-  }
-
-  el.baseWidth.addEventListener("input", syncLabels);
-  el.pressureGain.addEventListener("input", syncLabels);
-  el.guideAlpha.addEventListener("input", () => { syncLabels(); redrawGuide(); });
-
-  el.vertical.addEventListener("change", redrawGuide);
-  el.showModel.addEventListener("change", redrawGuide);
-
-  el.btnUndo.addEventListener("click", () => {
-    if (strokeStack.length === 0) return;
-    strokeStack.pop();
-    redrawInkAll();
-    el.strokes.textContent = `${strokeStack.length} strokes`;
-    el.status.textContent = strokeStack.length ? "1手戻しました" : "未描画";
-  });
-
-  el.btnClear.addEventListener("click", () => {
-    strokeStack = [];
-    currentStroke = null;
-    clearInk();
-    el.strokes.textContent = "0 strokes";
-    el.status.textContent = "未描画";
-    startedAt = null;
-    updateTimer();
-  });
-
-  el.btnSave.addEventListener("click", savePNG);
-
-  // init
-  syncLabels();
-  bindPointer();
-  resizeCanvases();
-
-})();
 </script>
 </body>
 </html>
