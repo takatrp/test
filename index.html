@@ -1,282 +1,1117 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Respectful Dating Coach (MVP)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>荒巻税理士法人 研修専用サイト｜証憑保存×変動PL×継続MAS</title>
+  <meta name="description" content="当日はこのサイトを旅するように進行し、後日も振り返れる研修専用サイト（テンプレ）。" />
   <style>
-    :root { --bg:#0b0f14; --card:#111826; --text:#e8eef7; --muted:#9fb0c5; --line:#263246; --accent:#5aa7ff; --warn:#ffcc66; --bad:#ff6b6b; }
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;background:var(--bg);color:var(--text);}
-    .wrap{max-width:980px;margin:0 auto;padding:20px;}
-    h1{font-size:20px;margin:0 0 6px;}
-    .sub{color:var(--muted);font-size:13px;line-height:1.5;margin-bottom:16px;}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0;}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-    .pill{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:8px 10px;color:var(--muted);font-size:13px;}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
-    button{background:#162238;border:1px solid var(--line);color:var(--text);border-radius:12px;padding:10px 12px;cursor:pointer;}
-    button.primary{background:var(--accent);border-color:transparent;color:#08111f;font-weight:700;}
-    button:disabled{opacity:.55;cursor:not-allowed;}
-    textarea,input,select{width:100%;box-sizing:border-box;background:#0c1422;border:1px solid var(--line);border-radius:12px;color:var(--text);padding:10px;font-size:14px;}
-    textarea{min-height:140px;resize:vertical;}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-    @media (max-width:860px){.grid{grid-template-columns:1fr;}}
-    .hint{color:var(--muted);font-size:12px;line-height:1.5;margin-top:6px;}
-    .warn{color:var(--warn);font-size:12px;line-height:1.5;}
-    .bad{color:var(--bad);font-size:12px;line-height:1.5;}
-    pre{white-space:pre-wrap;background:#0a1220;border:1px solid var(--line);border-radius:12px;padding:10px;margin:0;font-size:13px;line-height:1.55;}
-    .small{font-size:12px;color:var(--muted);}
-    .hr{height:1px;background:var(--line);margin:10px 0;}
-    .hidden{display:none;}
+    :root{
+      --brand:#578899;
+      --brand-2:#3f6e75;
+      --bg:#f6f8fa;
+      --card:#ffffff;
+      --text:#102a2c;
+      --muted:#5b6b70;
+      --line:#d9e2e6;
+      --warn:#b45309;
+      --ok:#047857;
+      --shadow: 0 10px 25px rgba(16,42,44,.08);
+      --radius:16px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", "Yu Gothic", "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:linear-gradient(180deg, #eef5f7 0%, var(--bg) 40%, var(--bg) 100%);
+    }
+    a{color:var(--brand); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 16px 72px;
+    }
+
+    /* Top bar */
+    .topbar{
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(246,248,250,.85);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar-inner{
+      max-width: 1100px;
+      margin:0 auto;
+      padding: 10px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; min-width: 240px;
+    }
+    .brand-badge{
+      width: 36px; height:36px;
+      border-radius: 10px;
+      background: var(--brand);
+      box-shadow: var(--shadow);
+      position:relative;
+    }
+    .brand-badge::after{
+      content:"";
+      position:absolute;
+      inset:9px 10px 9px 10px;
+      border:2px solid #fff;
+      border-left:0;
+      border-bottom:0;
+      transform: rotate(45deg);
+      opacity:.9;
+    }
+    .brand-title{
+      display:flex; flex-direction:column;
+      line-height: 1.1;
+    }
+    .brand-title .t1{font-weight:800; font-size: 13px; color: var(--muted)}
+    .brand-title .t2{font-weight:900; font-size: 14px}
+    .actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .btn{
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight: 700;
+      font-size: 13px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      box-shadow: 0 2px 10px rgba(16,42,44,.05);
+    }
+    .btn:hover{border-color: rgba(87,136,153,.55)}
+    .btn.primary{
+      background: var(--brand);
+      color:#fff;
+      border-color: rgba(0,0,0,.0);
+    }
+    .btn.primary:hover{background: var(--brand-2)}
+    .btn.ghost{
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+      color: var(--muted);
+    }
+    .btn.small{padding:7px 10px; border-radius: 10px; font-size:12px}
+    .btn:disabled{opacity:.55; cursor:not-allowed}
+    .pill{
+      font-size:12px;
+      padding:6px 10px;
+      border:1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255,255,255,.65);
+      white-space:nowrap;
+    }
+
+    /* Layout */
+    .grid{
+      display:grid;
+      grid-template-columns: 280px 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    @media (max-width: 900px){
+      .grid{grid-template-columns: 1fr}
+      .brand{min-width: 0}
+    }
+
+    /* Sidebar */
+    .side{
+      position: sticky;
+      top: 62px;
+      height: fit-content;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.65);
+      border:1px solid var(--line);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .side-head{
+      padding: 14px 14px 10px;
+      border-bottom:1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,.6) 100%);
+    }
+    .side-head h3{
+      margin:0;
+      font-size: 14px;
+      font-weight: 900;
+    }
+    .side-head p{
+      margin:6px 0 0;
+      font-size:12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .nav{
+      display:flex;
+      flex-direction:column;
+      padding: 8px;
+      gap: 6px;
+    }
+    .nav a{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border:1px solid transparent;
+      color: var(--text);
+      font-weight: 800;
+      font-size: 13px;
+      background: transparent;
+    }
+    .nav a:hover{
+      background: rgba(87,136,153,.08);
+      border-color: rgba(87,136,153,.25);
+      text-decoration:none;
+    }
+    .nav a.active{
+      background: rgba(87,136,153,.14);
+      border-color: rgba(87,136,153,.35);
+    }
+    .nav .k{display:flex; align-items:center; gap:10px}
+    .dot{
+      width:10px; height:10px; border-radius: 999px;
+      background: rgba(87,136,153,.35);
+      border:1px solid rgba(87,136,153,.35);
+    }
+    .nav a.active .dot{background: var(--brand); border-color: var(--brand)}
+    .side-foot{
+      padding: 12px 14px 14px;
+      border-top:1px solid var(--line);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .mini{
+      font-size:12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .mini b{color: var(--text)}
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      font-size: 11px;
+      padding: 2px 6px;
+      border:1px solid var(--line);
+      border-bottom-color: #cfd9dd;
+      border-radius: 8px;
+      background:#fff;
+      color: var(--muted);
+    }
+
+    /* Main cards */
+    .main{
+      display:flex;
+      flex-direction:column;
+      gap: 16px;
+    }
+    .card{
+      background: rgba(255,255,255,.85);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card-head{
+      padding: 18px 18px 12px;
+      border-bottom:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,.55) 100%);
+    }
+    .card-head .eyebrow{
+      font-size:12px; color: var(--muted); font-weight: 800;
+      letter-spacing: .02em;
+    }
+    .card-head h1,.card-head h2{
+      margin: 6px 0 0;
+      font-size: 20px;
+      font-weight: 950;
+      letter-spacing: .01em;
+    }
+    .card-body{
+      padding: 16px 18px 18px;
+      line-height: 1.65;
+    }
+    .callouts{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0 0;
+    }
+    @media (max-width: 700px){
+      .callouts{grid-template-columns: 1fr}
+    }
+    .callout{
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 14px;
+      padding: 12px 12px;
+    }
+    .callout h4{
+      margin:0 0 6px;
+      font-size: 13px;
+      font-weight: 900;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .tag{
+      font-size:11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      color: var(--muted);
+      background: rgba(246,248,250,.7);
+    }
+    .list{
+      margin: 10px 0 0;
+      padding-left: 18px;
+    }
+    .list li{margin: 6px 0}
+    .hr{
+      height:1px;
+      background: var(--line);
+      margin: 14px 0;
+    }
+
+    /* Step controls */
+    .step-controls{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content:space-between;
+      margin-top: 14px;
+      flex-wrap:wrap;
+    }
+    .step-controls .left, .step-controls .right{
+      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+    }
+
+    /* Inline forms */
+    .formgrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 700px){
+      .formgrid{grid-template-columns: 1fr}
+    }
+    label{font-size:12px; color: var(--muted); font-weight: 800}
+    input, textarea, select{
+      width:100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size: 14px;
+      color: var(--text);
+      outline:none;
+    }
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(87,136,153,.55);
+      box-shadow: 0 0 0 3px rgba(87,136,153,.12);
+    }
+    textarea{min-height: 92px; resize: vertical}
+
+    /* Modal (Resource Library) */
+    .modal-backdrop{
+      position:fixed; inset:0;
+      background: rgba(16,42,44,.45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 20px 16px;
+      z-index: 999;
+    }
+    .modal{
+      max-width: 920px;
+      width:100%;
+      max-height: 86vh;
+      overflow:auto;
+      background: #fff;
+      border-radius: 18px;
+      border:1px solid rgba(0,0,0,.08);
+      box-shadow: 0 30px 60px rgba(16,42,44,.25);
+    }
+    .modal-head{
+      position: sticky;
+      top: 0;
+      background: #fff;
+      border-bottom:1px solid var(--line);
+      padding: 14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      z-index: 2;
+    }
+    .modal-head h3{margin:0; font-size: 14px; font-weight: 950}
+    .modal-body{padding: 14px 16px 16px; line-height: 1.6}
+    .res-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 700px){ .res-grid{grid-template-columns:1fr} }
+    .res{
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdfe 100%);
+    }
+    .res .h{
+      font-weight: 950; margin:0 0 6px; font-size: 13px;
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+    }
+    .res .d{margin:0; color: var(--muted); font-size: 12px}
+    .res .links{margin-top:10px; display:flex; gap:8px; flex-wrap:wrap}
+    .badge{
+      font-size:11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(87,136,153,.12);
+      color: var(--brand-2);
+      border: 1px solid rgba(87,136,153,.25);
+      white-space: nowrap;
+    }
+
+    /* Print */
+    @media print{
+      .topbar, .side, .step-controls, .btn, .modal-backdrop {display:none !important}
+      body{background:#fff}
+      .grid{grid-template-columns:1fr}
+      .card{box-shadow:none}
+      a{color:#000; text-decoration:underline}
+    }
+
+    /* Presenter mode */
+    body.presenter .wrap{max-width: 1250px}
+    body.presenter .card-head h1, body.presenter .card-head h2{font-size: 26px}
+    body.presenter .card-body{font-size: 18px}
+    body.presenter .nav a{font-size: 14px}
   </style>
 </head>
+
 <body>
-<div class="wrap">
-  <h1>Respectful Dating Coach (MVP)</h1>
-  <div class="sub">
-    目的：自己整理・丁寧なコミュニケーション・関係構築の練習。<br>
-    注意：相手の氏名/住所/電話/メール/勤務先など個人特定情報は入力しないでください。入力文はAIに送信されます（保存しない設計ですが、AI提供者側の保持が発生し得ます）。:contentReference[oaicite:4]{index=4}
-  </div>
+  <!-- ======= SETTINGS (ここを編集してください) ======= -->
+  <script>
+    // 研修ごとにここだけ差し替えれば動くテンプレ
+    window.SEMINAR = {
+      title: "荒巻税理士法人様｜所内研修（証憑保存×変動PL×継続MAS）",
+      date: "2026-01-15",
+      // 主要リンク（先生の環境に合わせて差し替え）
+      links: {
+        ballTool: "https://takatrp.github.io/hendou_PL/?from=seminar-site",
+        toolPortal: "https://takatrp.github.io/tool-portal/",
+        jidoukaLP: "https://takatrp.github.io/matsumoto-kaikei-jidouka/",
+        tangoManual: "https://example.com/tango-manual", // ←Tangoの共有URLに置換
+        // もし「スマホで経費」や証憑保存の公式マニュアルURLがあるなら貼る（任意）
+        tkcManual: ""
+      },
+      // 当日 “開かせない” を徹底するため、ポータルはFinishでのみ案内する設計
+    };
+  </script>
 
-  <div class="card">
-    <div class="row">
-      <label class="pill"><input id="age" type="checkbox"> 18歳以上です（推奨）</label>
-      <label class="pill"><input id="consent" type="checkbox"> 入力文をAIに送信することに同意</label>
-      <label class="pill"><input id="mask" type="checkbox" checked> 簡易マスキング（推奨）</label>
-      <span class="pill">モード:
-        <select id="tone" style="width:auto;padding:6px 10px;border-radius:999px;">
-          <option value="polite">丁寧</option>
-          <option value="casual">カジュアル</option>
-          <option value="short">短め</option>
-        </select>
-      </span>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand" title="研修専用サイト（テンプレ）">
+        <div class="brand-badge" aria-hidden="true"></div>
+        <div class="brand-title">
+          <div class="t1">セミナー専用サイト</div>
+          <div class="t2" id="seminarTitle">—</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <span class="pill" id="datePill">—</span>
+        <button class="btn small" id="presenterBtn" type="button" title="文字を大きくします">
+          画面拡大
+        </button>
+        <button class="btn small" id="libBtn" type="button" title="後日振り返り用の資料室（当日は基本ここを見ない想定）">
+          資料室
+        </button>
+        <button class="btn small" id="printBtn" type="button" title="印刷（配布用に使えます）">
+          印刷
+        </button>
+        <button class="btn primary small" id="nextBtnTop" type="button">
+          次へ
+        </button>
+      </div>
     </div>
-    <div class="hint">
-      同意は「目的を具体的に示して得る」必要があります（抽象的説明は避ける）。:contentReference[oaicite:5]{index=5}
-    </div>
-    <div id="gateMsg" class="warn"></div>
   </div>
 
-  <div class="tabs">
-    <button id="tabMsg" class="primary" onclick="setTab('msg')">メッセージ添削</button>
-    <button id="tabProf" onclick="setTab('prof')">プロフィール作成</button>
-    <button id="tabRole" onclick="setTab('role')">会話練習</button>
-  </div>
-
-  <!-- Message Coach -->
-  <div id="panelMsg" class="card">
-    <h2 style="font-size:16px;margin:0 0 10px;">メッセージ添削（返信案 + リスク注意）</h2>
+  <div class="wrap">
     <div class="grid">
-      <div>
-        <label>相手からのメッセージ（個人特定情報は入力しない）</label>
-        <textarea id="inFrom" placeholder="例：今日はありがとう！また会えたら嬉しいです。"></textarea>
-        <div class="hint">固有名詞は「Aさん」「B店」等に置換してください。</div>
-      </div>
-      <div>
-        <label>あなたが返したい内容（要旨）</label>
-        <textarea id="inTo" placeholder="例：こちらこそ。来週のどこかでお茶できると嬉しい。"></textarea>
-        <div class="hint">目的：誠実さ、安心感、次につながる提案。</div>
-      </div>
-    </div>
-    <div class="row" style="margin-top:10px;">
-      <button onclick="run('msg')" id="btnMsg" class="primary">生成</button>
-      <button onclick="copyOut('outMsg')">コピー</button>
-      <button onclick="clearAll()">全消去</button>
-    </div>
-    <div class="hr"></div>
-    <pre id="outMsg" aria-live="polite"></pre>
-    <div class="small" style="margin-top:8px;">
-      ※相手を騙す/操る/威圧する/性的に迫る等の依頼は拒否します。
+      <!-- Sidebar -->
+      <aside class="side" aria-label="ナビゲーション">
+        <div class="side-head">
+          <h3>当日の進行（一本道）</h3>
+          <p>当日は <b>この順番</b> で進めます。リンクは<b>必要なものだけ</b>を開きます。</p>
+        </div>
+
+        <nav class="nav" id="nav">
+          <a href="#start" data-step="start" class="active">
+            <span class="k"><span class="dot"></span>Start（導入）</span>
+            <span class="tag">0–5分</span>
+          </a>
+          <a href="#shouhyou" data-step="shouhyou">
+            <span class="k"><span class="dot"></span>証憑保存（実演）</span>
+            <span class="tag">5–30分</span>
+          </a>
+          <a href="#hendoupl" data-step="hendoupl">
+            <span class="k"><span class="dot"></span>変動PL（腹落ち）</span>
+            <span class="tag">30–45分</span>
+          </a>
+          <a href="#keizoku" data-step="keizoku">
+            <span class="k"><span class="dot"></span>継続MAS（型）</span>
+            <span class="tag">45–60分</span>
+          </a>
+          <a href="#finish" data-step="finish">
+            <span class="k"><span class="dot"></span>Finish（宿題）</span>
+            <span class="tag">締め</span>
+          </a>
+        </nav>
+
+        <div class="side-foot">
+          <div class="mini">
+            <b>ショートカット</b><br/>
+            前へ <span class="kbd">←</span> ／ 次へ <span class="kbd">→</span><br/>
+            資料室 <span class="kbd">L</span> ／ 印刷 <span class="kbd">P</span>
+          </div>
+          <div class="mini">
+            <b>方針</b><br/>
+            今日は「説明」より <b>実演</b> と <b>型</b>。細部はTangoで後追い。
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <main class="main" id="main">
+        <!-- Start -->
+        <section class="card step" id="start" data-step="start">
+          <div class="card-head">
+            <div class="eyebrow">Start</div>
+            <h1>今日のゴール：明日、顧問先で「一回できる」状態にする</h1>
+          </div>
+          <div class="card-body">
+            <p>
+              この研修は、機能を“覚える”より、<b>心理的な抵抗を下げて、行動に移れる型</b>を持ち帰ることが目的です。
+              当日は <b>2つだけ</b>やります。
+            </p>
+
+            <div class="callouts">
+              <div class="callout">
+                <h4><span class="badge">①</span> 証憑保存：スマホ実演で腹落ち</h4>
+                <ul class="list">
+                  <li>到達点：<b>撮影 → 保存 → 事務所側で確認</b></li>
+                  <li>細部：Tango（後で確認）</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h4><span class="badge">②</span> 継続MAS：変動PLの理解を先に揃える</h4>
+                <ul class="list">
+                  <li>変動PL：限界利益率 → 固定費 → 必要売上</li>
+                  <li>継続MAS：<b>訪問の型</b>（台本）に落とす</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="callouts">
+              <div class="callout">
+                <h4>今日開くリンク（当日用） <span class="tag">2つだけ</span></h4>
+                <div class="list">
+                  <div style="margin:6px 0">
+                    ・Tango（証憑保存の手順）：<a id="linkTangoA" href="#" target="_blank" rel="noopener">—</a>
+                  </div>
+                  <div style="margin:6px 0">
+                    ・ボール（変動PL）ツール：<a id="linkBallA" href="#" target="_blank" rel="noopener">—</a>
+                  </div>
+                </div>
+              </div>
+              <div class="callout">
+                <h4>当日は開かない（最後にURLだけ渡す） <span class="tag">散らかり防止</span></h4>
+                <p class="d" style="margin:0">
+                  ツールポータル等は「Finish」でURLのみ配布します。<b>当日はクリックしません</b>。
+                </p>
+              </div>
+            </div>
+
+            <div class="step-controls">
+              <div class="left">
+                <button class="btn ghost" type="button" disabled>前へ</button>
+              </div>
+              <div class="right">
+                <button class="btn primary" type="button" data-next>次へ（証憑保存）</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Shouhyou -->
+        <section class="card step" id="shouhyou" data-step="shouhyou" hidden>
+          <div class="card-head">
+            <div class="eyebrow">Part 1</div>
+            <h2>証憑保存：実演で「できる」を作る（手順はTango）</h2>
+          </div>
+          <div class="card-body">
+            <p>
+              ここは <b>現金入力の省力化</b> と <b>スマホで経費</b> の実演で一気に腹落ちさせます。
+              細かい操作は <b>Tango</b> にあります。
+            </p>
+
+            <div class="callouts">
+              <div class="callout">
+                <h4>到達点（今日ここまで） <span class="tag">やり過ぎ防止</span></h4>
+                <ul class="list">
+                  <li><b>撮影 → 保存 → 事務所側で確認</b></li>
+                  <li>仕訳連動・例外対応は “後でTango”</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h4>手順（Tango） <span class="tag">後で確認</span></h4>
+                <p class="d" style="margin:0 0 10px">
+                  「流れはマニュアルに書いています。細部は後で確認してください。」
+                </p>
+                <div class="links">
+                  <a class="btn small" id="linkTangoB" href="#" target="_blank" rel="noopener">Tangoを開く</a>
+                  <button class="btn small" type="button" id="copyTangoBtn">URLをコピー</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="callout">
+              <h4>顧客説明（30秒台本） <span class="tag">そのまま読める</span></h4>
+              <textarea id="scriptShouhyou">
+本日は、領収書・請求書のやり取りを「後でまとめて」ではなく、受領時点でスマホで撮影して保存する運用をご提案します。
+提出遅れや紛失が減り、事務所側でもリアルタイムに確認できるため、処理とチェックが速くなります。
+まずは運用をシンプルに、対象を絞って始めます（例：電子取引PDF／特定の経費）。詳細手順はマニュアルにまとめています。</textarea>
+              <div class="step-controls">
+                <div class="left">
+                  <button class="btn" type="button" data-prev>前へ</button>
+                  <button class="btn" type="button" id="copyShouhyouScript">台本をコピー</button>
+                </div>
+                <div class="right">
+                  <button class="btn primary" type="button" data-next>次へ（変動PL）</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Hendou PL -->
+        <section class="card step" id="hendoupl" data-step="hendoupl" hidden>
+          <div class="card-head">
+            <div class="eyebrow">Part 2</div>
+            <h2>変動PL：継続MASの前に“見方”を揃える（ボールで腹落ち）</h2>
+          </div>
+          <div class="card-body">
+            <p>
+              継続MASの心理的抵抗は、「フォーマットが変わる」「訪問の流れが変わる」不安から生じます。
+              先に変動PLの見方を揃えると、<b>未来へ展開するだけ</b>という理解に変わります。
+            </p>
+
+            <div class="callouts">
+              <div class="callout">
+                <h4>今日のキーメッセージ <span class="tag">1分</span></h4>
+                <ul class="list">
+                  <li><b>限界利益率</b>が上がるほど、同じ売上でも利益が増える</li>
+                  <li><b>固定費</b>は「越えるべきハードル」</li>
+                  <li>必要売上 ≒（固定費＋目標利益）÷ 限界利益率</li>
+                </ul>
+              </div>
+              <div class="callout">
+                <h4>ボールツール（触るのは3分だけ） <span class="tag">体験</span></h4>
+                <p class="d" style="margin:0 0 10px">
+                  ミニ課題：「固定費を +50万円したら、必要売上はいくら増える？」
+                </p>
+                <div class="links">
+                  <a class="btn small primary" id="linkBallB" href="#" target="_blank" rel="noopener">ボールツールを開く</a>
+                  <button class="btn small" type="button" id="copyBallBtn">URLをコピー</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="callout">
+              <h4>社長向け3分トーク（叩き台） <span class="tag">後日使う</span></h4>
+              <textarea id="scriptHendou">
+今月の限界利益率は◯◯%でした。限界利益率は、売上が増えたときに「どれだけ利益が残るか」を示す重要指標です。
+固定費は売上ゼロでも発生するので、まず限界利益で固定費を超える必要があります（＝損益分岐）。
+たとえば固定費が月600万円、限界利益率が30%なら、利益ゼロの売上は 600万÷0.30＝2,000万円です。
+ここから月100万円利益を出したいなら、(600万＋100万)÷0.30＝2,333万円が目安になります。
+この目安を基準に、価格・粗利・外注・人員・固定費のどこを動かすかを一緒に決めましょう。</textarea>
+
+              <div class="step-controls">
+                <div class="left">
+                  <button class="btn" type="button" data-prev>前へ</button>
+                  <button class="btn" type="button" id="copyHendouScript">台本をコピー</button>
+                </div>
+                <div class="right">
+                  <button class="btn primary" type="button" data-next>次へ（継続MAS）</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Keizoku MAS -->
+        <section class="card step" id="keizoku" data-step="keizoku" hidden>
+          <div class="card-head">
+            <div class="eyebrow">Part 3</div>
+            <h2>継続MAS：訪問の“型”を作り、会計事務所ペースに持ち込む</h2>
+          </div>
+          <div class="card-body">
+            <p>
+              継続MASは「別物」ではなく、変動PLの考え方を<b>未来</b>に展開するための枠組みです。
+              ここでは操作説明より、<b>訪問の流れ（台本）</b>を固定します。
+            </p>
+
+            <div class="callouts">
+              <div class="callout">
+                <h4>5つの質問（短期計画の入口） <span class="tag">この順で聞く</span></h4>
+                <ol class="list">
+                  <li>次期の目標経常利益</li>
+                  <li>次期の売上高の伸び</li>
+                  <li>次期の限界利益率（粗利益率）</li>
+                  <li>次期の従業員給与・賞与</li>
+                  <li>次期の期末の人数（役員含む）</li>
+                </ol>
+              </div>
+              <div class="callout">
+                <h4>訪問台本（15分版） <span class="tag">これだけで回る</span></h4>
+                <ul class="list">
+                  <li>① 実績（変動PL）：限界利益率の良し悪しを一言</li>
+                  <li>② 打ち手：今月は “1つだけ” 決める</li>
+                  <li>③ 着地：期末のざっくり見通し</li>
+                  <li>④ 次期：5つの質問で未来の数字を置く</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="callout">
+              <h4>2週間アクション（ここだけ決めて帰る） <span class="tag">定着の鍵</span></h4>
+              <div class="formgrid">
+                <div>
+                  <label for="kpiShouhyou">証憑保存：対象顧問先数（例：3）</label>
+                  <input id="kpiShouhyou" type="number" min="0" placeholder="3" />
+                </div>
+                <div>
+                  <label for="kpiKeizoku">継続MAS：最初の実施社数（例：1）</label>
+                  <input id="kpiKeizoku" type="number" min="0" placeholder="1" />
+                </div>
+                <div>
+                  <label for="firstCompany">最初の1社（社名）</label>
+                  <input id="firstCompany" type="text" placeholder="例：◯◯株式会社" />
+                </div>
+                <div>
+                  <label for="ownerType">社長タイプ（メモ）</label>
+                  <input id="ownerType" type="text" placeholder="例：数字の話を聞く／忙しい／即断型 など" />
+                </div>
+              </div>
+              <div style="margin-top:10px">
+                <label for="memo">メモ（訪問で使う言い回し等）</label>
+                <textarea id="memo" placeholder="例：冒頭は変動PLで必要売上の話から入る。次回までの宿題は…"></textarea>
+              </div>
+
+              <div class="step-controls">
+                <div class="left">
+                  <button class="btn" type="button" data-prev>前へ</button>
+                  <button class="btn" type="button" id="saveActionBtn">この内容を保存</button>
+                </div>
+                <div class="right">
+                  <button class="btn primary" type="button" data-next>次へ（Finish）</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Finish -->
+        <section class="card step" id="finish" data-step="finish" hidden>
+          <div class="card-head">
+            <div class="eyebrow">Finish</div>
+            <h2>締め：URL配布（ただし“当日は開かない”）／2週間の宿題を確認</h2>
+          </div>
+          <div class="card-body">
+            <p>
+              今日の内容は、<b>2週間の小さな成果</b>を作ることで定着します。最後にリンクを配布します。
+              ツールポータルは <b>開示はする</b> ものの、<b>当日はクリックしません</b>（散らかり防止）。
+            </p>
+
+            <div class="callouts">
+              <div class="callout">
+                <h4>当日用（もう一度）</h4>
+                <div class="list">
+                  ・Tango：<a id="linkTangoC" href="#" target="_blank" rel="noopener">—</a><br/>
+                  ・ボール：<a id="linkBallC" href="#" target="_blank" rel="noopener">—</a>
+                </div>
+              </div>
+              <div class="callout">
+                <h4>資料室（後日） <span class="tag">おまけ</span></h4>
+                <div class="list">
+                  ・ツールポータル：<a id="linkPortal" href="#" target="_blank" rel="noopener">—</a><br/>
+                  ・自動化LP（ボール含む）：<a id="linkJidouka" href="#" target="_blank" rel="noopener">—</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="callout">
+              <h4>2週間宿題（確認）</h4>
+              <p class="d" id="actionSummary" style="margin:0 0 10px">未入力</p>
+              <div class="links">
+                <button class="btn small" type="button" id="copySummaryBtn">宿題サマリをコピー</button>
+                <button class="btn small" type="button" id="resetBtn">入力をリセット</button>
+                <button class="btn small" type="button" id="openLibBtn2">資料室を開く</button>
+              </div>
+            </div>
+
+            <div class="step-controls">
+              <div class="left">
+                <button class="btn" type="button" data-prev>前へ</button>
+              </div>
+              <div class="right">
+                <button class="btn primary" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'});">先頭へ</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
     </div>
   </div>
 
-  <!-- Profile Builder -->
-  <div id="panelProf" class="card hidden">
-    <h2 style="font-size:16px;margin:0 0 10px;">プロフィール作成（誠実・具体・過度な盛りなし）</h2>
-    <div class="grid">
-      <div>
-        <label>あなたの要素（箇条書き）</label>
-        <textarea id="profFacts" placeholder="例：休日はランニング/読書。仕事は営業。お酒は少なめ。相手の話を聞くのが好き。"></textarea>
-        <div class="hint">「盛る」より「検証可能な具体」を優先。</div>
+  <!-- Modal: Resource Library -->
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-label="資料室">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>資料室（後日振り返り用）</h3>
+        <button class="btn small" type="button" id="closeModalBtn">閉じる</button>
       </div>
-      <div>
-        <label>求める関係性/価値観（箇条書き）</label>
-        <textarea id="profValues" placeholder="例：お互いの仕事を尊重。連絡頻度は無理しない。会う時は会話を大事にしたい。"></textarea>
+      <div class="modal-body">
+        <p style="margin:0">
+          当日は基本ここを見ません。<b>後日</b>、詰まったときの“辞書”として使います。
+        </p>
+
+        <div class="res-grid">
+          <div class="res">
+            <div class="h">
+              <span>証憑保存：Tango手順</span>
+              <span class="badge">必須</span>
+            </div>
+            <p class="d">撮影→保存→確認。迷ったらここ。</p>
+            <div class="links">
+              <a class="btn small primary" id="linkTangoD" href="#" target="_blank" rel="noopener">Tango</a>
+              <button class="btn small" type="button" id="copyTangoBtn2">URLコピー</button>
+            </div>
+          </div>
+
+          <div class="res">
+            <div class="h">
+              <span>変動PL：ボールツール</span>
+              <span class="badge">必須</span>
+            </div>
+            <p class="d">限界利益率×固定費→必要売上の腹落ち。</p>
+            <div class="links">
+              <a class="btn small primary" id="linkBallD" href="#" target="_blank" rel="noopener">ボール</a>
+              <button class="btn small" type="button" id="copyBallBtn2">URLコピー</button>
+            </div>
+          </div>
+
+          <div class="res">
+            <div class="h">
+              <span>ツールポータル（おまけ）</span>
+              <span class="badge">任意</span>
+            </div>
+            <p class="d">必要になった人だけ。最初は一点突破。</p>
+            <div class="links">
+              <a class="btn small" id="linkPortal2" href="#" target="_blank" rel="noopener">ポータル</a>
+            </div>
+          </div>
+
+          <div class="res">
+            <div class="h">
+              <span>自動化LP（ボール含む）</span>
+              <span class="badge">任意</span>
+            </div>
+            <p class="d">ボール以外の文脈を説明する場合に。</p>
+            <div class="links">
+              <a class="btn small" id="linkJidouka2" href="#" target="_blank" rel="noopener">LP</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="callout">
+          <h4>メモ</h4>
+          <p class="d" style="margin:0">
+            研修ごとにページを複製し、上部の <b>SETTINGS</b> だけURL差し替えで運用できます。
+          </p>
+        </div>
       </div>
     </div>
-    <div class="row" style="margin-top:10px;">
-      <button onclick="run('prof')" id="btnProf" class="primary">生成</button>
-      <button onclick="copyOut('outProf')">コピー</button>
-    </div>
-    <div class="hr"></div>
-    <pre id="outProf" aria-live="polite"></pre>
   </div>
 
-  <!-- Roleplay -->
-  <div id="panelRole" class="card hidden">
-    <h2 style="font-size:16px;margin:0 0 10px;">会話練習（ロールプレイ）</h2>
-    <div class="grid">
-      <div>
-        <label>シーン</label>
-        <select id="scene">
-          <option value="first_chat">マッチング後の初回チャット</option>
-          <option value="first_date">初回デート（カフェ）</option>
-          <option value="second_date">2回目の提案</option>
-          <option value="boundary">境界線（断り方/配慮）</option>
-        </select>
-        <div class="hint">“相手の同意・安心感”を最優先に設計します。</div>
-      </div>
-      <div>
-        <label>あなたの目標（1行）</label>
-        <input id="goal" placeholder="例：相手の興味を聞き、次に会う提案を自然にする" />
-        <div class="hint">拒否されたら引く、を前提に。</div>
-      </div>
-    </div>
-    <div class="row" style="margin-top:10px;">
-      <button onclick="run('role')" id="btnRole" class="primary">開始</button>
-      <button onclick="copyOut('outRole')">コピー</button>
-    </div>
-    <div class="hr"></div>
-    <pre id="outRole" aria-live="polite"></pre>
-  </div>
+  <script>
+    // ========= helpers =========
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
-  <div class="card">
-    <h2 style="font-size:14px;margin:0 0 8px;">実装メモ（公開配信する場合の注意）</h2>
-    <div class="hint">
-      ・アプリ配信で「Social/Dating」に該当する場合、子ども安全基準や申告が必要になり得ます。:contentReference[oaicite:6]{index=6}<br>
-      ・App Store配信ではプライバシーやUGCモデレーション等のガイドライン遵守が前提です。:contentReference[oaicite:7]{index=7}
-    </div>
-  </div>
-</div>
-
-<script>
-  const API_URL = "/api/coach"; // same-origin backend
-
-  function setTab(tab){
-    const map = {msg:["panelMsg","tabMsg"], prof:["panelProf","tabProf"], role:["panelRole","tabRole"]};
-    for(const k of Object.keys(map)){
-      document.getElementById(map[k][0]).classList.toggle("hidden", k!==tab);
-      document.getElementById(map[k][1]).classList.toggle("primary", k===tab);
+    function safeCopy(text){
+      if (!text) return;
+      navigator.clipboard?.writeText(text).then(()=>toast("コピーしました")).catch(()=>fallbackCopy(text));
     }
-  }
-
-  function maskPII(text){
-    // NOTE: 完全な匿名化ではありません（補助）。ユーザーには「入力しない」運用を推奨。
-    return text
-      .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "[EMAIL]")
-      .replace(/(\+?\d[\d -]{8,}\d)/g, "[PHONE]")
-      .replace(/(〒?\s*\d{3}-\d{4}|\d{1,3}-\d{1,4}-\d{4})/g, "[ID]");
-  }
-
-  function looksDisallowed(text){
-    const t = (text||"").toLowerCase();
-    const patterns = [
-      /未成年|中学生|高校生|小学生|児童|18歳未満/,
-      /レイプ|強姦|睡眠薬|媚薬|薬で/,
-      /脅す|脅迫|恐喝|ストーカー|尾行|住所を突き止め/,
-      /騙す|だます|嘘をつく|なりすます|成りすまし/,
-      /エロ|性行為|セックス|裸|ハメる|風俗/
-    ];
-    return patterns.some(rx => rx.test(t));
-  }
-
-  function gateCheck(){
-    const age = document.getElementById("age").checked;
-    const consent = document.getElementById("consent").checked;
-    const msg = document.getElementById("gateMsg");
-    msg.textContent = "";
-    if(!consent){
-      msg.textContent = "AI送信の同意が必要です。";
-      return false;
+    function fallbackCopy(text){
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try{ document.execCommand('copy'); toast("コピーしました"); } catch(e){ alert("コピーできませんでした"); }
+      document.body.removeChild(ta);
     }
-    // 18+は必須にせず“推奨”にしておく（運用で必須にする場合は要件を確認）
-    if(!age){
-      msg.textContent = "18歳以上の利用を推奨します（公開配信する場合は年齢設計を検討）。";
-    }
-    return true;
-  }
 
-  async function run(mode){
-    if(!gateCheck()) return;
-
-    let payload = { mode, tone: document.getElementById("tone").value, mask: document.getElementById("mask").checked };
-
-    if(mode==="msg"){
-      payload.from = document.getElementById("inFrom").value.trim();
-      payload.to = document.getElementById("inTo").value.trim();
-      if(looksDisallowed(payload.from + "\n" + payload.to)){
-        document.getElementById("outMsg").textContent = "この依頼は不適切な可能性があるため処理できません（欺罔・嫌がらせ・未成年・性的強要等）。";
-        return;
+    let toastTimer = null;
+    function toast(msg){
+      clearTimeout(toastTimer);
+      let el = $("#toast");
+      if(!el){
+        el = document.createElement('div');
+        el.id = "toast";
+        el.style.position = "fixed";
+        el.style.left = "50%";
+        el.style.bottom = "18px";
+        el.style.transform = "translateX(-50%)";
+        el.style.background = "rgba(16,42,44,.92)";
+        el.style.color = "#fff";
+        el.style.padding = "10px 12px";
+        el.style.borderRadius = "999px";
+        el.style.fontWeight = "800";
+        el.style.fontSize = "13px";
+        el.style.zIndex = "2000";
+        el.style.boxShadow = "0 10px 25px rgba(16,42,44,.25)";
+        document.body.appendChild(el);
       }
-      if(payload.mask){ payload.from = maskPII(payload.from); payload.to = maskPII(payload.to); }
-      setBusy("btnMsg", true);
-      document.getElementById("outMsg").textContent = "生成中…";
+      el.textContent = msg;
+      el.style.display = "block";
+      toastTimer = setTimeout(()=>{ el.style.display="none"; }, 1400);
     }
 
-    if(mode==="prof"){
-      payload.facts = document.getElementById("profFacts").value.trim();
-      payload.values = document.getElementById("profValues").value.trim();
-      if(looksDisallowed(payload.facts + "\n" + payload.values)){
-        document.getElementById("outProf").textContent = "この依頼は不適切な可能性があるため処理できません。";
-        return;
-      }
-      if(payload.mask){ payload.facts = maskPII(payload.facts); payload.values = maskPII(payload.values); }
-      setBusy("btnProf", true);
-      document.getElementById("outProf").textContent = "生成中…";
+    // ========= state =========
+    const steps = ["start","shouhyou","hendoupl","keizoku","finish"];
+    function setStep(step){
+      if(!steps.includes(step)) step = "start";
+
+      // show/hide
+      $$(".step").forEach(sec => sec.hidden = (sec.dataset.step !== step));
+
+      // nav highlight
+      $$("#nav a").forEach(a => a.classList.toggle("active", a.dataset.step === step));
+
+      // top next button label
+      const idx = steps.indexOf(step);
+      const next = steps[idx+1];
+      $("#nextBtnTop").textContent = next ? "次へ" : "完了";
+      $("#nextBtnTop").disabled = !next;
+
+      // persist
+      localStorage.setItem("seminar_last_step", step);
+
+      // update hash without jumping
+      history.replaceState(null, "", "#"+step);
+
+      // scroll to top of main
+      window.scrollTo({top: 0, behavior: "smooth"});
     }
 
-    if(mode==="role"){
-      payload.scene = document.getElementById("scene").value;
-      payload.goal = document.getElementById("goal").value.trim();
-      if(looksDisallowed(payload.goal)){
-        document.getElementById("outRole").textContent = "この依頼は不適切な可能性があるため処理できません。";
-        return;
-      }
-      if(payload.mask){ payload.goal = maskPII(payload.goal); }
-      setBusy("btnRole", true);
-      document.getElementById("outRole").textContent = "生成中…";
+    function getCurrentStep(){
+      const visible = $$(".step").find(s => !s.hidden);
+      return visible?.dataset.step || "start";
     }
 
-    try{
-      const res = await fetch(API_URL, {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify(payload),
-        cache: "no-store"
+    function nextStep(){
+      const cur = getCurrentStep();
+      const idx = steps.indexOf(cur);
+      const next = steps[idx+1];
+      if(next) setStep(next);
+    }
+    function prevStep(){
+      const cur = getCurrentStep();
+      const idx = steps.indexOf(cur);
+      const prev = steps[idx-1];
+      if(prev) setStep(prev);
+    }
+
+    // ========= init content =========
+    function init(){
+      $("#seminarTitle").textContent = window.SEMINAR.title;
+      $("#datePill").textContent = window.SEMINAR.date;
+
+      const { ballTool, toolPortal, jidoukaLP, tangoManual } = window.SEMINAR.links;
+
+      // Bind links
+      const bind = (id, url) => { const a = $(id); if(a){ a.href = url || "#"; a.textContent = url ? url : "（未設定）"; } };
+      bind("#linkTangoA", tangoManual);
+      bind("#linkTangoC", tangoManual);
+      bind("#linkTangoD", tangoManual);
+      $("#linkTangoB").href = tangoManual || "#";
+
+      bind("#linkBallA", ballTool);
+      bind("#linkBallC", ballTool);
+      bind("#linkBallD", ballTool);
+      $("#linkBallB").href = ballTool || "#";
+
+      bind("#linkPortal", toolPortal);
+      bind("#linkPortal2", toolPortal);
+
+      bind("#linkJidouka", jidoukaLP);
+      bind("#linkJidouka2", jidoukaLP);
+
+      // Buttons
+      $("#copyTangoBtn")?.addEventListener("click", ()=>safeCopy(tangoManual));
+      $("#copyTangoBtn2")?.addEventListener("click", ()=>safeCopy(tangoManual));
+      $("#copyBallBtn")?.addEventListener("click", ()=>safeCopy(ballTool));
+      $("#copyBallBtn2")?.addEventListener("click", ()=>safeCopy(ballTool));
+
+      $("#copyShouhyouScript")?.addEventListener("click", ()=>safeCopy($("#scriptShouhyou").value));
+      $("#copyHendouScript")?.addEventListener("click", ()=>safeCopy($("#scriptHendou").value));
+
+      // Save action
+      $("#saveActionBtn")?.addEventListener("click", ()=>{
+        const data = {
+          kpiShouhyou: $("#kpiShouhyou").value,
+          kpiKeizoku: $("#kpiKeizoku").value,
+          firstCompany: $("#firstCompany").value,
+          ownerType: $("#ownerType").value,
+          memo: $("#memo").value
+        };
+        localStorage.setItem("seminar_actions", JSON.stringify(data));
+        toast("保存しました");
+        renderSummary();
       });
-      const data = await res.json();
-      if(!res.ok) throw new Error(data.error || "Request failed");
 
-      if(mode==="msg") document.getElementById("outMsg").textContent = data.text || "";
-      if(mode==="prof") document.getElementById("outProf").textContent = data.text || "";
-      if(mode==="role") document.getElementById("outRole").textContent = data.text || "";
-    }catch(e){
-      const outId = mode==="msg" ? "outMsg" : mode==="prof" ? "outProf" : "outRole";
-      document.getElementById(outId).textContent = "エラー: " + e.message;
-    }finally{
-      setBusy(mode==="msg"?"btnMsg":mode==="prof"?"btnProf":"btnRole", false);
+      $("#resetBtn")?.addEventListener("click", ()=>{
+        localStorage.removeItem("seminar_actions");
+        $("#kpiShouhyou").value="";
+        $("#kpiKeizoku").value="";
+        $("#firstCompany").value="";
+        $("#ownerType").value="";
+        $("#memo").value="";
+        renderSummary();
+        toast("リセットしました");
+      });
+
+      $("#copySummaryBtn")?.addEventListener("click", ()=>{
+        safeCopy($("#actionSummary").textContent);
+      });
+
+      // top controls
+      $("#printBtn")?.addEventListener("click", ()=>window.print());
+      $("#presenterBtn")?.addEventListener("click", ()=>{
+        document.body.classList.toggle("presenter");
+        $("#presenterBtn").textContent = document.body.classList.contains("presenter") ? "通常表示" : "画面拡大";
+      });
+
+      // resource library modal
+      const modal = $("#modalBackdrop");
+      const openModal = ()=>{ modal.style.display="flex"; };
+      const closeModal = ()=>{ modal.style.display="none"; };
+
+      $("#libBtn")?.addEventListener("click", openModal);
+      $("#openLibBtn2")?.addEventListener("click", openModal);
+      $("#closeModalBtn")?.addEventListener("click", closeModal);
+      modal.addEventListener("click", (e)=>{ if(e.target === modal) closeModal(); });
+
+      // navigation click
+      $$("#nav a").forEach(a=>{
+        a.addEventListener("click",(e)=>{
+          e.preventDefault();
+          setStep(a.dataset.step);
+        });
+      });
+
+      // in-card next/prev
+      $$("[data-next]").forEach(b=> b.addEventListener("click", nextStep));
+      $$("[data-prev]").forEach(b=> b.addEventListener("click", prevStep));
+
+      $("#nextBtnTop")?.addEventListener("click", nextStep);
+
+      // keyboard
+      window.addEventListener("keydown",(e)=>{
+        if(e.key === "ArrowRight") nextStep();
+        if(e.key === "ArrowLeft") prevStep();
+        if(e.key.toLowerCase() === "l") $("#modalBackdrop").style.display==="flex" ? ($("#modalBackdrop").style.display="none") : ($("#modalBackdrop").style.display="flex");
+        if(e.key.toLowerCase() === "p") window.print();
+        if(e.key === "Escape") $("#modalBackdrop").style.display="none";
+      });
+
+      // restore actions
+      const saved = localStorage.getItem("seminar_actions");
+      if(saved){
+        try{
+          const data = JSON.parse(saved);
+          $("#kpiShouhyou").value = data.kpiShouhyou || "";
+          $("#kpiKeizoku").value = data.kpiKeizoku || "";
+          $("#firstCompany").value = data.firstCompany || "";
+          $("#ownerType").value = data.ownerType || "";
+          $("#memo").value = data.memo || "";
+        }catch(_){}
+      }
+      renderSummary();
+
+      // initial step
+      const hash = (location.hash || "").replace("#","");
+      const last = localStorage.getItem("seminar_last_step");
+      setStep(steps.includes(hash) ? hash : (last || "start"));
     }
-  }
 
-  function setBusy(btnId, busy){
-    const b = document.getElementById(btnId);
-    b.disabled = busy;
-    b.textContent = busy ? "処理中…" : (btnId==="btnMsg"?"生成":btnId==="btnProf"?"生成":"開始");
-  }
+    function renderSummary(){
+      const saved = localStorage.getItem("seminar_actions");
+      if(!saved){ $("#actionSummary").textContent = "未入力（継続MASページで『2週間アクション』を入力してください）"; return; }
+      let d = {};
+      try{ d = JSON.parse(saved); }catch(_){}
+      const parts = [];
+      parts.push(`【2週間アクション】`);
+      parts.push(`証憑保存：対象 ${d.kpiShouhyou || "（未設定）"} 社`);
+      parts.push(`継続MAS：対象 ${d.kpiKeizoku || "（未設定）"} 社`);
+      parts.push(`最初の1社：${d.firstCompany || "（未設定）"}（${d.ownerType || "メモなし"}）`);
+      if(d.memo) parts.push(`メモ：${d.memo}`);
+      $("#actionSummary").textContent = parts.join("\n");
+    }
 
-  function copyOut(id){
-    const text = document.getElementById(id).textContent || "";
-    navigator.clipboard.writeText(text);
-  }
-
-  function clearAll(){
-    ["inFrom","inTo","outMsg","profFacts","profValues","outProf","goal","outRole"].forEach(id=>{
-      const el = document.getElementById(id);
-      if(!el) return;
-      if(el.tagName==="TEXTAREA" || el.tagName==="INPUT") el.value="";
-      else el.textContent="";
-    });
-  }
-</script>
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
 </body>
 </html>
