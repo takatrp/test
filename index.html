@@ -1,1117 +1,1276 @@
 <!DOCTYPE html>
+<!-- internal version: r87
+  修正内容
+  - 限界利益率（CMR, %）の入力欄で小数点が落ちる問題を修正
+    * "52." のような入力途中の末尾ドットを維持し、続けて "52.1" を確実に入力できるようにする
+    * 端末差（, や ・ 等）も小数点として扱い '.' に正規化
+-->
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>荒巻税理士法人 研修専用サイト｜証憑保存×変動PL×継続MAS</title>
-  <meta name="description" content="当日はこのサイトを旅するように進行し、後日も振り返れる研修専用サイト（テンプレ）。" />
-  <style>
-    :root{
-      --brand:#578899;
-      --brand-2:#3f6e75;
-      --bg:#f6f8fa;
-      --card:#ffffff;
-      --text:#102a2c;
-      --muted:#5b6b70;
-      --line:#d9e2e6;
-      --warn:#b45309;
-      --ok:#047857;
-      --shadow: 0 10px 25px rgba(16,42,44,.08);
-      --radius:16px;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no" />
+<title>ボールで学ぶ変動損益計算書</title>
 
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", "Yu Gothic", "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      color:var(--text);
-      background:linear-gradient(180deg, #eef5f7 0%, var(--bg) 40%, var(--bg) 100%);
-    }
-    a{color:var(--brand); text-decoration:none}
-    a:hover{text-decoration:underline}
-    .wrap{
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 20px 16px 72px;
-    }
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-CMYCVGVSRR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-CMYCVGVSRR');
+</script>
 
-    /* Top bar */
-    .topbar{
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(246,248,250,.85);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--line);
-    }
-    .topbar-inner{
-      max-width: 1100px;
-      margin:0 auto;
-      padding: 10px 16px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-    .brand{
-      display:flex; align-items:center; gap:10px; min-width: 240px;
-    }
-    .brand-badge{
-      width: 36px; height:36px;
-      border-radius: 10px;
-      background: var(--brand);
-      box-shadow: var(--shadow);
-      position:relative;
-    }
-    .brand-badge::after{
-      content:"";
-      position:absolute;
-      inset:9px 10px 9px 10px;
-      border:2px solid #fff;
-      border-left:0;
-      border-bottom:0;
-      transform: rotate(45deg);
-      opacity:.9;
-    }
-    .brand-title{
-      display:flex; flex-direction:column;
-      line-height: 1.1;
-    }
-    .brand-title .t1{font-weight:800; font-size: 13px; color: var(--muted)}
-    .brand-title .t2{font-weight:900; font-size: 14px}
-    .actions{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .btn{
-      border: 1px solid var(--line);
-      background: #fff;
-      color: var(--text);
-      padding: 9px 12px;
-      border-radius: 12px;
-      cursor:pointer;
-      font-weight: 700;
-      font-size: 13px;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      box-shadow: 0 2px 10px rgba(16,42,44,.05);
-    }
-    .btn:hover{border-color: rgba(87,136,153,.55)}
-    .btn.primary{
-      background: var(--brand);
-      color:#fff;
-      border-color: rgba(0,0,0,.0);
-    }
-    .btn.primary:hover{background: var(--brand-2)}
-    .btn.ghost{
-      background: transparent;
-      border-color: transparent;
-      box-shadow: none;
-      color: var(--muted);
-    }
-    .btn.small{padding:7px 10px; border-radius: 10px; font-size:12px}
-    .btn:disabled{opacity:.55; cursor:not-allowed}
-    .pill{
-      font-size:12px;
-      padding:6px 10px;
-      border:1px solid var(--line);
-      border-radius: 999px;
-      color: var(--muted);
-      background: rgba(255,255,255,.65);
-      white-space:nowrap;
-    }
+<link rel="icon" type="image/png" sizes="192x192" href="favicon192192.png" />
 
-    /* Layout */
-    .grid{
-      display:grid;
-      grid-template-columns: 280px 1fr;
-      gap: 16px;
-      margin-top: 16px;
-    }
-    @media (max-width: 900px){
-      .grid{grid-template-columns: 1fr}
-      .brand{min-width: 0}
-    }
+<style>
+:root{--brand:#578899;--brand-600:#4b7481;--ink:#0f172a;--line:#e5e7eb;--line-dark:#cbd5e1;--danger:#b91c1c}
+*{box-sizing:border-box}
+html,body{
+  margin:0;height:100%;width:100%;
+  inset:0;overflow:auto;overflow-x:hidden;
+  -webkit-text-size-adjust:100%;
+  -webkit-tap-highlight-color:transparent;
+  font:16px/1.6 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic UI","Yu Gothic",Meiryo,sans-serif;
+  color:var(--ink);background:#fff
+}
+.page{min-height:100%;padding:16px}
+.stack{max-width:1120px;width:100%;margin:0 auto}
 
-    /* Sidebar */
-    .side{
-      position: sticky;
-      top: 62px;
-      height: fit-content;
-      border-radius: var(--radius);
-      background: rgba(255,255,255,.65);
-      border:1px solid var(--line);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .side-head{
-      padding: 14px 14px 10px;
-      border-bottom:1px solid var(--line);
-      background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,.6) 100%);
-    }
-    .side-head h3{
-      margin:0;
-      font-size: 14px;
-      font-weight: 900;
-    }
-    .side-head p{
-      margin:6px 0 0;
-      font-size:12px;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-    .nav{
-      display:flex;
-      flex-direction:column;
-      padding: 8px;
-      gap: 6px;
-    }
-    .nav a{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding: 10px 10px;
-      border-radius: 12px;
-      border:1px solid transparent;
-      color: var(--text);
-      font-weight: 800;
-      font-size: 13px;
-      background: transparent;
-    }
-    .nav a:hover{
-      background: rgba(87,136,153,.08);
-      border-color: rgba(87,136,153,.25);
-      text-decoration:none;
-    }
-    .nav a.active{
-      background: rgba(87,136,153,.14);
-      border-color: rgba(87,136,153,.35);
-    }
-    .nav .k{display:flex; align-items:center; gap:10px}
-    .dot{
-      width:10px; height:10px; border-radius: 999px;
-      background: rgba(87,136,153,.35);
-      border:1px solid rgba(87,136,153,.35);
-    }
-    .nav a.active .dot{background: var(--brand); border-color: var(--brand)}
-    .side-foot{
-      padding: 12px 14px 14px;
-      border-top:1px solid var(--line);
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-    .mini{
-      font-size:12px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-    .mini b{color: var(--text)}
-    .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      font-size: 11px;
-      padding: 2px 6px;
-      border:1px solid var(--line);
-      border-bottom-color: #cfd9dd;
-      border-radius: 8px;
-      background:#fff;
-      color: var(--muted);
-    }
+.grid-main{display:grid;gap:16px;grid-template-columns:1fr}
+@media (min-width:960px){.grid-main{grid-template-columns:minmax(0,1.1fr) minmax(0,0.9fr)}}
+@media (max-width:959.9px) and (orientation:landscape){.grid-main{grid-template-columns:1fr 1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 16px rgba(0,0,0,.06);padding:12px;min-width:0}
 
-    /* Main cards */
-    .main{
-      display:flex;
-      flex-direction:column;
-      gap: 16px;
-    }
-    .card{
-      background: rgba(255,255,255,.85);
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .card-head{
-      padding: 18px 18px 12px;
-      border-bottom:1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,.55) 100%);
-    }
-    .card-head .eyebrow{
-      font-size:12px; color: var(--muted); font-weight: 800;
-      letter-spacing: .02em;
-    }
-    .card-head h1,.card-head h2{
-      margin: 6px 0 0;
-      font-size: 20px;
-      font-weight: 950;
-      letter-spacing: .01em;
-    }
-    .card-body{
-      padding: 16px 18px 18px;
-      line-height: 1.65;
-    }
-    .callouts{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin: 12px 0 0;
-    }
-    @media (max-width: 700px){
-      .callouts{grid-template-columns: 1fr}
-    }
-    .callout{
-      border: 1px solid var(--line);
-      background: #fff;
-      border-radius: 14px;
-      padding: 12px 12px;
-    }
-    .callout h4{
-      margin:0 0 6px;
-      font-size: 13px;
-      font-weight: 900;
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
-    .tag{
-      font-size:11px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border:1px solid var(--line);
-      color: var(--muted);
-      background: rgba(246,248,250,.7);
-    }
-    .list{
-      margin: 10px 0 0;
-      padding-left: 18px;
-    }
-    .list li{margin: 6px 0}
-    .hr{
-      height:1px;
-      background: var(--line);
-      margin: 14px 0;
-    }
+/* タイトル行（ロゴ＋見出し＋アクション） */
+.title-row{display:flex;align-items:center;gap:10px;margin:0 0 8px}
+.title-logo{height:48px;width:auto;display:block}
+.logo-link{display:inline-flex;align-items:center;text-decoration:none;line-height:0}
+h1{font-size:18px;margin:0}
+.title-actions{margin-left:auto;display:flex;gap:8px}
+.btn{
+  appearance:none;border:1px solid var(--line-dark);background:#fff;border-radius:12px;
+  padding:6px 10px;font-weight:800;cursor:pointer;color:#0f172a
+}
+.btn:hover{border-color:#94a3b8}
+.btn:active{transform:translateY(1px)}
+.btn.accent{color:#fff;background:var(--brand);border-color:var(--brand);box-shadow:0 10px 22px rgba(87,136,153,.28)}
+.btn.accent:active{background:var(--brand-600)}
 
-    /* Step controls */
-    .step-controls{
-      display:flex;
-      gap: 10px;
-      align-items:center;
-      justify-content:space-between;
-      margin-top: 14px;
-      flex-wrap:wrap;
-    }
-    .step-controls .left, .step-controls .right{
-      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
-    }
+.note-top{background:#eef7fa;border:1px solid #d6e7ee;color:#0b3c4a;padding:8px 10px;border-radius:12px;margin:6px 0 10px;font-size:13px;line-height:1.5}
+canvas{display:block;height:auto;border:1px solid var(--line);border-radius:12px;background:#fff;margin:0 auto;max-width:calc(100vw - 32px)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button{appearance:none;border:0;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer}
+.primary{
+  background:var(--brand);color:#fff;
+  box-shadow:0 10px 24px rgba(87,136,153,.30);
+}
+.primary:active{background:var(--brand-600)}
+.secondary{background:#fff;color:#0f172a;border:1px solid var(--line-dark)}
+.secondary:hover{border-color:#94a3b8}
+.result{font-size:16px;font-weight:800;margin-top:6px}.result.ng{color:var(--danger)}
+.controls{display:grid;gap:8px}
+label.f{display:block;background:#fafafa;border:1px solid var(--line);border-radius:12px;padding:6px 8px}
+.f .row1{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.f .row1 .ttl{font-weight:700;white-space:nowrap}
+.f .row2{margin-top:6px}
+input[type="text"],input[type="number"]{
+  width:96px;max-width:38vw;background:#fff;border:1px solid var(--line-dark);
+  border-radius:8px;padding:8px;text-align:right;font-weight:800
+}
+input[type="range"]{appearance:none;width:100%;height:28px;background:transparent}
+input[type="range"]::-webkit-slider-runnable-track{height:8px;border-radius:999px;background:var(--line)}
+input[type="range"]::-webkit-slider-thumb{appearance:none;width:20px;height:20px;border-radius:50%;background:var(--brand);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2);margin-top:-6px}
+.challenge{border:1px dashed var(--line-dark);padding:10px;border-radius:12px;background:#fbfdfe}
+.guide{color:#334155;font-size:14px;font-weight:900;margin:2px 4px -2px}
+.challenge .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.m{background:#fafafa;border:1px solid var(--line);border-radius:12px;padding:10px}
+.m .k{color:#334155;font-size:12px}.m .v{font-weight:900;margin-top:4px}
+.m.accent{background:#eef7fa;border-color:var(--brand);box-shadow:0 0 0 2px rgba(87,136,153,.35) inset, 0 4px 14px rgba(87,136,153,.18)}
+.m.em{background:#eef7fa}
+#targetLabel,#targetShown{font-weight:900}
+.calc-note{font-weight:900;color:#578899;background:#eef7fa;border:1px solid #d6e7ee;border-radius:8px;padding:6px 8px;margin-top:6px}
 
-    /* Inline forms */
-    .formgrid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    @media (max-width: 700px){
-      .formgrid{grid-template-columns: 1fr}
-    }
-    label{font-size:12px; color: var(--muted); font-weight: 800}
-    input, textarea, select{
-      width:100%;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border:1px solid var(--line);
-      background:#fff;
-      font-size: 14px;
-      color: var(--text);
-      outline:none;
-    }
-    input:focus, textarea:focus, select:focus{
-      border-color: rgba(87,136,153,.55);
-      box-shadow: 0 0 0 3px rgba(87,136,153,.12);
-    }
-    textarea{min-height: 92px; resize: vertical}
+/* --- フッター（ミニ版） --- */
+footer.mk-mini{
+  margin:14px 0 2px;
+  font-size:12px;
+  color:#334155;
+  display:flex;
+  justify-content:center;
+  gap:6px;
+  flex-wrap:wrap;
+}
+footer.mk-mini a{
+  color:inherit;
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
 
-    /* Modal (Resource Library) */
-    .modal-backdrop{
-      position:fixed; inset:0;
-      background: rgba(16,42,44,.45);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 20px 16px;
-      z-index: 999;
-    }
-    .modal{
-      max-width: 920px;
-      width:100%;
-      max-height: 86vh;
-      overflow:auto;
-      background: #fff;
-      border-radius: 18px;
-      border:1px solid rgba(0,0,0,.08);
-      box-shadow: 0 30px 60px rgba(16,42,44,.25);
-    }
-    .modal-head{
-      position: sticky;
-      top: 0;
-      background: #fff;
-      border-bottom:1px solid var(--line);
-      padding: 14px 16px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      z-index: 2;
-    }
-    .modal-head h3{margin:0; font-size: 14px; font-weight: 950}
-    .modal-body{padding: 14px 16px 16px; line-height: 1.6}
-    .res-grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    @media (max-width: 700px){ .res-grid{grid-template-columns:1fr} }
-    .res{
-      border:1px solid var(--line);
-      border-radius: 14px;
-      padding: 12px;
-      background: linear-gradient(180deg, #ffffff 0%, #fbfdfe 100%);
-    }
-    .res .h{
-      font-weight: 950; margin:0 0 6px; font-size: 13px;
-      display:flex; align-items:center; justify-content:space-between; gap:8px;
-    }
-    .res .d{margin:0; color: var(--muted); font-size: 12px}
-    .res .links{margin-top:10px; display:flex; gap:8px; flex-wrap:wrap}
-    .badge{
-      font-size:11px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: rgba(87,136,153,.12);
-      color: var(--brand-2);
-      border: 1px solid rgba(87,136,153,.25);
-      white-space: nowrap;
-    }
+@media (max-width:480px){
+  h1{font-size:17px}
+  .card{padding:10px}
+  .note-top{font-size:12px}
+  input[type="text"],input[type="number"]{width:86px;padding:7px}
+}
 
-    /* Print */
-    @media print{
-      .topbar, .side, .step-controls, .btn, .modal-backdrop {display:none !important}
-      body{background:#fff}
-      .grid{grid-template-columns:1fr}
-      .card{box-shadow:none}
-      a{color:#000; text-decoration:underline}
-    }
+/* ===== チュートリアル（オーバーレイ/パネル） ===== */
+.mk-tour-mask{
+  position:fixed;inset:0;
+  background:rgba(15,23,42,.52);
+  z-index:9998;
+  pointer-events:none; /* 操作を邪魔しない */
+}
+.mk-tour-panel{
+  position:fixed;z-index:10002;
+  max-width:min(560px, 92vw);
+  background:#fff;border:1px solid var(--line);border-radius:16px;
+  box-shadow:0 14px 36px rgba(0,0,0,.22);
+  padding:12px;
+  max-height:min(62vh, 520px);
+  overflow:auto;
+}
+.mk-tour-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.mk-tour-step{font-size:12px;color:#475569;white-space:nowrap}
+.mk-tour-title{font-weight:900}
+.mk-tour-body{font-size:14px;color:#0f172a}
+.mk-tour-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:10px;position:sticky;bottom:0;background:#fff;padding-top:8px}
+.mk-tour-actions .tbtn{border-radius:10px;border:1px solid var(--line-dark);background:#fff;padding:7px 11px;font-weight:900;cursor:pointer}
+.mk-tour-actions .tbtn.primary{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 10px 22px rgba(87,136,153,.30)}
+.mk-tour-actions .tbtn:disabled{opacity:.55;cursor:not-allowed}
 
-    /* Presenter mode */
-    body.presenter .wrap{max-width: 1250px}
-    body.presenter .card-head h1, body.presenter .card-head h2{font-size: 26px}
-    body.presenter .card-body{font-size: 18px}
-    body.presenter .nav a{font-size: 14px}
-  </style>
+/* 操作対象を持ち上げる（枠ではなく、要素自身を強調） */
+.mk-tour-elevate{
+  position:relative !important;
+  z-index:10001 !important;
+  isolation:isolate;
+  box-shadow:0 0 0 3px rgba(255,255,255,.92), 0 0 0 8px rgba(87,136,153,.34);
+  border-radius:12px;
+}
+
+/* “押すべきボタン”をさらに目立たせる（パルス） */
+.mk-tour-pulse{
+  animation: mkPulse 1.05s infinite ease-in-out;
+  transform-origin:center;
+}
+@keyframes mkPulse{
+  0%   { transform:scale(1);   filter:drop-shadow(0 0 0 rgba(87,136,153,.0)); }
+  50%  { transform:scale(1.06); filter:drop-shadow(0 10px 18px rgba(87,136,153,.35)); }
+  100% { transform:scale(1);   filter:drop-shadow(0 0 0 rgba(87,136,153,.0)); }
+}
+.mk-tour-pulse.primary{
+  box-shadow:0 0 0 3px rgba(255,255,255,.95), 0 0 0 10px rgba(87,136,153,.28), 0 18px 30px rgba(87,136,153,.28);
+}
+
+/* スマホで「グラフを見ながら操作」したいステップ用（sticky化） */
+body.mk-tour-sticky-graph #cardGraph{
+  position:sticky;
+  top:10px;
+  z-index:10000; /* パネルより下 */
+}
+body.mk-tour-sticky-graph #cardGraph .note-top{display:none}
+body.mk-tour-sticky-graph #cardGraph canvas{max-height:38vh}
+</style>
 </head>
 
 <body>
-  <!-- ======= SETTINGS (ここを編集してください) ======= -->
-  <script>
-    // 研修ごとにここだけ差し替えれば動くテンプレ
-    window.SEMINAR = {
-      title: "荒巻税理士法人様｜所内研修（証憑保存×変動PL×継続MAS）",
-      date: "2026-01-15",
-      // 主要リンク（先生の環境に合わせて差し替え）
-      links: {
-        ballTool: "https://takatrp.github.io/hendou_PL/?from=seminar-site",
-        toolPortal: "https://takatrp.github.io/tool-portal/",
-        jidoukaLP: "https://takatrp.github.io/matsumoto-kaikei-jidouka/",
-        tangoManual: "https://example.com/tango-manual", // ←Tangoの共有URLに置換
-        // もし「スマホで経費」や証憑保存の公式マニュアルURLがあるなら貼る（任意）
-        tkcManual: ""
-      },
-      // 当日 “開かせない” を徹底するため、ポータルはFinishでのみ案内する設計
+<div class="page">
+  <div class="stack">
+    <div class="grid-main">
+      <div class="card" id="cardGraph">
+        <div class="title-row">
+          <a class="logo-link" href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener">
+            <img src="ロゴ.jpg" alt="税理士法人松本会計事務所 ロゴ" class="title-logo" />
+          </a>
+          <h1>ボールで学ぶ変動損益計算書</h1>
+          <div class="title-actions">
+            <button id="openExplain" type="button" class="btn accent" aria-label="解説（別タブで開く）">解説</button>
+            <button id="startTour" type="button" class="btn" aria-label="チュートリアル開始">チュートリアル</button>
+          </div>
+        </div>
+
+        <div class="note-top">
+          ・固定費：越えるべきハードルの高さ<br>
+          ・売上高：ボールを落とす高さ<br>
+          ・限界利益：バウンドした頂点<br>
+          ・限界利益率：バウンドする割合<br>
+          ※バウンド頂点（限界利益）がハードル（固定費）を超えれば黒字です。
+        </div>
+        <canvas id="cv" width="860" height="420" aria-label="学習キャンバス"></canvas>
+        <div class="btns">
+          <button id="play" class="primary" type="button">黒字かどうか確認</button>
+          <button id="reset" class="secondary" type="button">リセット</button>
+        </div>
+        <div id="result" class="result" aria-live="polite"></div>
+      </div>
+
+      <div class="card" id="cardCtrl">
+        <div class="controls" id="controls">
+          <label class="f" id="paramSales"><div class="row1"><span class="ttl">売上高（S）</span>
+            <input id="sales" type="text" inputmode="numeric" enterkeyhint="done"
+              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+              value="1,000,000"></div>
+            <div class="row2"><input id="salesRange" type="range" min="0" max="5000000" step="1000" value="1000000"></div>
+          </label>
+
+          <label class="f" id="paramCMR"><div class="row1"><span class="ttl">限界利益率（CMR, %）</span>
+            <input id="cmr" type="text" inputmode="decimal" placeholder="0〜100"
+              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value="60"></div>
+            <div class="row2"><input id="cmrRange" type="range" min="0" max="100" step="0.1" value="60"></div>
+          </label>
+
+          <label class="f" id="paramFixed"><div class="row1"><span class="ttl">固定費（FC）</span>
+            <input id="fixed" type="text" inputmode="numeric" enterkeyhint="done"
+              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+              value="700,000"></div>
+            <div class="row2"><input id="fixedRange" type="range" min="0" max="2000000" step="1000" value="700000"></div>
+          </label>
+
+          <div class="challenge" id="challengeBox"><label><input type="checkbox" id="challengeToggle"> 必要売上高を考えてみましょう</label></div>
+
+          <div id="guideFixed" class="guide" style="display:none;">① （追加の）固定費はいくらですか？</div>
+          <div id="guideCMR" class="guide" style="display:none;">② 限界利益率は何％ですか？</div>
+          <div id="guideSales" class="guide" style="display:none;">③ 上記を元に、必要売上高を考えてみましょう</div>
+
+          <div class="challenge row" id="checkRow" style="display:none;">
+            <button id="checkBtn" class="primary" type="button">答え合わせ</button>
+            <button id="reset2" class="secondary" type="button">リセット</button>
+          </div>
+
+          <div id="checkResult" style="display:none;margin-top:6px">
+            <div><span id="targetLabel">必要売上高（損益分岐点売上高）：</span><span id="targetShown">—</span></div>
+            <div><span id="diffMsg">—</span> ／<span id="status">—</span></div>
+            <div id="calcNote" class="calc-note">※必要売上高は、固定費÷限界利益率で逆算できます。</div>
+          </div>
+
+          <div id="warnCMR0" class="muted" style="display:none;color:#8b5e00">※ 限界利益率が0%のため、どれだけ売上高があっても黒字になりません。</div>
+        </div>
+
+        <div class="metrics" id="metrics">
+          <div class="m"><div class="k">売上高 (S)</div><div id="mSales" class="v">-</div></div>
+          <div class="m"><div class="k">限界利益率 (CMR)</div><div id="mCMR" class="v">-</div></div>
+          <div class="m em"><div class="k">限界利益 (S×CMR)</div><div id="mCM" class="v">-</div></div>
+          <div class="m" id="mBEPcard"><div class="k">損益分岐点売上高 (FC÷CMR)</div><div id="mBEP" class="v">-</div></div>
+          <div class="m em"><div class="k">経常利益 ≒ 限界利益−固定費</div><div id="mProfit" class="v">-</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ミニフッター（ツールポータル準拠） -->
+    <footer class="mk-mini">
+      © <span id="cpy-year">2025</span> <a href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener license">税理士法人松本会計事務所</a> ｜ 
+      <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener">CC BY-NC-SA 4.0</a> ｜ 
+      <a href="/tool-portal/terms.html" target="_blank" rel="noopener">利用条件</a> ｜ 
+      <span id="build-rev">r87</span>（<span id="last-updated-date"></span>）
+    </footer>
+  </div>
+</div>
+
+<script>
+'use strict';
+(function(){
+  const VERSION='r87';
+
+  // 年号 & 最終更新日（YYYY-MM-DD）を自動反映
+  (function syncFooterMeta(){
+    const yEl = document.getElementById('cpy-year');
+    const dEl = document.getElementById('last-updated-date');
+    const rEl = document.getElementById('build-rev');
+    if(yEl){ yEl.textContent = String(new Date().getFullYear()); }
+    if(dEl){
+      const d = new Date(document.lastModified);
+      const yyyy = String(d.getFullYear());
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      dEl.textContent = `${yyyy}-${mm}-${dd}`;
+    }
+    if(rEl){ rEl.textContent = VERSION; }
+  })();
+
+  const onReady = (fn) => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fn, { once:true });
+    } else {
+      fn();
+    }
+  };
+
+  onReady(() => {
+    const DEFAULTS={sales:1000000, cmr:60, fixed:700000};
+    const BLUE='#0ea5e9';
+    const $=id=>document.getElementById(id);
+
+    const IS_IOS_MOBILE = /iPhone|iPod/i.test(navigator.userAgent)
+       || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1 && window.innerWidth<820);
+
+    const IS_MOBILE = window.matchMedia && window.matchMedia('(max-width: 820px)').matches
+      ? true
+      : (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth<820);
+
+    const cv=$('cv'); if(!cv){ console.error(`[${VERSION}] canvas#cv が見つかりません。`); return; }
+    const ctx=cv.getContext && cv.getContext('2d'); if(!ctx){ console.error(`[${VERSION}] 2Dコンテキスト取得不可`); return; }
+
+    // 「解説」ボタン：スマホは縦画像、PCは従来通り
+    const explainBtn = $('openExplain');
+    if(explainBtn){
+      explainBtn.addEventListener('click', ()=>{
+        const file = IS_MOBILE ? '変動PL縦.png' : '変動PL.png';
+        const url = encodeURI(file);
+        window.open(url, '_blank', 'noopener');
+      });
+    }
+
+    /* ===================== 入力・状態 ===================== */
+    let revealedByPlay=false, playing=false, apexMarkerY=null;
+    let pendingCheck=false, pendingVals=null, showTargetLine=false, targetLineValue=null, showMOSBand=false;
+
+    const dims={W:360,H:240,MARGIN:36,GROUND_Y:204};
+    const sy=(v,maxV)=>(dims.H - dims.MARGIN*2) * (v / maxV);
+    const jpy=v=>isFinite(v)?v.toLocaleString('ja-JP',{style:'currency',currency:'JPY',maximumFractionDigits:0}):'—';
+    const brand=()=>getComputedStyle(document.documentElement).getPropertyValue('--brand').trim()||'#578899';
+
+    const I={ sales:$('sales'), cmr:$('cmr'), fixed:$('fixed'),
+              salesRange:$('salesRange'), cmrRange:$('cmrRange'), fixedRange:$('fixedRange') };
+    const resultEl=$('result');
+    const toggle=$('challengeToggle'), metrics=$('metrics');
+    const controls=$('controls'), challengeBox=$('challengeBox');
+    const paramSales=$('paramSales'), paramCMR=$('paramCMR'), paramFixed=$('paramFixed');
+    const guideFixed=$('guideFixed'), guideCMR=$('guideCMR'), guideSales=$('guideSales');
+    const checkRow=$('checkRow'), checkBtn=$('checkBtn'), reset2=$('reset2'), checkResult=$('checkResult');
+    const targetShown=$('targetShown'), statusEl=$('status'), diffMsgEl=$('diffMsg');
+    const mBEPcard=$('mBEPcard');
+
+    /* ===== 入力正規化（全角/丸数字/句読点対応） ===== */
+    const CIRCLED_MAP = Object.fromEntries([['①','1'],['②','2'],['③','3'],['④','4'],['⑤','5'],['⑥','6'],['⑦','7'],['⑧','8'],['⑨','9'],['⑩','10'],['⑪','11'],['⑫','12'],['⑬','13'],['⑭','14'],['⑮','15'],['⑯','16'],['⑰','17'],['⑱','18'],['⑲','19'],['⑳','20']]);
+    function normalizeDigits(str){ if(!str) return ''; str=str.replace(/[０-９]/g,s=>String.fromCharCode(s.charCodeAt(0)-0xFEE0)); str=str.replace(/[①-⑳]/g,s=>CIRCLED_MAP[s]||''); return str;}
+    function extractDigits(str){ return normalizeDigits(str).replace(/\D+/g,''); }
+    function parseComma(v){ const raw = extractDigits(String(v??'')); return Number(raw||0); }
+    const composing = new WeakMap();
+
+    function formatCurrencyInput(el){
+      if(composing.get(el)) return parseComma(el.value);
+      const before = el.value;
+      const sel = el.selectionEnd ?? before.length;
+      const digitsLeft = extractDigits(before.slice(0, sel)).length;
+      const raw = extractDigits(before);
+      const n = Number(raw||0);
+      const formatted = isFinite(n) ? n.toLocaleString('ja-JP') : '';
+      let pos=0, count=0;
+      for(let i=0;i<formatted.length;i++){
+        if(/\d/.test(formatted[i])) count++;
+        if(count>=digitsLeft){ pos=i+1; break; }
+      }
+      if(digitsLeft===extractDigits(before).length) pos=formatted.length;
+      el.value = formatted; try{ el.setSelectionRange(pos,pos); }catch(_){ }
+      return n;
+    }
+
+    // === r87: CMR入力の小数点維持・正規化強化 ===
+    function cleanPercentString(s){
+      s = normalizeDigits(String(s ?? ''));
+      // 小数点として扱い得る記号を '.' に寄せる（端末/IME差の吸収）
+      s = s.replace(/[，、,｡。．·・･⋅∙٫٬]/g, '.');
+
+      let out = '';
+      let seenDot = false;
+      for(const ch of s){
+        if(/\d/.test(ch)){
+          out += ch;
+        }else if(ch === '.' && !seenDot){
+          out += '.';
+          seenDot = true;
+        }
+      }
+
+      // 先頭が '.' の場合は '0.' に補正
+      if(out.startsWith('.')) out = '0' + out;
+
+      // 小数は1桁まで。ただし "52." のような末尾ドットは維持
+      if(seenDot){
+        const [a, b=''] = out.split('.');
+        out = a + '.' + b.slice(0, 1); // bが空なら末尾'.'のまま
+      }
+      return out;
+    }
+
+    function formatPercentInput(el){
+      if(composing.get(el)) return Number.parseFloat(el.value) || 0;
+
+      const before = String(el.value || '');
+      const sel = el.selectionEnd ?? before.length;
+
+      // カーソル左側の正規化済み長さ
+      const leftNorm = cleanPercentString(before.slice(0, sel));
+      const cleaned = cleanPercentString(before);
+
+      // 空は空のまま
+      if(cleaned === ''){
+        el.value = '';
+        return 0;
+      }
+
+      const endsWithDot = cleaned.endsWith('.');
+
+      // 数値化は末尾ドットを除いて行う
+      const numBase = Number.parseFloat(endsWithDot ? cleaned.slice(0, -1) : cleaned);
+      let num = Number.isFinite(numBase) ? numBase : 0;
+      num = Math.min(100, Math.max(0, num));
+
+      let out;
+      if(endsWithDot){
+        // 入力途中の "52." を維持
+        out = String(Math.trunc(num)) + '.';
+      }else if(cleaned.includes('.')){
+        if(num >= 100){
+          out = '100';
+        }else{
+          const dec = (cleaned.split('.')[1] || '').slice(0, 1); // 1桁
+          out = String(Math.trunc(num)) + '.' + dec;
+        }
+      }else{
+        out = String(Math.trunc(num));
+      }
+
+      el.value = out;
+
+      // カーソル復元
+      const pos = Math.min(out.length, leftNorm.length);
+      try{ el.setSelectionRange(pos, pos); }catch(_){ }
+
+      return Number.parseFloat(out) || 0;
+    }
+
+    /* ===== 計算（permilleで丸め） ===== */
+    function calc(){
+      const salesRaw = parseComma(I.sales.value);
+      const fixedRaw = parseComma(I.fixed.value);
+      const cmrPctInput = Number(I.cmr.value||0);
+      const cmrPctClamped = Math.min(100, Math.max(0, cmrPctInput));
+      const cmrPermille = Math.round(cmrPctClamped * 10); // 0..1000
+      const cmrPctRounded = cmrPermille / 10;
+      const cm = Math.floor(salesRaw * cmrPermille / 1000);
+      const bep = cmrPermille>0 ? Math.ceil(fixedRaw * 1000 / cmrPermille) : Infinity;
+      const profit = cm - fixedRaw;
+      return {sales:salesRaw,fixed:fixedRaw,cmrPct:cmrPctRounded,cmrPermille,cm,profit,bep};
+    }
+
+    /* ===== 描画ユーティリティ ===== */
+    function arrow(x1,y1,x2,y2,c){
+      const ctx2=ctx;
+      ctx2.strokeStyle=c; ctx2.fillStyle=c; ctx2.lineWidth=2;
+      ctx2.beginPath(); ctx2.moveTo(x1,y1); ctx2.lineTo(x2,y2); ctx2.stroke();
+      const a=Math.atan2(y2-y1,x2-x1),h=8;
+      ctx2.beginPath(); ctx2.moveTo(x2,y2);
+      ctx2.lineTo(x2-h*Math.cos(a-Math.PI/6), y2-h*Math.sin(a-Math.PI/6));
+      ctx2.lineTo(x2-h*Math.cos(a+Math.PI/6), y2-h*Math.sin(a+Math.PI/6));
+      ctx2.closePath(); ctx2.fill();
+    }
+    function doubleArrowVertical(x,yTop,yBot,color){
+      const ctx2=ctx;
+      ctx2.strokeStyle=color; ctx2.fillStyle=color; ctx2.lineWidth=2;
+      ctx2.beginPath(); ctx2.moveTo(x,yTop); ctx2.lineTo(x,yBot); ctx2.stroke();
+      const h=8;
+      ctx2.beginPath(); ctx2.moveTo(x,yTop);
+      ctx2.lineTo(x-h*Math.cos(Math.PI/6), yTop+h*Math.sin(Math.PI/6));
+      ctx2.lineTo(x+h*Math.cos(Math.PI/6), yTop+h*Math.sin(Math.PI/6));
+      ctx2.closePath(); ctx2.fill();
+      ctx2.beginPath(); ctx2.moveTo(x,yBot);
+      ctx2.lineTo(x-h*Math.cos(Math.PI/6), yBot-h*Math.sin(Math.PI/6));
+      ctx2.lineTo(x+h*Math.cos(Math.PI/6), yBot-h*Math.sin(Math.PI/6));
+      ctx2.closePath(); ctx2.fill();
+    }
+    function drawFixed(mt,maxV,xCMArrow){
+      const BR=brand(); const barL=dims.MARGIN, barR=dims.W-dims.MARGIN;
+      const hH=sy(mt.fixed,maxV), y=dims.GROUND_Y-hH, hgt=Math.max(0,dims.GROUND_Y-y);
+      if(IS_IOS_MOBILE){
+        const startX=0, width=(barR-startX);
+        ctx.fillStyle='rgba(87,136,153,0.22)'; ctx.fillRect(startX,y,width,hgt);
+        ctx.fillStyle=BR; ctx.fillText('固定費（ハードル）: '+jpy(mt.fixed), Math.max(6,dims.MARGIN-2), y-8);
+      }else{
+        const L=barL+40, Rlimit=xCMArrow? (xCMArrow-30):(barR-40);
+        const R=Math.max(L+24, Math.min(barR-40, Rlimit)), W=R-L;
+        ctx.fillStyle='rgba(87,136,153,0.15)'; ctx.fillRect(L,y,W,hgt);
+        ctx.strokeStyle=BR; ctx.lineWidth=2; ctx.strokeRect(L,y,W,hgt);
+        ctx.fillStyle=BR; ctx.fillText('固定費（ハードル）: '+jpy(mt.fixed), Math.max(6,L), y-8);
+      }
+    }
+
+    /* ===== メイン描画 ===== */
+    function draw(mt){
+      const maxV=Math.max(1,mt.sales,mt.cm,mt.fixed, isFinite(targetLineValue)?targetLineValue:0)*1.15;
+      const hide=toggle.checked && !revealedByPlay;
+
+      ctx.clearRect(0,0,dims.W,dims.H);
+      ctx.fillStyle='#fff'; ctx.fillRect(0,0,dims.W,dims.H);
+      ctx.font='12px system-ui,-apple-system,Segoe UI,Roboto,sans-serif';
+
+      // 地面
+      ctx.fillStyle='#e2e8f0'; ctx.fillRect(0,dims.GROUND_Y,dims.W,3);
+
+      // 目盛り
+      ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+      ctx.fillStyle='rgba(71,85,105,0.40)';
+      for(let i=0;i<=5;i++){
+        const val=(maxV/5)*i, h=sy(val,maxV), y=dims.GROUND_Y-h;
+        ctx.beginPath(); ctx.moveTo(dims.MARGIN,y); ctx.lineTo(dims.W-dims.MARGIN,y); ctx.stroke();
+        ctx.fillText(jpy(val), 6, y-2);
+      }
+      ctx.setLineDash([]);
+
+      const xSalesArrow=dims.W-dims.MARGIN-18;
+      const xCMArrow=xSalesArrow-28;
+
+      // 固定費帯
+      drawFixed(mt,maxV,xCMArrow);
+
+      // 必要売上高ライン
+      if(showTargetLine && isFinite(targetLineValue)){
+        const yT=dims.GROUND_Y - sy(targetLineValue, maxV);
+        ctx.save(); ctx.setLineDash([6,4]); ctx.strokeStyle=BLUE;
+        ctx.beginPath(); ctx.moveTo(dims.MARGIN,yT); ctx.lineTo(dims.W-dims.MARGIN-2,yT); ctx.stroke(); ctx.restore();
+        ctx.fillStyle=BLUE;
+        ctx.fillText('必要売上高（損益分岐点売上高）: '+jpy(targetLineValue), Math.max(6,dims.MARGIN-2), yT-6);
+
+        const sH=sy(mt.sales,maxV), sY=dims.GROUND_Y-sH;
+        const yTop=Math.min(sY,yT), yBot=Math.max(sY,yT);
+        const diffS = mt.sales - targetLineValue;
+        const xLeft = Math.max(dims.MARGIN+18, 22);
+        const danger = (getComputedStyle(document.documentElement).getPropertyValue('--danger').trim()||'#b91c1c');
+        const colorArrow = diffS>=0 ? '#000' : danger;
+        doubleArrowVertical(xLeft, yTop, yBot, colorArrow);
+        const labelColor = diffS>=0 ? '#000' : colorArrow;
+        ctx.save(); ctx.fillStyle=labelColor; ctx.textBaseline='middle'; ctx.font='bold 12px system-ui,-apple-system,Segoe UI,Roboto,sans-serif';
+        const lbl = (diffS>=0? '余裕 ' : '不足 ') + jpy(Math.abs(diffS));
+        ctx.fillText(lbl, xLeft+8, (yTop+yBot)/2);
+        ctx.restore();
+      }
+
+      // 売上（横矢印）
+      const sH=sy(mt.sales,maxV), sY=dims.GROUND_Y-sH;
+      ctx.save(); ctx.setLineDash([3,4]); ctx.strokeStyle='#475569';
+      ctx.beginPath(); ctx.moveTo(dims.MARGIN,sY); ctx.lineTo(xSalesArrow-2,sY); ctx.stroke(); ctx.restore();
+      const tSales='売上高: '+(hide?'???':jpy(mt.sales)); const ySales=sY-6;
+      if(hide){ ctx.save(); ctx.fillStyle='#475569'; ctx.textAlign='right'; ctx.fillText(tSales, xCMArrow-6, ySales); ctx.restore(); }
+      else{ ctx.save(); ctx.fillStyle='#475569'; ctx.textAlign='right'; ctx.fillText(tSales, dims.W-6, ySales); ctx.restore(); }
+      arrow(xSalesArrow, sY, xSalesArrow, dims.GROUND_Y-3, brand());
+
+      // 限界利益（縦矢印）
+      const b=mt.cm, bH=sy(b,maxV), bY=dims.GROUND_Y-bH;
+      if(!hide){
+        ctx.save(); ctx.setLineDash([3,4]); ctx.strokeStyle='#0ea5e9';
+        ctx.beginPath(); ctx.moveTo(dims.MARGIN,bY); ctx.lineTo(xCMArrow-2,bY); ctx.stroke(); ctx.restore();
+        ctx.fillStyle='#0ea5e9';
+        const tCM='限界利益: '+jpy(b); const w=ctx.measureText(tCM).width;
+        const xText=Math.min(dims.W-dims.MARGIN-w, xCMArrow+8);
+        ctx.fillText(tCM, xText, bY-6);
+        arrow(xCMArrow, dims.GROUND_Y-3, xCMArrow, bY, brand());
+      }else{
+        ctx.save(); ctx.fillStyle='#0ea5e9'; ctx.textAlign='right';
+        ctx.fillText('限界利益: ???', xCMArrow-6, ySales+16);
+        ctx.restore();
+      }
+
+      // 安全余裕帯
+      if(showMOSBand && showTargetLine && isFinite(targetLineValue)){
+        const yS = sY;
+        const yB = dims.GROUND_Y - sy(targetLineValue, maxV);
+        const yTop=Math.min(yS,yB), yBot=Math.max(yS,yB);
+        const positive = (mt.sales - targetLineValue) >= 0;
+        ctx.fillStyle = positive ? 'rgba(16,123,91,0.12)' : 'rgba(185,28,28,0.12)';
+        ctx.fillRect(dims.MARGIN, yTop, (dims.W - dims.MARGIN*2), yBot - yTop);
+      }
+
+      // 下部中央：限界利益率
+      const xMid=(xSalesArrow+xCMArrow)/2;
+      ctx.fillStyle='#334155'; ctx.textAlign='center';
+      ctx.fillText('限界利益率 '+mt.cmrPct.toFixed(1)+'%', xMid, dims.H-10);
+      ctx.textAlign='start';
+
+      // 待機ボール
+      const rBall=(window.innerWidth<820)?8:9;
+      if(!playing){
+        const y0=dims.GROUND_Y-sH;
+        ctx.beginPath(); ctx.fillStyle='#475569'; ctx.arc(dims.W/2,y0,rBall,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle='#94a3b8'; ctx.stroke();
+      }
+
+      // 残像／黒字・赤字表示
+      if(apexMarkerY!=null){
+        ctx.save(); ctx.globalAlpha=.5; ctx.strokeStyle='#94a3b8'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(dims.W/2,apexMarkerY,10,0,Math.PI*2); ctx.stroke(); ctx.restore();
+      }
+      if(revealedByPlay){
+        const bH2=sy(mt.cm,maxV), bY2=dims.GROUND_Y-bH2;
+        const hY2=dims.GROUND_Y - sy(mt.fixed,maxV);
+        const yTop=Math.min(bY2,hY2), yBot=Math.max(bY2,hY2);
+        const xNearBall=Math.min(dims.W-dims.MARGIN-24,(dims.W/2)+((window.innerWidth<820)?8:9)+10);
+        const p=mt.cm-mt.fixed;
+        const danger=(getComputedStyle(document.documentElement).getPropertyValue('--danger').trim()||'#b91c1c');
+        const arrowColor = p>0 ? '#000' : (p<0 ? danger : '#334155');
+        doubleArrowVertical(xNearBall, yTop, yBot, arrowColor);
+        const txt=p>0?('黒字 '+jpy(p)):p<0?('赤字 '+jpy(-p)):'±0';
+        const labelColor = p>0 ? '#000' : (p<0 ? danger : '#334155');
+        ctx.save(); ctx.fillStyle=labelColor; ctx.font='bold 12px system-ui,-apple-system,Segoe UI,Roboto,sans-serif'; ctx.textBaseline='middle';
+        const wlbl=ctx.measureText(txt).width;
+        ctx.fillText(txt, Math.min(dims.W-6-wlbl,xNearBall+10), (yTop+yBot)/2);
+        ctx.restore();
+      }
+    }
+
+    function renderMetrics(mt){
+      $('mSales').textContent=jpy(mt.sales);
+      $('mCMR').textContent=mt.cmrPct.toFixed(1)+'%';
+      $('mCM').textContent=jpy(mt.cm);
+      $('mBEP').textContent=isFinite(mt.bep)?jpy(mt.bep):'—';
+      $('mProfit').textContent=jpy(mt.profit);
+      const warn=$('warnCMR0'); if(warn) warn.style.display=(mt.cmrPermille<=0)?'block':'none';
+    }
+    function redrawOnly(){ const mt=calc(); renderMetrics(mt); draw(mt); }
+
+    /* ===== UIロジック ===== */
+    function applyOrderChallenge(){
+      $('guideFixed').textContent='① （追加の）固定費はいくらですか？';
+      $('guideCMR').textContent='② 限界利益率は何％ですか？';
+      $('guideSales').textContent='③ 上記を元に、必要売上高を考えてみましょう';
+      controls.insertBefore(challengeBox, controls.firstChild);
+      controls.append(guideFixed); guideFixed.style.display='block'; controls.append(paramFixed);
+      controls.append(guideCMR);   guideCMR.style.display='block';   controls.append(paramCMR);
+      controls.append(guideSales); guideSales.style.display='block'; controls.append(paramSales);
+      controls.append(checkRow);   checkRow.style.display='flex';
+      controls.append(checkResult);
+      metrics.style.display='none';
+      mBEPcard.classList.remove('accent');
+    }
+    function applyOrderNormal(){
+      guideFixed.style.display='none'; guideCMR.style.display='none'; guideSales.style.display='none';
+      controls.append(paramSales); controls.append(paramCMR); controls.append(paramFixed); controls.append(challengeBox);
+      controls.append(checkRow); checkRow.style.display='none';
+      controls.append(checkResult); checkResult.style.display='none';
+      metrics.style.display='grid';
+      showTargetLine=false; targetLineValue=null; showMOSBand=false;
+      mBEPcard.classList.remove('accent');
+    }
+    function doCheckAnswer(){
+      const mt=calc();
+      const target = mt.cmrPermille>0 ? Math.ceil(mt.fixed*1000/mt.cmrPermille) : Infinity;
+      const diffRaw = mt.sales - target;
+      const diffAbs = Math.abs(diffRaw);
+      const pct = (isFinite(target)&&target>0) ? (diffAbs/target*100) : NaN;
+      let msg='差はありません', cls='';
+      if(diffRaw < 0){ msg = 'あと ' + jpy(diffAbs) + ' 不足しています'; cls='diff-uline-red'; }
+      else if(diffRaw > 0){ msg = 'あと ' + jpy(diffAbs) + ' 余裕があります'; cls='diff-uline-blue'; }
+      pendingVals = { targetText: isFinite(target)? jpy(target) : '—', targetNum:  isFinite(target)? target : NaN, msg, cls, statusText: isFinite(pct)? ('誤差 '+pct.toFixed(1)+'%') : '誤差 —' };
+      pendingCheck=true;
+      if(!playing) playOnce();
+    }
+    function resetAll(){
+      revealedByPlay=false; apexMarkerY=null; playing=false; resultEl.textContent=''; resultEl.classList.remove('ng');
+      pendingCheck=false; pendingVals=null; checkResult.style.display='none';
+      showTargetLine=false; targetLineValue=null; showMOSBand=false;
+      I.sales.value=(DEFAULTS.sales).toLocaleString('ja-JP');
+      I.cmr.value=String(DEFAULTS.cmr);
+      I.fixed.value=(DEFAULTS.fixed).toLocaleString('ja-JP');
+      I.salesRange.value=String(DEFAULTS.sales); I.cmrRange.value=String(DEFAULTS.cmr); I.fixedRange.value=String(DEFAULTS.fixed);
+      metrics.style.display = toggle.checked ? 'none' : 'grid';
+      mBEPcard.classList.remove('accent');
+      redrawOnly();
+    }
+
+    /* ===== アニメーション ===== */
+    function playOnce(){
+      if(playing) return; playing=true; resultEl.textContent=''; resultEl.classList.remove('ng');
+      const mt=calc();
+      const maxV=Math.max(1,mt.sales,mt.cm,mt.fixed)*1.15;
+      const sH=sy(mt.sales,maxV), tH=sy(mt.cm,maxV);
+      const r=(window.innerWidth<820)?8:9;
+      let y=dims.GROUND_Y - sH, vy=0, g=.6, prevVy=0, bounced=false, ground=dims.GROUND_Y - r; apexMarkerY=null;
+      const ball=()=>{ ctx.beginPath(); ctx.fillStyle='#475569'; ctx.arc(dims.W/2,y,r,0,Math.PI*2); ctx.fill(); ctx.strokeStyle='#94a3b8'; ctx.stroke(); };
+      function frame(){
+        prevVy=vy; vy+=g; y+=vy;
+        if(y>=ground && !bounced){
+          y=ground; const apex=dims.GROUND_Y - tH - r; const rise=y - apex;
+          vy = -Math.sqrt(Math.max(0,2*g*rise)); bounced=true;
+        }else if(bounced){
+          if(prevVy<0 && vy>=0 && apexMarkerY==null){ apexMarkerY=y; }
+          if(vy>0 && y>=ground){
+            revealedByPlay=true; redrawOnly(); ball();
+            const p=calc().profit;
+
+            window.__mk_tour = window.__mk_tour || {};
+            window.__mk_tour.lastPlayedAt = Date.now();
+            window.__mk_tour.lastPlayed = {...calc()};
+
+            if(p>0){ resultEl.classList.remove('ng'); resultEl.textContent=`黒字達成！ 経常利益 ≈ ${jpy(p)}`; }
+            else if(p<0){ const c=calc(); resultEl.classList.add('ng'); resultEl.textContent=`赤字（経常損失）… 損失 ≈ ${jpy(-p)} ／ あと ≈ ${jpy(Math.max(0, c.fixed - c.cm))} の限界利益が必要`; }
+            else{ resultEl.classList.remove('ng'); resultEl.textContent=`損益分岐点！ ±0（トントン）`; }
+
+            if(pendingCheck && pendingVals){
+              targetShown.textContent = pendingVals.targetText;
+              diffMsgEl.innerHTML      = pendingVals.cls ? `<span class="${pendingVals.cls}">${pendingVals.msg}</span>` : pendingVals.msg;
+              statusEl.textContent     = pendingVals.statusText;
+              checkResult.style.display='block';
+              metrics.style.display='grid';
+              showTargetLine = isFinite(pendingVals.targetNum);
+              targetLineValue = pendingVals.targetNum;
+              showMOSBand = showTargetLine;
+              mBEPcard.classList.add('accent');
+              pendingCheck=false; pendingVals=null;
+              redrawOnly();
+            }
+            playing=false; return;
+          }
+        }
+        redrawOnly(); ball(); requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function clearCheckVisuals(){
+      checkResult.style.display='none'; metrics.style.display = toggle.checked ? 'none' : 'grid';
+      showTargetLine=false; targetLineValue=null; showMOSBand=false;
+      pendingCheck=false; pendingVals=null; mBEPcard.classList.remove('accent');
+    }
+
+    /* ===== 入力連携（テキスト⇄レンジ） ===== */
+    function linkCurrency(t, r, hardMax=null){
+      const toR=()=>{ const n = formatCurrencyInput(t); const v = Number(n);
+        if(hardMax && v>hardMax) r.max=hardMax; else if(v>Number(r.max)) r.max=v;
+        r.value=String(v); if(toggle.checked){ clearCheckVisuals(); }
+        revealedByPlay=false; apexMarkerY=null; resultEl.textContent=''; redrawOnly(); };
+      const toN=()=>{ const v=Number(r.value||0);
+        t.value=isFinite(v)?Math.round(v).toLocaleString('ja-JP'):''; 
+        if(toggle.checked){ clearCheckVisuals(); }
+        revealedByPlay=false; apexMarkerY=null; resultEl.textContent=''; redrawOnly(); };
+      t.addEventListener('compositionstart', ()=>composing.set(t,true));
+      t.addEventListener('compositionend',  ()=>{ composing.set(t,false); toR(); });
+      t.addEventListener('input',toR); t.addEventListener('change',toR); t.addEventListener('blur',toR);
+      r.addEventListener('input',toN); r.addEventListener('change',toN);
+    }
+    function linkPercent(t, r){
+      const toR=()=>{ const n = formatPercentInput(t);
+        const v = Math.min(100, Math.max(0, Number.isFinite(n)? n : 0)); r.value = String(v);
+        if(toggle.checked){ clearCheckVisuals(); }
+        revealedByPlay=false; apexMarkerY=null; resultEl.textContent=''; redrawOnly(); };
+      const toN=()=>{ let v = Number(r.value||0); if(!isFinite(v)) v=0; v = Math.min(100, Math.max(0, v));
+        const txt = (Math.round(v*10)/10).toFixed(1).replace(/\.0$/, ''); t.value = txt;
+        if(toggle.checked){ clearCheckVisuals(); }
+        revealedByPlay=false; apexMarkerY=null; resultEl.textContent=''; redrawOnly(); };
+      t.addEventListener('compositionstart', ()=>composing.set(t,true));
+      t.addEventListener('compositionend',  ()=>{ composing.set(t,false); toR(); });
+      t.addEventListener('input',toR); t.addEventListener('change',toR); t.addEventListener('blur',toR);
+      r.addEventListener('input',toN); r.addEventListener('change',toN);
+    }
+
+    linkCurrency(I.sales,I.salesRange,5000000);
+    linkPercent(I.cmr,I.cmrRange);
+    linkCurrency(I.fixed,I.fixedRange,2000000);
+
+    toggle.addEventListener('change', ()=>{
+      if(toggle.checked){ applyOrderChallenge(); } else { applyOrderNormal(); }
+      revealedByPlay=false; apexMarkerY=null; resultEl.textContent='';
+      clearCheckVisuals(); redrawOnly();
+    });
+    $('play').addEventListener('click', ()=>playOnce());
+    $('reset').addEventListener('click', resetAll);
+    $('reset2').addEventListener('click', resetAll);
+    $('checkBtn').addEventListener('click', ()=>doCheckAnswer());
+
+    /* ===== レイアウト ===== */
+    function computeDims(){
+      const parent = cv.parentElement; const parentW = (parent && parent.clientWidth) ? parent.clientWidth : window.innerWidth;
+      const vpW = window.innerWidth; const isMobile = vpW < 820; const isLandscape = vpW > window.innerHeight;
+      const avail = Math.min(parentW, vpW - 32);
+      const extraInset = isMobile ? 12 : 10;
+      const w = Math.max(280, avail - extraInset*2);
+      const ratio = isMobile ? (isLandscape ? 0.52 : 0.60) : 0.66;
+      const h = Math.max(220, Math.round(w*ratio));
+      dims.W=w; dims.H=h; dims.MARGIN=36; dims.GROUND_Y=h-36;
+    }
+    function setupCanvas(){
+      const dpr=Math.max(1,window.devicePixelRatio||1);
+      cv.width=Math.round(dims.W*dpr); cv.height=Math.round(dims.H*dpr);
+      cv.style.width=dims.W+'px'; cv.style.height=dims.H+'px';
+      ctx.setTransform(1,0,0,1,0,0); ctx.scale(dpr,dpr);
+    }
+    function layout(){ computeDims(); setupCanvas(); redrawOnly(); }
+    if('ResizeObserver' in window){
+      try{ const ro = new ResizeObserver(()=>layout()); if(cv.parentElement) ro.observe(cv.parentElement);}catch(e){ console.warn(`[${VERSION}] ResizeObserver 初期化失敗:`, e); }
+    }
+    ['load','pageshow','orientationchange','resize'].forEach(ev=>window.addEventListener(ev,()=>requestAnimationFrame(layout)));
+    (function init(){
+      I.sales.value=(DEFAULTS.sales).toLocaleString('ja-JP');
+      I.fixed.value=(DEFAULTS.fixed).toLocaleString('ja-JP');
+      I.cmr.value=String(DEFAULTS.cmr);
+      applyOrderNormal();
+      layout();
+    })();
+
+    /* ===================== チュートリアル（r86踏襲） ===================== */
+    const TOUR_KEY='mkvpl_tour_dismissed_v5';
+    window.__mk_tour = window.__mk_tour || {
+      lastPlayedAt: 0,
+      lastPlayed: null,
+      stepEnteredAt: 0,
+      baseline: null
     };
-  </script>
 
-  <div class="topbar">
-    <div class="topbar-inner">
-      <div class="brand" title="研修専用サイト（テンプレ）">
-        <div class="brand-badge" aria-hidden="true"></div>
-        <div class="brand-title">
-          <div class="t1">セミナー専用サイト</div>
-          <div class="t2" id="seminarTitle">—</div>
-        </div>
-      </div>
-
-      <div class="actions">
-        <span class="pill" id="datePill">—</span>
-        <button class="btn small" id="presenterBtn" type="button" title="文字を大きくします">
-          画面拡大
-        </button>
-        <button class="btn small" id="libBtn" type="button" title="後日振り返り用の資料室（当日は基本ここを見ない想定）">
-          資料室
-        </button>
-        <button class="btn small" id="printBtn" type="button" title="印刷（配布用に使えます）">
-          印刷
-        </button>
-        <button class="btn primary small" id="nextBtnTop" type="button">
-          次へ
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div class="wrap">
-    <div class="grid">
-      <!-- Sidebar -->
-      <aside class="side" aria-label="ナビゲーション">
-        <div class="side-head">
-          <h3>当日の進行（一本道）</h3>
-          <p>当日は <b>この順番</b> で進めます。リンクは<b>必要なものだけ</b>を開きます。</p>
-        </div>
-
-        <nav class="nav" id="nav">
-          <a href="#start" data-step="start" class="active">
-            <span class="k"><span class="dot"></span>Start（導入）</span>
-            <span class="tag">0–5分</span>
-          </a>
-          <a href="#shouhyou" data-step="shouhyou">
-            <span class="k"><span class="dot"></span>証憑保存（実演）</span>
-            <span class="tag">5–30分</span>
-          </a>
-          <a href="#hendoupl" data-step="hendoupl">
-            <span class="k"><span class="dot"></span>変動PL（腹落ち）</span>
-            <span class="tag">30–45分</span>
-          </a>
-          <a href="#keizoku" data-step="keizoku">
-            <span class="k"><span class="dot"></span>継続MAS（型）</span>
-            <span class="tag">45–60分</span>
-          </a>
-          <a href="#finish" data-step="finish">
-            <span class="k"><span class="dot"></span>Finish（宿題）</span>
-            <span class="tag">締め</span>
-          </a>
-        </nav>
-
-        <div class="side-foot">
-          <div class="mini">
-            <b>ショートカット</b><br/>
-            前へ <span class="kbd">←</span> ／ 次へ <span class="kbd">→</span><br/>
-            資料室 <span class="kbd">L</span> ／ 印刷 <span class="kbd">P</span>
-          </div>
-          <div class="mini">
-            <b>方針</b><br/>
-            今日は「説明」より <b>実演</b> と <b>型</b>。細部はTangoで後追い。
-          </div>
-        </div>
-      </aside>
-
-      <!-- Main -->
-      <main class="main" id="main">
-        <!-- Start -->
-        <section class="card step" id="start" data-step="start">
-          <div class="card-head">
-            <div class="eyebrow">Start</div>
-            <h1>今日のゴール：明日、顧問先で「一回できる」状態にする</h1>
-          </div>
-          <div class="card-body">
-            <p>
-              この研修は、機能を“覚える”より、<b>心理的な抵抗を下げて、行動に移れる型</b>を持ち帰ることが目的です。
-              当日は <b>2つだけ</b>やります。
-            </p>
-
-            <div class="callouts">
-              <div class="callout">
-                <h4><span class="badge">①</span> 証憑保存：スマホ実演で腹落ち</h4>
-                <ul class="list">
-                  <li>到達点：<b>撮影 → 保存 → 事務所側で確認</b></li>
-                  <li>細部：Tango（後で確認）</li>
-                </ul>
-              </div>
-              <div class="callout">
-                <h4><span class="badge">②</span> 継続MAS：変動PLの理解を先に揃える</h4>
-                <ul class="list">
-                  <li>変動PL：限界利益率 → 固定費 → 必要売上</li>
-                  <li>継続MAS：<b>訪問の型</b>（台本）に落とす</li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="hr"></div>
-
-            <div class="callouts">
-              <div class="callout">
-                <h4>今日開くリンク（当日用） <span class="tag">2つだけ</span></h4>
-                <div class="list">
-                  <div style="margin:6px 0">
-                    ・Tango（証憑保存の手順）：<a id="linkTangoA" href="#" target="_blank" rel="noopener">—</a>
-                  </div>
-                  <div style="margin:6px 0">
-                    ・ボール（変動PL）ツール：<a id="linkBallA" href="#" target="_blank" rel="noopener">—</a>
-                  </div>
-                </div>
-              </div>
-              <div class="callout">
-                <h4>当日は開かない（最後にURLだけ渡す） <span class="tag">散らかり防止</span></h4>
-                <p class="d" style="margin:0">
-                  ツールポータル等は「Finish」でURLのみ配布します。<b>当日はクリックしません</b>。
-                </p>
-              </div>
-            </div>
-
-            <div class="step-controls">
-              <div class="left">
-                <button class="btn ghost" type="button" disabled>前へ</button>
-              </div>
-              <div class="right">
-                <button class="btn primary" type="button" data-next>次へ（証憑保存）</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Shouhyou -->
-        <section class="card step" id="shouhyou" data-step="shouhyou" hidden>
-          <div class="card-head">
-            <div class="eyebrow">Part 1</div>
-            <h2>証憑保存：実演で「できる」を作る（手順はTango）</h2>
-          </div>
-          <div class="card-body">
-            <p>
-              ここは <b>現金入力の省力化</b> と <b>スマホで経費</b> の実演で一気に腹落ちさせます。
-              細かい操作は <b>Tango</b> にあります。
-            </p>
-
-            <div class="callouts">
-              <div class="callout">
-                <h4>到達点（今日ここまで） <span class="tag">やり過ぎ防止</span></h4>
-                <ul class="list">
-                  <li><b>撮影 → 保存 → 事務所側で確認</b></li>
-                  <li>仕訳連動・例外対応は “後でTango”</li>
-                </ul>
-              </div>
-              <div class="callout">
-                <h4>手順（Tango） <span class="tag">後で確認</span></h4>
-                <p class="d" style="margin:0 0 10px">
-                  「流れはマニュアルに書いています。細部は後で確認してください。」
-                </p>
-                <div class="links">
-                  <a class="btn small" id="linkTangoB" href="#" target="_blank" rel="noopener">Tangoを開く</a>
-                  <button class="btn small" type="button" id="copyTangoBtn">URLをコピー</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="hr"></div>
-
-            <div class="callout">
-              <h4>顧客説明（30秒台本） <span class="tag">そのまま読める</span></h4>
-              <textarea id="scriptShouhyou">
-本日は、領収書・請求書のやり取りを「後でまとめて」ではなく、受領時点でスマホで撮影して保存する運用をご提案します。
-提出遅れや紛失が減り、事務所側でもリアルタイムに確認できるため、処理とチェックが速くなります。
-まずは運用をシンプルに、対象を絞って始めます（例：電子取引PDF／特定の経費）。詳細手順はマニュアルにまとめています。</textarea>
-              <div class="step-controls">
-                <div class="left">
-                  <button class="btn" type="button" data-prev>前へ</button>
-                  <button class="btn" type="button" id="copyShouhyouScript">台本をコピー</button>
-                </div>
-                <div class="right">
-                  <button class="btn primary" type="button" data-next>次へ（変動PL）</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Hendou PL -->
-        <section class="card step" id="hendoupl" data-step="hendoupl" hidden>
-          <div class="card-head">
-            <div class="eyebrow">Part 2</div>
-            <h2>変動PL：継続MASの前に“見方”を揃える（ボールで腹落ち）</h2>
-          </div>
-          <div class="card-body">
-            <p>
-              継続MASの心理的抵抗は、「フォーマットが変わる」「訪問の流れが変わる」不安から生じます。
-              先に変動PLの見方を揃えると、<b>未来へ展開するだけ</b>という理解に変わります。
-            </p>
-
-            <div class="callouts">
-              <div class="callout">
-                <h4>今日のキーメッセージ <span class="tag">1分</span></h4>
-                <ul class="list">
-                  <li><b>限界利益率</b>が上がるほど、同じ売上でも利益が増える</li>
-                  <li><b>固定費</b>は「越えるべきハードル」</li>
-                  <li>必要売上 ≒（固定費＋目標利益）÷ 限界利益率</li>
-                </ul>
-              </div>
-              <div class="callout">
-                <h4>ボールツール（触るのは3分だけ） <span class="tag">体験</span></h4>
-                <p class="d" style="margin:0 0 10px">
-                  ミニ課題：「固定費を +50万円したら、必要売上はいくら増える？」
-                </p>
-                <div class="links">
-                  <a class="btn small primary" id="linkBallB" href="#" target="_blank" rel="noopener">ボールツールを開く</a>
-                  <button class="btn small" type="button" id="copyBallBtn">URLをコピー</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="hr"></div>
-
-            <div class="callout">
-              <h4>社長向け3分トーク（叩き台） <span class="tag">後日使う</span></h4>
-              <textarea id="scriptHendou">
-今月の限界利益率は◯◯%でした。限界利益率は、売上が増えたときに「どれだけ利益が残るか」を示す重要指標です。
-固定費は売上ゼロでも発生するので、まず限界利益で固定費を超える必要があります（＝損益分岐）。
-たとえば固定費が月600万円、限界利益率が30%なら、利益ゼロの売上は 600万÷0.30＝2,000万円です。
-ここから月100万円利益を出したいなら、(600万＋100万)÷0.30＝2,333万円が目安になります。
-この目安を基準に、価格・粗利・外注・人員・固定費のどこを動かすかを一緒に決めましょう。</textarea>
-
-              <div class="step-controls">
-                <div class="left">
-                  <button class="btn" type="button" data-prev>前へ</button>
-                  <button class="btn" type="button" id="copyHendouScript">台本をコピー</button>
-                </div>
-                <div class="right">
-                  <button class="btn primary" type="button" data-next>次へ（継続MAS）</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Keizoku MAS -->
-        <section class="card step" id="keizoku" data-step="keizoku" hidden>
-          <div class="card-head">
-            <div class="eyebrow">Part 3</div>
-            <h2>継続MAS：訪問の“型”を作り、会計事務所ペースに持ち込む</h2>
-          </div>
-          <div class="card-body">
-            <p>
-              継続MASは「別物」ではなく、変動PLの考え方を<b>未来</b>に展開するための枠組みです。
-              ここでは操作説明より、<b>訪問の流れ（台本）</b>を固定します。
-            </p>
-
-            <div class="callouts">
-              <div class="callout">
-                <h4>5つの質問（短期計画の入口） <span class="tag">この順で聞く</span></h4>
-                <ol class="list">
-                  <li>次期の目標経常利益</li>
-                  <li>次期の売上高の伸び</li>
-                  <li>次期の限界利益率（粗利益率）</li>
-                  <li>次期の従業員給与・賞与</li>
-                  <li>次期の期末の人数（役員含む）</li>
-                </ol>
-              </div>
-              <div class="callout">
-                <h4>訪問台本（15分版） <span class="tag">これだけで回る</span></h4>
-                <ul class="list">
-                  <li>① 実績（変動PL）：限界利益率の良し悪しを一言</li>
-                  <li>② 打ち手：今月は “1つだけ” 決める</li>
-                  <li>③ 着地：期末のざっくり見通し</li>
-                  <li>④ 次期：5つの質問で未来の数字を置く</li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="hr"></div>
-
-            <div class="callout">
-              <h4>2週間アクション（ここだけ決めて帰る） <span class="tag">定着の鍵</span></h4>
-              <div class="formgrid">
-                <div>
-                  <label for="kpiShouhyou">証憑保存：対象顧問先数（例：3）</label>
-                  <input id="kpiShouhyou" type="number" min="0" placeholder="3" />
-                </div>
-                <div>
-                  <label for="kpiKeizoku">継続MAS：最初の実施社数（例：1）</label>
-                  <input id="kpiKeizoku" type="number" min="0" placeholder="1" />
-                </div>
-                <div>
-                  <label for="firstCompany">最初の1社（社名）</label>
-                  <input id="firstCompany" type="text" placeholder="例：◯◯株式会社" />
-                </div>
-                <div>
-                  <label for="ownerType">社長タイプ（メモ）</label>
-                  <input id="ownerType" type="text" placeholder="例：数字の話を聞く／忙しい／即断型 など" />
-                </div>
-              </div>
-              <div style="margin-top:10px">
-                <label for="memo">メモ（訪問で使う言い回し等）</label>
-                <textarea id="memo" placeholder="例：冒頭は変動PLで必要売上の話から入る。次回までの宿題は…"></textarea>
-              </div>
-
-              <div class="step-controls">
-                <div class="left">
-                  <button class="btn" type="button" data-prev>前へ</button>
-                  <button class="btn" type="button" id="saveActionBtn">この内容を保存</button>
-                </div>
-                <div class="right">
-                  <button class="btn primary" type="button" data-next>次へ（Finish）</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Finish -->
-        <section class="card step" id="finish" data-step="finish" hidden>
-          <div class="card-head">
-            <div class="eyebrow">Finish</div>
-            <h2>締め：URL配布（ただし“当日は開かない”）／2週間の宿題を確認</h2>
-          </div>
-          <div class="card-body">
-            <p>
-              今日の内容は、<b>2週間の小さな成果</b>を作ることで定着します。最後にリンクを配布します。
-              ツールポータルは <b>開示はする</b> ものの、<b>当日はクリックしません</b>（散らかり防止）。
-            </p>
-
-            <div class="callouts">
-              <div class="callout">
-                <h4>当日用（もう一度）</h4>
-                <div class="list">
-                  ・Tango：<a id="linkTangoC" href="#" target="_blank" rel="noopener">—</a><br/>
-                  ・ボール：<a id="linkBallC" href="#" target="_blank" rel="noopener">—</a>
-                </div>
-              </div>
-              <div class="callout">
-                <h4>資料室（後日） <span class="tag">おまけ</span></h4>
-                <div class="list">
-                  ・ツールポータル：<a id="linkPortal" href="#" target="_blank" rel="noopener">—</a><br/>
-                  ・自動化LP（ボール含む）：<a id="linkJidouka" href="#" target="_blank" rel="noopener">—</a>
-                </div>
-              </div>
-            </div>
-
-            <div class="hr"></div>
-
-            <div class="callout">
-              <h4>2週間宿題（確認）</h4>
-              <p class="d" id="actionSummary" style="margin:0 0 10px">未入力</p>
-              <div class="links">
-                <button class="btn small" type="button" id="copySummaryBtn">宿題サマリをコピー</button>
-                <button class="btn small" type="button" id="resetBtn">入力をリセット</button>
-                <button class="btn small" type="button" id="openLibBtn2">資料室を開く</button>
-              </div>
-            </div>
-
-            <div class="step-controls">
-              <div class="left">
-                <button class="btn" type="button" data-prev>前へ</button>
-              </div>
-              <div class="right">
-                <button class="btn primary" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'});">先頭へ</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-      </main>
-    </div>
-  </div>
-
-  <!-- Modal: Resource Library -->
-  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-label="資料室">
-    <div class="modal">
-      <div class="modal-head">
-        <h3>資料室（後日振り返り用）</h3>
-        <button class="btn small" type="button" id="closeModalBtn">閉じる</button>
-      </div>
-      <div class="modal-body">
-        <p style="margin:0">
-          当日は基本ここを見ません。<b>後日</b>、詰まったときの“辞書”として使います。
-        </p>
-
-        <div class="res-grid">
-          <div class="res">
-            <div class="h">
-              <span>証憑保存：Tango手順</span>
-              <span class="badge">必須</span>
-            </div>
-            <p class="d">撮影→保存→確認。迷ったらここ。</p>
-            <div class="links">
-              <a class="btn small primary" id="linkTangoD" href="#" target="_blank" rel="noopener">Tango</a>
-              <button class="btn small" type="button" id="copyTangoBtn2">URLコピー</button>
-            </div>
-          </div>
-
-          <div class="res">
-            <div class="h">
-              <span>変動PL：ボールツール</span>
-              <span class="badge">必須</span>
-            </div>
-            <p class="d">限界利益率×固定費→必要売上の腹落ち。</p>
-            <div class="links">
-              <a class="btn small primary" id="linkBallD" href="#" target="_blank" rel="noopener">ボール</a>
-              <button class="btn small" type="button" id="copyBallBtn2">URLコピー</button>
-            </div>
-          </div>
-
-          <div class="res">
-            <div class="h">
-              <span>ツールポータル（おまけ）</span>
-              <span class="badge">任意</span>
-            </div>
-            <p class="d">必要になった人だけ。最初は一点突破。</p>
-            <div class="links">
-              <a class="btn small" id="linkPortal2" href="#" target="_blank" rel="noopener">ポータル</a>
-            </div>
-          </div>
-
-          <div class="res">
-            <div class="h">
-              <span>自動化LP（ボール含む）</span>
-              <span class="badge">任意</span>
-            </div>
-            <p class="d">ボール以外の文脈を説明する場合に。</p>
-            <div class="links">
-              <a class="btn small" id="linkJidouka2" href="#" target="_blank" rel="noopener">LP</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="hr"></div>
-
-        <div class="callout">
-          <h4>メモ</h4>
-          <p class="d" style="margin:0">
-            研修ごとにページを複製し、上部の <b>SETTINGS</b> だけURL差し替えで運用できます。
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // ========= helpers =========
-    const $ = (sel, root=document) => root.querySelector(sel);
-    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
-
-    function safeCopy(text){
-      if (!text) return;
-      navigator.clipboard?.writeText(text).then(()=>toast("コピーしました")).catch(()=>fallbackCopy(text));
+    function setDefaults(){ resetAll(); }
+    function resetTourFlags(){
+      window.__mk_tour.lastPlayedAt = 0;
+      window.__mk_tour.lastPlayed = null;
+      window.__mk_tour.baseline = calc();
     }
-    function fallbackCopy(text){
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      try{ document.execCommand('copy'); toast("コピーしました"); } catch(e){ alert("コピーできませんでした"); }
-      document.body.removeChild(ta);
-    }
+    function markBaseline(){ window.__mk_tour.baseline = calc(); }
 
-    let toastTimer = null;
-    function toast(msg){
-      clearTimeout(toastTimer);
-      let el = $("#toast");
-      if(!el){
-        el = document.createElement('div');
-        el.id = "toast";
-        el.style.position = "fixed";
-        el.style.left = "50%";
-        el.style.bottom = "18px";
-        el.style.transform = "translateX(-50%)";
-        el.style.background = "rgba(16,42,44,.92)";
-        el.style.color = "#fff";
-        el.style.padding = "10px 12px";
-        el.style.borderRadius = "999px";
-        el.style.fontWeight = "800";
-        el.style.fontSize = "13px";
-        el.style.zIndex = "2000";
-        el.style.boxShadow = "0 10px 25px rgba(16,42,44,.25)";
-        document.body.appendChild(el);
+    const steps = [
+      {
+        sel: '.title-row',
+        title:'① 概要（まずは「解説」を見てOK）',
+        body:'このツールは「変動損益計算書（CVP）」をボールで直感化します。<br><b>「解説」</b>ボタンを押して概念図を確認してみてください（別タブで開きます）。',
+        extraElevate:['.title-row','#openExplain','#startTour'],
+        pulse:['#openExplain'],
+        panelDock:'auto',
+        avoidSel:['.title-row'],
+        stickyGraph:false,
+        maskOpacity:0.52,
+        onEnter(){ setDefaults(); resetTourFlags(); }
+      },
+      {
+        sel: '#play',
+        title:'② まずはそのまま：「売上高＞固定費」ですが…',
+        body:'初期値のまま<b>「黒字かどうか確認」</b>を押してみてください。（ここでは数値は触らずにOKです）',
+        extraElevate:['#cardGraph','#cv','#play','#result'],
+        pulse:['#play'],
+        panelDock:'top',
+        avoidSel:['#play','#cv','#result'],
+        stickyGraph:true,
+        maskOpacity:0.52,
+        onEnter(){ markBaseline(); window.__mk_tour.stepEnteredAt = Date.now(); },
+        validate(){
+          const t = window.__mk_tour;
+          if(!t.lastPlayedAt || t.lastPlayedAt < t.stepEnteredAt) return {ok:false,msg:'下の「黒字かどうか確認」を押してください。'};
+          if(t.lastPlayed && t.lastPlayed.profit < 0) return {ok:true};
+          return {ok:false,msg:'赤字が確認できていません（念のためリセットして再度押してください）。'};
+        }
+      },
+      {
+        sel: '#paramSales',
+        title:'③-1 数値を動かしてみましょう：売上高',
+        body:'売上高（S）を上げる方向へ動かし、黒字にしてください。<br>最後に<b>「黒字かどうか確認」</b>を押して、黒字になればクリアです。',
+        extraElevate:['#cardGraph','#cv','#paramSales','#salesRange','#sales','#play','#result'],
+        pulse:['#play'],
+        panelDock:'auto',
+        avoidSel:['#paramSales','#salesRange','#sales','#play','#cv','#result'],
+        stickyGraph:true,
+        maskOpacity:0.52,
+        onEnter(){
+          setDefaults();
+          resetTourFlags();
+          markBaseline();
+          window.__mk_tour.stepEnteredAt = Date.now();
+        },
+        validate(){
+          const t = window.__mk_tour;
+          const b = t.baseline;
+          const now = calc();
+          if(now.sales <= b.sales) return {ok:false,msg:'売上高（S）を「増やす」方向（右）へ動かしてください。'};
+          if(!t.lastPlayedAt || t.lastPlayedAt < t.stepEnteredAt) return {ok:false,msg:'動かした後に「黒字かどうか確認」を押してください。'};
+          if(t.lastPlayed && t.lastPlayed.profit >= 0) return {ok:true};
+          return {ok:false,msg:'まだ黒字になっていません。売上高をもう少し上げて、再度「黒字かどうか確認」を押してください。'};
+        }
+      },
+      {
+        sel: '#paramCMR',
+        title:'③-2 数値を動かしてみましょう：限界利益率',
+        body:'限界利益率（CMR）を上げる方向へ動かし、黒字にしてください。<br>最後に<b>「黒字かどうか確認」</b>で黒字になればクリアです。',
+        extraElevate:['#cardGraph','#cv','#paramCMR','#cmrRange','#cmr','#play','#result'],
+        pulse:['#play'],
+        panelDock:'auto',
+        avoidSel:['#paramCMR','#cmrRange','#cmr','#play','#cv','#result'],
+        stickyGraph:true,
+        maskOpacity:0.52,
+        onEnter(){
+          setDefaults();
+          resetTourFlags();
+          markBaseline();
+          window.__mk_tour.stepEnteredAt = Date.now();
+        },
+        validate(){
+          const t = window.__mk_tour;
+          const b = t.baseline;
+          const now = calc();
+          if(now.cmrPermille <= b.cmrPermille) return {ok:false,msg:'限界利益率（CMR）を「増やす」方向（右）へ動かしてください。'};
+          if(!t.lastPlayedAt || t.lastPlayedAt < t.stepEnteredAt) return {ok:false,msg:'動かした後に「黒字かどうか確認」を押してください。'};
+          if(t.lastPlayed && t.lastPlayed.profit >= 0) return {ok:true};
+          return {ok:false,msg:'まだ黒字になっていません。限界利益率をもう少し上げて、再度「黒字かどうか確認」を押してください。'};
+        }
+      },
+      {
+        sel: '#paramFixed',
+        title:'③-3 数値を動かしてみましょう：固定費',
+        body:'固定費（FC）を下げる方向へ動かし、黒字にしてください。<br>最後に<b>「黒字かどうか確認」</b>で黒字になればクリアです。',
+        extraElevate:['#cardGraph','#cv','#paramFixed','#fixedRange','#fixed','#play','#result'],
+        pulse:['#play'],
+        panelDock:'auto',
+        avoidSel:['#paramFixed','#fixedRange','#fixed','#play','#cv','#result'],
+        stickyGraph:true,
+        maskOpacity:0.52,
+        onEnter(){
+          setDefaults();
+          resetTourFlags();
+          markBaseline();
+          window.__mk_tour.stepEnteredAt = Date.now();
+        },
+        validate(){
+          const t = window.__mk_tour;
+          const b = t.baseline;
+          const now = calc();
+          if(now.fixed >= b.fixed) return {ok:false,msg:'固定費（FC）を「減らす」方向（左）へ動かしてください。'};
+          if(!t.lastPlayedAt || t.lastPlayedAt < t.stepEnteredAt) return {ok:false,msg:'動かした後に「黒字かどうか確認」を押してください。'};
+          if(t.lastPlayed && t.lastPlayed.profit >= 0) return {ok:true};
+          return {ok:false,msg:'まだ黒字になっていません。固定費をもう少し下げて、再度「黒字かどうか確認」を押してください。'};
+        }
+      },
+      {
+        sel:'#checkBtn',
+        title:'④ チャレンジ：固定費→限界利益率→売上で逆算',
+        body:'「必要売上高を考えてみましょう」にチェックを入れ、<br>①固定費 → ②限界利益率 → ③売上 の順に入力し、最後に<b>「答え合わせ」</b>を押してください。',
+        extraElevate:['#cardCtrl','#challengeToggle','#challengeBox','#paramFixed','#paramCMR','#paramSales','#checkBtn','#cardGraph','#cv','#play'],
+        pulse:['#challengeToggle','#checkBtn'],
+        panelDock:'top',
+        avoidSel:['#cv','#play','#result','#challengeToggle','#paramFixed','#paramCMR','#paramSales'],
+        stickyGraph:true,
+        maskOpacity:0.52,
+        onEnter(){
+          const t=$('challengeToggle');
+          if(t && !t.checked){
+            t.checked = true;
+            t.dispatchEvent(new Event('change', {bubbles:true}));
+          }
+          window.__mk_tour.stepEnteredAt = Date.now();
+        },
+        validate(){ return {ok:true}; }
+      },
+      {
+        sel:'#startTour',
+        title:'完了',
+        body:'このように、黒字を出すには売上↑/限界利益率↑/固定費↓の方向しかありません。<br>これでチュートリアルは完了です。必要に応じて、いつでも<b>「チュートリアル」</b>ボタンからやり直せます。<br><small>※完了時には「必要売上高を考えてみましょう」のチェックを外し、通常モードに戻ります。</small>',
+        extraElevate:['#startTour'],
+        pulse:[],
+        panelDock:'auto',
+        avoidSel:['#startTour'],
+        stickyGraph:false,
+        maskOpacity:0.52
       }
-      el.textContent = msg;
-      el.style.display = "block";
-      toastTimer = setTimeout(()=>{ el.style.display="none"; }, 1400);
+    ];
+
+    let tourIndex = 0;
+    let maskEl, panelEl, prevBtn, nextBtn, skipBtn, titleEl, bodyEl, stepEl, msgEl;
+    let elevatedEls = [];
+    let pulsedEls = [];
+
+    function qs(sel){ return document.querySelector(sel); }
+    function vv(){ return window.visualViewport || null; }
+    function vvOffsetX(){ const v=vv(); return v ? v.offsetLeft : 0; }
+    function vvOffsetY(){ const v=vv(); return v ? v.offsetTop  : 0; }
+    function vvWidth(){ const v=vv(); return v ? v.width : window.innerWidth; }
+    function vvHeight(){ const v=vv(); return v ? v.height: window.innerHeight; }
+
+    function stableScrollIntoView(el){
+      return new Promise(resolve=>{
+        if(!el){ resolve(); return; }
+        let done=false, timer=null;
+        function finish(){ if(done) return; done=true; clearTimeout(timer); resolve(); }
+        timer=setTimeout(finish, 260);
+        try{ el.scrollIntoView({block:'center', behavior:'smooth'}); }catch(_){ finish(); }
+        requestAnimationFrame(()=>requestAnimationFrame(finish));
+      });
     }
 
-    // ========= state =========
-    const steps = ["start","shouhyou","hendoupl","keizoku","finish"];
-    function setStep(step){
-      if(!steps.includes(step)) step = "start";
-
-      // show/hide
-      $$(".step").forEach(sec => sec.hidden = (sec.dataset.step !== step));
-
-      // nav highlight
-      $$("#nav a").forEach(a => a.classList.toggle("active", a.dataset.step === step));
-
-      // top next button label
-      const idx = steps.indexOf(step);
-      const next = steps[idx+1];
-      $("#nextBtnTop").textContent = next ? "次へ" : "完了";
-      $("#nextBtnTop").disabled = !next;
-
-      // persist
-      localStorage.setItem("seminar_last_step", step);
-
-      // update hash without jumping
-      history.replaceState(null, "", "#"+step);
-
-      // scroll to top of main
-      window.scrollTo({top: 0, behavior: "smooth"});
+    function clearElevate(){
+      elevatedEls.forEach(el=>el.classList.remove('mk-tour-elevate'));
+      elevatedEls = [];
+    }
+    function applyElevate(step){
+      clearElevate();
+      const list = [];
+      const main = qs(step.sel);
+      if(main) list.push(main);
+      (step.extraElevate||[]).forEach(s=>{
+        const el = qs(s);
+        if(el) list.push(el);
+      });
+      const uniq = [...new Set(list)];
+      uniq.forEach(el=>el.classList.add('mk-tour-elevate'));
+      elevatedEls = uniq;
     }
 
-    function getCurrentStep(){
-      const visible = $$(".step").find(s => !s.hidden);
-      return visible?.dataset.step || "start";
+    function clearPulse(){
+      pulsedEls.forEach(el=>el.classList.remove('mk-tour-pulse'));
+      pulsedEls = [];
+    }
+    function applyPulse(step){
+      clearPulse();
+      const list = [];
+      (step.pulse||[]).forEach(s=>{
+        const el = qs(s);
+        if(el) list.push(el);
+      });
+      const uniq = [...new Set(list)];
+      uniq.forEach(el=>el.classList.add('mk-tour-pulse'));
+      pulsedEls = uniq;
     }
 
-    function nextStep(){
-      const cur = getCurrentStep();
-      const idx = steps.indexOf(cur);
-      const next = steps[idx+1];
-      if(next) setStep(next);
-    }
-    function prevStep(){
-      const cur = getCurrentStep();
-      const idx = steps.indexOf(cur);
-      const prev = steps[idx-1];
-      if(prev) setStep(prev);
+    function applyStickyGraph(step){
+      const want = !!step.stickyGraph && window.innerWidth < 820;
+      document.body.classList.toggle('mk-tour-sticky-graph', want);
     }
 
-    // ========= init content =========
-    function init(){
-      $("#seminarTitle").textContent = window.SEMINAR.title;
-      $("#datePill").textContent = window.SEMINAR.date;
+    function ensureEls(){
+      if(maskEl) return;
+      maskEl = document.createElement('div'); maskEl.className='mk-tour-mask'; maskEl.tabIndex=-1;
 
-      const { ballTool, toolPortal, jidoukaLP, tangoManual } = window.SEMINAR.links;
+      panelEl = document.createElement('div'); panelEl.className='mk-tour-panel';
+      const head = document.createElement('div'); head.className='mk-tour-head';
+      stepEl = document.createElement('div'); stepEl.className='mk-tour-step';
+      const titleWrap = document.createElement('div'); titleWrap.className='mk-tour-title';
+      head.append(stepEl, titleWrap);
+      titleEl = titleWrap;
 
-      // Bind links
-      const bind = (id, url) => { const a = $(id); if(a){ a.href = url || "#"; a.textContent = url ? url : "（未設定）"; } };
-      bind("#linkTangoA", tangoManual);
-      bind("#linkTangoC", tangoManual);
-      bind("#linkTangoD", tangoManual);
-      $("#linkTangoB").href = tangoManual || "#";
+      bodyEl = document.createElement('div'); bodyEl.className='mk-tour-body';
+      msgEl = document.createElement('div');
+      msgEl.style.cssText='margin-top:8px;color:#b91c1c;font-weight:900;display:none;';
 
-      bind("#linkBallA", ballTool);
-      bind("#linkBallC", ballTool);
-      bind("#linkBallD", ballTool);
-      $("#linkBallB").href = ballTool || "#";
+      const actions = document.createElement('div'); actions.className='mk-tour-actions';
+      prevBtn = document.createElement('button'); prevBtn.className='tbtn'; prevBtn.textContent='前へ';
+      nextBtn = document.createElement('button'); nextBtn.className='tbtn primary'; nextBtn.textContent='次へ';
+      skipBtn = document.createElement('button'); skipBtn.className='tbtn'; skipBtn.textContent='スキップ';
+      actions.append(prevBtn, skipBtn, nextBtn);
 
-      bind("#linkPortal", toolPortal);
-      bind("#linkPortal2", toolPortal);
+      panelEl.append(head, bodyEl, msgEl, actions);
+      document.body.append(maskEl, panelEl);
 
-      bind("#linkJidouka", jidoukaLP);
-      bind("#linkJidouka2", jidoukaLP);
-
-      // Buttons
-      $("#copyTangoBtn")?.addEventListener("click", ()=>safeCopy(tangoManual));
-      $("#copyTangoBtn2")?.addEventListener("click", ()=>safeCopy(tangoManual));
-      $("#copyBallBtn")?.addEventListener("click", ()=>safeCopy(ballTool));
-      $("#copyBallBtn2")?.addEventListener("click", ()=>safeCopy(ballTool));
-
-      $("#copyShouhyouScript")?.addEventListener("click", ()=>safeCopy($("#scriptShouhyou").value));
-      $("#copyHendouScript")?.addEventListener("click", ()=>safeCopy($("#scriptHendou").value));
-
-      // Save action
-      $("#saveActionBtn")?.addEventListener("click", ()=>{
-        const data = {
-          kpiShouhyou: $("#kpiShouhyou").value,
-          kpiKeizoku: $("#kpiKeizoku").value,
-          firstCompany: $("#firstCompany").value,
-          ownerType: $("#ownerType").value,
-          memo: $("#memo").value
-        };
-        localStorage.setItem("seminar_actions", JSON.stringify(data));
-        toast("保存しました");
-        renderSummary();
+      skipBtn.addEventListener('click', endTour);
+      prevBtn.addEventListener('click', async ()=>{
+        if(tourIndex>0){
+          tourIndex--;
+          await gotoStep(tourIndex);
+        }
+      });
+      nextBtn.addEventListener('click', async ()=>{
+        const step = steps[tourIndex];
+        if(step && typeof step.validate==='function'){
+          const v = step.validate();
+          if(v && v.ok===false){
+            msgEl.textContent = v.msg || '操作を完了してください。';
+            msgEl.style.display='block';
+            return;
+          }
+        }
+        msgEl.style.display='none';
+        if(tourIndex < steps.length-1){
+          tourIndex++;
+          await gotoStep(tourIndex);
+        }else{
+          endTour();
+        }
       });
 
-      $("#resetBtn")?.addEventListener("click", ()=>{
-        localStorage.removeItem("seminar_actions");
-        $("#kpiShouhyou").value="";
-        $("#kpiKeizoku").value="";
-        $("#firstCompany").value="";
-        $("#ownerType").value="";
-        $("#memo").value="";
-        renderSummary();
-        toast("リセットしました");
+      document.addEventListener('keydown', (e)=>{
+        if(!panelEl || panelEl.style.display==='none') return;
+        if(e.key==='Escape'){ endTour(); }
+        else if(e.key==='ArrowRight'){ nextBtn.click(); }
+        else if(e.key==='ArrowLeft'){ prevBtn.click(); }
       });
 
-      $("#copySummaryBtn")?.addEventListener("click", ()=>{
-        safeCopy($("#actionSummary").textContent);
-      });
+      const v = vv();
+      if(v){
+        v.addEventListener('resize', ()=> placePanel());
+        v.addEventListener('scroll', ()=> placePanel());
+      }
+      window.addEventListener('resize', ()=> placePanel(), { passive:true });
+      window.addEventListener('scroll', ()=> placePanel(), { passive:true });
+      window.addEventListener('orientationchange', ()=> setTimeout(placePanel, 120));
 
-      // top controls
-      $("#printBtn")?.addEventListener("click", ()=>window.print());
-      $("#presenterBtn")?.addEventListener("click", ()=>{
-        document.body.classList.toggle("presenter");
-        $("#presenterBtn").textContent = document.body.classList.contains("presenter") ? "通常表示" : "画面拡大";
-      });
-
-      // resource library modal
-      const modal = $("#modalBackdrop");
-      const openModal = ()=>{ modal.style.display="flex"; };
-      const closeModal = ()=>{ modal.style.display="none"; };
-
-      $("#libBtn")?.addEventListener("click", openModal);
-      $("#openLibBtn2")?.addEventListener("click", openModal);
-      $("#closeModalBtn")?.addEventListener("click", closeModal);
-      modal.addEventListener("click", (e)=>{ if(e.target === modal) closeModal(); });
-
-      // navigation click
-      $$("#nav a").forEach(a=>{
-        a.addEventListener("click",(e)=>{
-          e.preventDefault();
-          setStep(a.dataset.step);
-        });
-      });
-
-      // in-card next/prev
-      $$("[data-next]").forEach(b=> b.addEventListener("click", nextStep));
-      $$("[data-prev]").forEach(b=> b.addEventListener("click", prevStep));
-
-      $("#nextBtnTop")?.addEventListener("click", nextStep);
-
-      // keyboard
-      window.addEventListener("keydown",(e)=>{
-        if(e.key === "ArrowRight") nextStep();
-        if(e.key === "ArrowLeft") prevStep();
-        if(e.key.toLowerCase() === "l") $("#modalBackdrop").style.display==="flex" ? ($("#modalBackdrop").style.display="none") : ($("#modalBackdrop").style.display="flex");
-        if(e.key.toLowerCase() === "p") window.print();
-        if(e.key === "Escape") $("#modalBackdrop").style.display="none";
-      });
-
-      // restore actions
-      const saved = localStorage.getItem("seminar_actions");
-      if(saved){
+      // 結果（#result）が更新されたらパネルを自動再配置
+      if(resultEl){
         try{
-          const data = JSON.parse(saved);
-          $("#kpiShouhyou").value = data.kpiShouhyou || "";
-          $("#kpiKeizoku").value = data.kpiKeizoku || "";
-          $("#firstCompany").value = data.firstCompany || "";
-          $("#ownerType").value = data.ownerType || "";
-          $("#memo").value = data.memo || "";
-        }catch(_){}
+          const mo = new MutationObserver(()=>{
+            if(panelEl && panelEl.style.display!=='none'){
+              requestAnimationFrame(()=>placePanel());
+            }
+          });
+          mo.observe(resultEl, {childList:true, characterData:true, subtree:true});
+        }catch(e){}
       }
-      renderSummary();
-
-      // initial step
-      const hash = (location.hash || "").replace("#","");
-      const last = localStorage.getItem("seminar_last_step");
-      setStep(steps.includes(hash) ? hash : (last || "start"));
     }
 
-    function renderSummary(){
-      const saved = localStorage.getItem("seminar_actions");
-      if(!saved){ $("#actionSummary").textContent = "未入力（継続MASページで『2週間アクション』を入力してください）"; return; }
-      let d = {};
-      try{ d = JSON.parse(saved); }catch(_){}
-      const parts = [];
-      parts.push(`【2週間アクション】`);
-      parts.push(`証憑保存：対象 ${d.kpiShouhyou || "（未設定）"} 社`);
-      parts.push(`継続MAS：対象 ${d.kpiKeizoku || "（未設定）"} 社`);
-      parts.push(`最初の1社：${d.firstCompany || "（未設定）"}（${d.ownerType || "メモなし"}）`);
-      if(d.memo) parts.push(`メモ：${d.memo}`);
-      $("#actionSummary").textContent = parts.join("\n");
+    function rectInVisualViewport(el){
+      const r = el.getBoundingClientRect();
+      const x = Math.round(r.left + vvOffsetX());
+      const y = Math.round(r.top  + vvOffsetY());
+      const w = Math.round(Math.min(r.width,  vvWidth() - 16));
+      const h = Math.round(Math.min(r.height, vvHeight() - 16));
+      const pad = 10;
+      return {
+        x: Math.max(8 + vvOffsetX(), x - pad),
+        y: Math.max(8 + vvOffsetY(), y - pad),
+        w: Math.max(24, w + pad*2),
+        h: Math.max(24, h + pad*2)
+      };
     }
 
-    document.addEventListener("DOMContentLoaded", init);
-  </script>
+    function overlapArea(a,b){
+      const x1=Math.max(a.left,b.left), y1=Math.max(a.top,b.top);
+      const x2=Math.min(a.right,b.right), y2=Math.min(a.bottom,b.bottom);
+      if(x2<=x1 || y2<=y1) return 0;
+      return (x2-x1)*(y2-y1);
+    }
+
+    function resolveAvoidSelectors(step){
+      let sels = step.avoidSel;
+      if(!sels) sels = [];
+      if(typeof sels === 'string') sels = [sels];
+      if(!Array.isArray(sels)) sels = [];
+      if(step.sel && typeof step.sel === 'string') sels = [step.sel, ...sels];
+      return [...new Set(sels)];
+    }
+
+    function placePanel(){
+      const step = steps[tourIndex];
+      if(!step || !panelEl) return;
+
+      const op = (typeof step.maskOpacity === 'number') ? step.maskOpacity : 0.52;
+      if(maskEl) maskEl.style.background = `rgba(15,23,42,${op})`;
+
+      const target = qs(step.sel) || qs('#cardGraph');
+      const r = target ? rectInVisualViewport(target) : {x:12+vvOffsetX(),y:12+vvOffsetY(),w:200,h:40};
+
+      const panelW = Math.min(560, vvWidth()*0.92);
+      const margin = 12;
+
+      panelEl.style.maxWidth = panelW + 'px';
+      const panelH = Math.min(panelEl.scrollHeight, Math.min(vvHeight()*0.62, 520));
+
+      const minX = vvOffsetX() + 8;
+      const maxX = vvOffsetX() + vvWidth() - panelW - 8;
+      let px = Math.min(Math.max(minX, r.x), maxX);
+
+      const minY = vvOffsetY() + 8;
+      const maxY = vvOffsetY() + vvHeight() - panelH - 8;
+
+      const avoidSels = resolveAvoidSelectors(step);
+      const avoidRects = [];
+      for(const s of avoidSels){
+        const el = document.querySelector(s);
+        if(!el) continue;
+        const rr = el.getBoundingClientRect();
+        avoidRects.push({
+          left: rr.left + vvOffsetX(),
+          top: rr.top + vvOffsetY(),
+          right: rr.right + vvOffsetX(),
+          bottom: rr.bottom + vvOffsetY()
+        });
+      }
+
+      function scoreFor(py){
+        const panel = { left:px, top:py, right:px+panelW, bottom:py+panelH };
+        let score = 0;
+        for(const ar of avoidRects){ score += overlapArea(panel, ar); }
+        score += Math.max(0, (minY - py)) * 50;
+        score += Math.max(0, (py - maxY)) * 50;
+        return score;
+      }
+
+      const belowY = r.y + r.h + margin;
+      const aboveY = r.y - margin - panelH;
+      const topY   = vvOffsetY() + 10;
+      const botY   = vvOffsetY() + vvHeight() - panelH - 10;
+
+      const candidates = [];
+      const dock = step.panelDock || 'auto';
+      if(dock === 'top')      candidates.push(aboveY, topY, belowY, botY);
+      else if(dock === 'bottom') candidates.push(belowY, botY, aboveY, topY);
+      else                   candidates.push(belowY, aboveY, topY, botY);
+
+      let bestY = null, bestScore = Infinity;
+      for(const c of candidates){
+        const y = Math.min(Math.max(c, minY), maxY);
+        const sc = scoreFor(y);
+        if(sc < bestScore){ bestScore = sc; bestY = y; }
+      }
+      const py = (bestY==null) ? Math.min(Math.max(topY, minY), maxY) : bestY;
+
+      panelEl.style.left = px + 'px';
+      panelEl.style.top  = py + 'px';
+    }
+
+    async function gotoStep(idx){
+      const step = steps[idx];
+      if(!step) return;
+
+      applyStickyGraph(step);
+
+      stepEl.textContent = `STEP ${idx+1} / ${steps.length}`;
+      titleEl.textContent = step.title;
+      bodyEl.innerHTML = step.body;
+      prevBtn.disabled = (idx===0);
+      nextBtn.textContent = (idx===steps.length-1) ? '完了' : '次へ';
+      msgEl.style.display='none';
+
+      if(typeof step.onEnter === 'function'){
+        try{ step.onEnter(); }catch(e){ console.warn('[tour] onEnter error', e); }
+      }
+      await new Promise(r=>requestAnimationFrame(()=>r()));
+
+      applyElevate(step);
+      applyPulse(step);
+
+      const target = qs(step.sel);
+      await stableScrollIntoView(target);
+
+      requestAnimationFrame(()=>{ requestAnimationFrame(placePanel); });
+    }
+
+    async function startTour(idx=0){
+      try{ gtag('event','tutorial_start',{step:idx+1}); }catch(_){ }
+      ensureEls();
+      tourIndex = idx;
+      maskEl.style.display='block';
+      panelEl.style.display='block';
+      await gotoStep(tourIndex);
+      nextBtn.focus();
+    }
+
+    function endTour(){
+      try{ gtag('event','tutorial_end',{completed: (tourIndex===steps.length-1)}); }catch(_){ }
+      if(maskEl) maskEl.style.display='none';
+      if(panelEl) panelEl.style.display='none';
+      clearPulse();
+      clearElevate();
+      document.body.classList.remove('mk-tour-sticky-graph');
+
+      // 完了時に「必要売上高を考えてみましょう」をOFF
+      const c = document.getElementById('challengeToggle');
+      if(c && c.checked){
+        c.checked = false;
+        c.dispatchEvent(new Event('change', {bubbles:true}));
+      }
+
+      try{ localStorage.setItem(TOUR_KEY,'1'); }catch(_){ }
+    }
+
+    const tourBtn = document.getElementById('startTour');
+    if(tourBtn){ tourBtn.addEventListener('click', ()=> startTour(0)); }
+
+    try{
+      if(!localStorage.getItem(TOUR_KEY)){
+        tourBtn.title = '初めての方はここからチュートリアルを開始できます';
+      }
+    }catch(_){ }
+  });
+})();
+</script>
+
 </body>
 </html>
