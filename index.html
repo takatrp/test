@@ -90,6 +90,17 @@
   .tile .ttext .title{font-size:15px; font-weight:900;}
   .tile .ttext .desc{font-size:12px; color:var(--muted); margin:0;}
 
+  /* ★ 追加：横長タイル（全幅） */
+  .tile-wide{
+    grid-column: 1 / -1;          /* どの列数でも全幅 */
+    padding:12px 14px;
+  }
+  .tile-wide .ttext .title{font-size:15.5px;}
+  @media (min-width:1024px){
+    .tile-wide{padding:14px 16px;}
+    .tile-wide .ttext .title{font-size:16px;}
+  }
+
   /* ---- 4WD layout (car) ---- */
   .layout-top{display:block;}
   .wheel{position:relative;margin:0 auto;width:min(420px,92vw);aspect-ratio:1/1;}
@@ -114,7 +125,7 @@
   .wheel .corner.oncar{top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;}
 
   .tiles4{display:grid; gap:10px;}
-  .tiles4-row{grid-template-columns: 1fr;}
+  .tiles4-row{grid-template-columns: 1fr;} /* mobile default */
 
   /* ======= Desktop ======= */
   @media (min-width:1024px){
@@ -143,8 +154,8 @@
     .wheel .corner{gap:8px; padding:8px 10px;}
 
     .pllink{grid-area: pl;}
-    /* ★ 追加：5個目が来ても崩れにくいよう auto-fit に */
-    .tiles4-row{grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));}
+    /* ★ 4枚＋次行に横長1枚 を確実にする */
+    .tiles4-row{grid-template-columns: repeat(4, 1fr);}
     .tiles4{gap:12px;}
   }
 
@@ -176,6 +187,8 @@
     #shitenno .wheel .corner.tr{top:26%; right:14%;}
     #shitenno .wheel .corner.bl{bottom:26%; left:14%;}
     #shitenno .wheel .corner.br{bottom:26%; right:14%;}
+    /* ★ タブレットは2列で見やすく */
+    .tiles4-row{grid-template-columns: repeat(2, 1fr);}
   }
 
   /* ---- Modal ---- */
@@ -490,8 +503,8 @@
         <div class="ttext"><div class="title">自動化効果試算ツール</div><p class="desc">自動化の投資対効果を試算</p></div>
       </a>
 
-      <!-- ★追加：打ち手検討ツール -->
-      <a class="tile" data-tool="kit"
+      <!-- ★ 横長（次行・全幅）：打ち手検討ツール -->
+      <a class="tile tile-wide" data-tool="kit"
          href="https://takatrp.github.io/sale-kit/" target="_blank" rel="noopener">
         <div class="badge">
           <svg viewBox="0 0 24 24">
@@ -501,7 +514,7 @@
         </div>
         <div class="ttext">
           <div class="title">打ち手検討ツール</div>
-          <p class="desc">支出を売上換算し、回収の打ち手（単価・数量・自動化）を整理</p>
+          <p class="desc">回収の打ち手（単価↑・数量↑・自動化）を検討</p>
         </div>
       </a>
     </div>
@@ -544,7 +557,7 @@
     © <span id="cpy-year">2025</span> <a href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener license">税理士法人松本会計事務所</a> ｜
     <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener">CC BY-NC-SA 4.0</a> ｜
     <a href="/tool-portal/terms.html" target="_blank" rel="noopener">利用条件</a> ｜
-    <span id="build-rev">r69</span>（<span id="last-updated-date"></span>）
+    <span id="build-rev">r70</span>（<span id="last-updated-date"></span>）
   </footer>
 
 <script>
@@ -613,7 +626,7 @@
     price: 'https://takatrp.github.io/price-up-down/',
     labor: 'https://takatrp.github.io/time-unit-cost/',
     auto: 'https://takatrp.github.io/jidouka-kouka/',
-    kit: 'https://takatrp.github.io/sale-kit/',          // ★追加
+    kit: 'https://takatrp.github.io/sale-kit/',
     withholding: 'https://takatrp.github.io/withholding/',
     dep: 'https://takatrp.github.io/genkasyoukyaku/',
     insurance: 'https://takatrp.github.io/kigyoubouei/',
@@ -656,7 +669,6 @@
     a.addEventListener('click', ()=>{
       try{ localStorage.setItem('mk_portal_url', PORTAL_HOME); }catch(e){}
       if(nextKey && tools[nextKey]){
-        // 2-step flow（例：人件費→売上換算 / 自動化→売上換算 / 変動PL→売上換算）
         setFlow([buildToolUrlNoNext(k), buildToolUrlNoNext(nextKey)], 0);
       }
     }, {passive:true});
@@ -673,14 +685,13 @@
   if(diagClose && diagModal) diagClose.addEventListener('click', ()=> diagModal.classList.remove('show'));
   if(diagModal) diagModal.addEventListener('click', (e)=>{ if(e.target === diagModal) diagModal.classList.remove('show'); });
 
-  // 診断フロー（変動PLは原則連結しない：ここには入れない）
   const flows = {
     cost:  { steps:['sales'] },
     price: { steps:['price'] },
     labor: { steps:['labor','sales'] },
     auto:  { steps:['auto','sales'] },
     cash:  { steps:['ccc'] },
-    acct:  { steps:['withholding','dep'] } // 経理実務：利息配当仕訳補助 → 減価償却費計算
+    acct:  { steps:['withholding','dep'] }
   };
   const labels = {
     pl:'変動PL',
@@ -688,7 +699,7 @@
     price:'価格改定',
     labor:'人件費見える化',
     auto:'自動化効果',
-    kit:'打ち手検討',                 // ★追加
+    kit:'打ち手検討',
     ccc:'CCC',
     withholding:'利息配当仕訳補助',
     dep:'減価償却費計算',
@@ -766,7 +777,6 @@
     diagResult.hidden = false;
   });
 
-  // 初期：診断ラジオ見た目を同期
   refreshDiagRadios();
 
 })();
